@@ -1,0 +1,17 @@
+[
+{
+  "modid": "levelup",
+  "name": "Level Up!",
+  "description": "",
+  "version": $version,
+  "credits": "",
+  "logoFile": "",
+  "mcversion": $mcversion,
+  "url": "http://www.minecraftforum.net/topic/666507-",
+  "updateUrl": "",
+  "authorList": ["BeetoGuy", "PowerUp217","GotoLink"],
+  "parent":"",
+  "screenshots": [],
+  "dependencies": []
+}
+]
