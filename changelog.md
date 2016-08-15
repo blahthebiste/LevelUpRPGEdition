@@ -1,3 +1,7 @@
+== LevelUp ! 0.12 ==
+* Update for 1.10.2
+* Refactored code to utilize Forge Capabilities
+
 == LevelUp ! 0.11 ==
 * Update for 1.8
 * Exposed talisman and res book models
