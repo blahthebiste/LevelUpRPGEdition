@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "name": "rare_treasure",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:diamond",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

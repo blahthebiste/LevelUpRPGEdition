@@ -1,6 +1,13 @@
 package levelup;
 
 import levelup.capabilities.LevelUpCapability;
+import levelup.util.PlankCache;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -8,7 +15,6 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -23,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -66,6 +73,64 @@ public final class LevelUp {
             proxy.register(xpTalisman, "levelup:xp_talisman");
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
+
+        for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
+            ItemStack log = null;
+            ItemStack plank = new ItemStack(Blocks.PLANKS, 2, type.getMetadata());
+            if (type.getMetadata() < 4) {
+                log = new ItemStack(Blocks.LOG, 1, type.getMetadata());
+
+            } else {
+                log = new ItemStack(Blocks.LOG2, 1, type.getMetadata() - 4);
+            }
+            Block block = ((ItemBlock)log.getItem()).getBlock();
+            PlankCache.addBlock(block, log.getMetadata(), plank);
+        }
+        List<ItemStack> logs = OreDictionary.getOres("logWood");
+        for(ItemStack log : logs) {
+            if(log.getItem() != null && log.getItem() instanceof ItemBlock) {
+                Block block = ((ItemBlock) log.getItem()).getBlock();
+                if (!block.getRegistryName().getResourceDomain().equals("minecraft")) {
+                    if (log.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                        for (int i = 0; i < 4; i++) {
+                            ItemStack planks = getRecipeOutput(new ItemStack(log.getItem(), 1, i));
+                            if (planks != null) {
+                                ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
+                                PlankCache.addBlock(block, i, cache);
+                            }
+                        }
+                    } else {
+                        ItemStack planks = getRecipeOutput(log);
+                        if (planks != null) {
+                            ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
+                            PlankCache.addBlock(block, log.getMetadata(), cache);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static ItemStack getRecipeOutput(ItemStack input) {
+        List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
+        for (IRecipe recipe : recipes) {
+            if (recipe instanceof ShapelessRecipes) {
+                ShapelessRecipes shapeless = (ShapelessRecipes) recipe;
+                if (shapeless.recipeItems.size() == 1 && shapeless.recipeItems.get(0).isItemEqual(input)) {
+                    return shapeless.getRecipeOutput();
+                }
+            } else if (recipe instanceof ShapelessOreRecipe) {
+                ShapelessOreRecipe shapeless = (ShapelessOreRecipe) recipe;
+                if(shapeless.getRecipeSize() == 1) {
+                    if(shapeless.getInput().get(0) instanceof ItemStack) {
+                        if(((ItemStack)shapeless.getInput().get(0)).isItemEqual(input)) {
+                            return shapeless.getRecipeOutput();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @EventHandler
@@ -230,17 +295,6 @@ public final class LevelUp {
                 clientProperties[i].set(values[i]);
             }
             config.save();
-        }
-    }
-
-    @EventHandler
-    public void remap(FMLMissingMappingsEvent event) {
-        for (FMLMissingMappingsEvent.MissingMapping missingMapping : event.get()) {
-            if (missingMapping.name.equals(ID + ":Talisman of Wonder")) {
-                missingMapping.remap(xpTalisman);
-            } else if (missingMapping.name.equals(ID + ":Book of Unlearning")) {
-                missingMapping.remap(respecBook);
-            }
         }
     }
 

@@ -1,6 +1,5 @@
 package levelup.capabilities;
 
-import levelup.ClassBonus;
 import levelup.IPlayerClass;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;

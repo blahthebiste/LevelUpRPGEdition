@@ -34,14 +34,14 @@ public final class ItemRespecBook extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item item, CreativeTabs tab, List list) {
+    public void getSubItems(Item item, CreativeTabs tab, List<ItemStack> list) {
         super.getSubItems(item, tab, list);
         list.add(new ItemStack(item, 1, 1));
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack itemStack, EntityPlayer entityPlayer, List list, boolean isAdvanced) {
+    public void addInformation(ItemStack itemStack, EntityPlayer entityPlayer, List<String> list, boolean isAdvanced) {
         if (itemStack.getItemDamage() > 0) {
             list.add(I18n.format("respecbook.canresetclass"));
         }

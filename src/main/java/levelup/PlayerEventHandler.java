@@ -2,8 +2,15 @@ package levelup;
 
 import com.google.common.collect.Sets;
 import levelup.capabilities.LevelUpCapability;
+import levelup.util.PlankCache;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -64,8 +71,14 @@ public final class PlayerEventHandler {
     /**
      * Random additional loot for Fishing
      */
-    private static ItemStack[] lootList = new ItemStack[]{new ItemStack(Items.BONE), new ItemStack(Items.REEDS), new ItemStack(Items.ARROW), new ItemStack(Items.APPLE),
-            new ItemStack(Items.BUCKET), new ItemStack(Items.BOAT), new ItemStack(Items.ENDER_PEARL), new ItemStack(Items.FISHING_ROD), new ItemStack(Items.CHAINMAIL_CHESTPLATE), new ItemStack(Items.IRON_INGOT)};
+    private static ResourceLocation fishingLoot = new ResourceLocation("levelup", "fishing/fishing_loot");
+    /**
+     * Items given by Digging ground
+     */
+    private static ResourceLocation commonDig = new ResourceLocation("levelup", "digging/common_dig");
+    private static ResourceLocation uncommonDig = new ResourceLocation("levelup", "digging/uncommon_dig");
+    private static ResourceLocation rareDig = new ResourceLocation("levelup", "digging/rare_dig");
+    private static ResourceLocation diggingLoot = new ResourceLocation("levelup", "digging/digging_loot");
     /**
      * Internal ore counter
      */
@@ -80,6 +93,11 @@ public final class PlayerEventHandler {
         blockToCounter.put(Blocks.EMERALD_ORE, 5);
         blockToCounter.put(Blocks.DIAMOND_ORE, 6);
         blockToCounter.put(Blocks.QUARTZ_ORE, 7);
+        LootTableList.register(fishingLoot);
+        LootTableList.register(commonDig);
+        LootTableList.register(uncommonDig);
+        LootTableList.register(rareDig);
+        LootTableList.register(diggingLoot);
     }
 
     /**
@@ -143,12 +161,12 @@ public final class PlayerEventHandler {
             //if (event.action == Action.RIGHT_CLICK_AIR) {
         {   EntityFishHook hook = event.getEntityPlayer().fishEntity;
                 if (hook != null && hook.caughtEntity == null && hook.ticksCatchable > 0) {//Not attached to some random stuff, and within the time frame for catching
-                    int loot = getFishingLoot(event.getEntityPlayer());
-                    if (loot >= 0) {
+                    ItemStack loot = getFishingLoot(event.getWorld(), event.getEntityPlayer());
+                    if (loot != null) {
                         ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
                         int i = stack.stackSize;
                         int j = stack.getItemDamage();
-                        stack.damageItem(loot, event.getEntityPlayer());
+                        stack.damageItem(1, event.getEntityPlayer());
                         event.getEntityPlayer().swingArm(event.getHand());
                         event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, stack);
                         if (event.getEntityPlayer().capabilities.isCreativeMode) {
@@ -166,7 +184,7 @@ public final class PlayerEventHandler {
                         }
                         event.setResult(Event.Result.DENY);
                         if (!hook.worldObj.isRemote) {
-                            EntityItem entityitem = new EntityItem(hook.worldObj, hook.posX, hook.posY, hook.posZ, lootList[loot]);
+                            EntityItem entityitem = new EntityItem(hook.worldObj, hook.posX, hook.posY, hook.posZ, loot.copy());
                             double d5 = hook.angler.posX - hook.posX;
                             double d6 = hook.angler.posY - hook.posY;
                             double d7 = hook.angler.posZ - hook.posZ;
@@ -198,18 +216,29 @@ public final class PlayerEventHandler {
     public void onHarvest(BlockEvent.HarvestDropsEvent event) {
         if (event.getHarvester() != null && !event.getWorld().isRemote) {
             int skill;
+            IBlockState state = event.getState();
             Random random = event.getHarvester().getRNG();
-            if (event.getState().getBlock() instanceof BlockOre || event.getState().getBlock() instanceof BlockRedstoneOre || ores.contains(event.getState().getBlock())) {
+            if (PlankCache.contains(state.getBlock(), state.getBlock().damageDropped(state))) {
+                skill = getSkill(event.getHarvester(), 3);
+                if (random.nextDouble() <= skill / 150D) {
+                    ItemStack planks = PlankCache.getProduct(state.getBlock(), state.getBlock().damageDropped(state));
+                    if (planks != null)
+                        event.getDrops().add(PlankCache.getProduct(state.getBlock(), state.getBlock().damageDropped(state)).copy());
+                }
+                if (random.nextDouble() <= skill / 150D) {
+                    event.getDrops().add(new ItemStack(Items.STICK, 2));
+                }
+            } else if (state.getBlock() instanceof BlockOre || state.getBlock() instanceof BlockRedstoneOre || ores.contains(state.getBlock())) {
                 skill = getSkill(event.getHarvester(), 0);
-                if (!blockToCounter.containsKey(event.getState().getBlock())) {
-                    blockToCounter.put(event.getState().getBlock(), blockToCounter.size());
+                if (!blockToCounter.containsKey(state.getBlock())) {
+                    blockToCounter.put(state.getBlock(), blockToCounter.size());
                 }
                 if (!event.isSilkTouching())
-                    LevelUp.incrementOreCounter(event.getHarvester(), blockToCounter.get(event.getState().getBlock()));
+                    LevelUp.incrementOreCounter(event.getHarvester(), blockToCounter.get(state.getBlock()));
                 if (random.nextDouble() <= skill / 200D) {
                     boolean foundBlock = false;
                     for (ItemStack stack : event.getDrops()) {
-                        if (stack != null && event.getState().getBlock() == Block.getBlockFromItem(stack.getItem())) {
+                        if (stack != null && state.getBlock() == Block.getBlockFromItem(stack.getItem())) {
                             writeNoPlacing(stack);
                             stack.stackSize += 1;
                             foundBlock = true;
@@ -217,71 +246,43 @@ public final class PlayerEventHandler {
                         }
                     }
                     if (!foundBlock) {
-                        Item ID = event.getState().getBlock().getItemDropped(event.getState(), random, 0);
+                        Item ID = state.getBlock().getItemDropped(state, random, 0);
                         if (ID != null) {
-                            int qutity = event.getState().getBlock().quantityDropped(event.getState(), 0, random);
+                            int qutity = state.getBlock().quantityDropped(state, 0, random);
                             if (qutity > 0)
-                                event.getDrops().add(new ItemStack(ID, qutity, event.getState().getBlock().damageDropped(event.getState())));
+                                event.getDrops().add(new ItemStack(ID, qutity, state.getBlock().damageDropped(state)));
                         }
                     }
                 }
-            } else if (event.getState().getBlock() instanceof BlockLog) {
-                skill = getSkill(event.getHarvester(), 3);
-                if (random.nextDouble() <= skill / 150D) {
-                    ItemStack planks = null;
-                    for (ItemStack stack : event.getDrops()) {
-                        if (stack != null && event.getState().getBlock() == Block.getBlockFromItem(stack.getItem())) {
-                            planks = getPlanks(event.getHarvester(), stack.copy());
-                            if(planks != null) {
-                                planks.stackSize = 2;
-                                break;
-                            }
-                        }
-                    }
-                    if (planks != null)
-                        event.getDrops().add(planks);
-                }
-                if (random.nextDouble() <= skill / 150D) {
-                    event.getDrops().add(new ItemStack(Items.STICK, 2));
-                }
-            } else if (event.getState().getMaterial() == Material.GROUND) {
+            } else if (!event.isSilkTouching()) {
                 skill = getSkill(event.getHarvester(), 11);
-                if (random.nextFloat() <= skill / 200F) {
-                    ItemStack[] aitemstack4 = digLoot;
-                    float f = random.nextFloat();
-                    if (f <= 0.002F) {
-                        aitemstack4 = digLoot3;
-                    } else {
-                        if (f <= 0.1F) {
-                            aitemstack4 = digLoot2;
-                        } else if (f <= 0.4F) {
-                            aitemstack4 = digLoot1;
+                if(state.getMaterial() == Material.GROUND) {
+                    if (random.nextFloat() <= skill / 200F) {
+                        ItemStack loot = getDigLoot(event.getWorld(), event.getHarvester());
+                        if (loot != null) {
+                            removeFromList(event.getDrops(), state.getBlock());
+                            ItemStack toDrop = loot.copy();
+                            event.getDrops().add(toDrop);
                         }
                     }
-                    removeFromList(event.getDrops(), event.getState().getBlock());
-                    ItemStack itemstack = aitemstack4[random.nextInt(aitemstack4.length)];
-                    final int size = itemstack.stackSize;
-                    ItemStack toDrop = itemstack.copy();
-                    toDrop.stackSize = 1;
-                    if (toDrop.getMaxDamage() > 20) {
-                        toDrop.setItemDamage(random.nextInt(80) + 20);
-                    } else {
-                        for (int i1 = 0; i1 < size - 1; i1++) {
-                            if (random.nextFloat() < 0.5F) {
-                                event.getDrops().add(toDrop.copy());
-                            }
-                        }
-                    }
-                    event.getDrops().add(toDrop);
                 }
-            } else if (event.getState().getBlock() instanceof BlockGravel) {
-                skill = getSkill(event.getHarvester(), 11);
-                if (random.nextInt(10) < skill / 5) {
-                    removeFromList(event.getDrops(), event.getState().getBlock());
-                    event.getDrops().add(new ItemStack(Items.FLINT));
+                else if(state.getBlock() instanceof BlockGravel) {
+                    if (random.nextInt(10) < skill / 5) {
+                        removeFromList(event.getDrops(), state.getBlock());
+                        event.getDrops().add(new ItemStack(Items.FLINT));
+                    }
                 }
             }
         }
+    }
+
+    private ItemStack getDigLoot(World world, EntityPlayer player) {
+        if(!world.isRemote) {
+            LootContext.Builder build = new LootContext.Builder((WorldServer) world);
+            build.withLuck((float) EnchantmentHelper.getLootingModifier(player) + player.getLuck());
+            return world.getLootTableManager().getLootTableFromLocation(diggingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
+        }
+        return null;
     }
 
     private void removeFromList(List<ItemStack> drops, Block block) {
@@ -413,14 +414,17 @@ public final class PlayerEventHandler {
     /**
      * Helper to get a random slot value for the fish drop list
      *
-     * @return -1 if no drop is required
+     * @return null if no drop is required
      */
-    public static int getFishingLoot(EntityPlayer player) {
-        if (player.getRNG().nextDouble() > (getSkill(player, 10) / 5) * 0.05D) {
-            return -1;
-        } else {
-            return player.getRNG().nextInt(lootList.length);
+    public static ItemStack getFishingLoot(World world, EntityPlayer player) {
+        if(!world.isRemote) {
+            if (player.getRNG().nextDouble() <= (getSkill(player, 10) / 5) * 0.05D) {
+                LootContext.Builder build = new LootContext.Builder((WorldServer) world);
+                build.withLuck((float) EnchantmentHelper.getLuckOfSeaModifier(player) + player.getLuck());
+                return world.getLootTableManager().getLootTableFromLocation(fishingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
+            }
         }
+        return null;
     }
 
     /**
