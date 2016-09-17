@@ -1,4 +1,4 @@
-package levelup;
+package levelup.player;
 
 import net.minecraft.nbt.NBTTagCompound;
 

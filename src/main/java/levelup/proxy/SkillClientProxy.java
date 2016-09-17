@@ -1,5 +1,8 @@
-package levelup;
+package levelup.proxy;
 
+import levelup.LevelUp;
+import levelup.gui.LevelUpHUD;
+import levelup.event.SkillKeyHandler;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;

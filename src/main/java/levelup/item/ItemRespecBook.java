@@ -1,5 +1,7 @@
-package levelup;
+package levelup.item;
 
+import levelup.player.PlayerExtendedProperties;
+import levelup.event.FMLEventHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;

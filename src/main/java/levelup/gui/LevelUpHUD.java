@@ -1,5 +1,10 @@
-package levelup;
+package levelup.gui;
 
+import levelup.ClassBonus;
+import levelup.LevelUp;
+import levelup.player.PlayerExtendedProperties;
+import levelup.event.FMLEventHandler;
+import levelup.event.PlayerEventHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;

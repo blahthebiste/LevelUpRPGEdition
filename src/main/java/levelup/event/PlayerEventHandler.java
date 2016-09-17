@@ -1,6 +1,10 @@
-package levelup;
+package levelup.event;
 
 import com.google.common.collect.Sets;
+import levelup.ClassBonus;
+import levelup.player.IPlayerClass;
+import levelup.LevelUp;
+import levelup.player.PlayerExtendedProperties;
 import levelup.capabilities.LevelUpCapability;
 import levelup.util.PlankCache;
 import net.minecraft.block.state.IBlockState;

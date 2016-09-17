@@ -1,4 +1,4 @@
-package levelup;
+package levelup.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

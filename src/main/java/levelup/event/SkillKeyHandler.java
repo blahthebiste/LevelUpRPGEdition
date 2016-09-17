@@ -1,5 +1,8 @@
-package levelup;
+package levelup.event;
 
+import levelup.gui.GuiClasses;
+import levelup.gui.GuiSkills;
+import levelup.gui.LevelUpHUD;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;

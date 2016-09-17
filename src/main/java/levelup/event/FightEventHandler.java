@@ -1,5 +1,6 @@
-package levelup;
+package levelup.event;
 
+import levelup.player.PlayerExtendedProperties;
 import net.minecraft.item.ItemShield;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;

@@ -1,5 +1,8 @@
 package levelup;
 
+import levelup.event.FMLEventHandler;
+import levelup.player.IPlayerClass;
+import levelup.player.PlayerExtendedProperties;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.FMLCommonHandler;

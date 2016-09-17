@@ -1,6 +1,14 @@
 package levelup;
 
 import levelup.capabilities.LevelUpCapability;
+import levelup.event.BowEventHandler;
+import levelup.event.FMLEventHandler;
+import levelup.event.FightEventHandler;
+import levelup.event.PlayerEventHandler;
+import levelup.item.ItemRespecBook;
+import levelup.player.IPlayerClass;
+import levelup.player.PlayerExtendedProperties;
+import levelup.proxy.SkillProxy;
 import levelup.util.PlankCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
@@ -43,12 +51,12 @@ public final class LevelUp {
     public final static String ID = "levelup";
     @Instance(value = ID)
     public static LevelUp instance;
-    @SidedProxy(clientSide = "levelup.SkillClientProxy", serverSide = "levelup.SkillProxy")
+    @SidedProxy(clientSide = "levelup.proxy.SkillClientProxy", serverSide = "levelup.proxy.SkillProxy")
     public static SkillProxy proxy;
     private Property[] clientProperties;
     private Property[] serverProperties;
     private static Item xpTalisman, respecBook;
-    private static Map<Item, Integer> towItems;
+    private static Map<Object, Integer> towItems;
     private static List[] tiers;
     private static Configuration config;
     public static boolean allowHUD = true, renderTopLeft = true, renderExpBar = true, changeFOV = true;
@@ -151,14 +159,14 @@ public final class LevelUp {
         if (config.hasChanged())
             config.save();
         if (talismanEnabled) {
-            towItems = new HashMap<Item, Integer>();
-            towItems.put(Item.getItemFromBlock(Blocks.LOG), 2);
+            towItems = new HashMap<Object, Integer>();
+            towItems.put("logWood", 2);
             towItems.put(Items.COAL, 2);
-            towItems.put(Items.BRICK, 4);
+            towItems.put("ingotBrick", 4);
             towItems.put(Items.BOOK, 4);
-            towItems.put(Item.getItemFromBlock(Blocks.IRON_ORE), 8);
-            towItems.put(Items.DYE, 8);
-            towItems.put(Items.REDSTONE, 8);
+            towItems.put("oreIron", 8);
+            towItems.put("dye", 8);
+            towItems.put("dustRedstone", 8);
             towItems.put(Items.BREAD, 10);
             towItems.put(Items.MELON, 10);
             towItems.put(Item.getItemFromBlock(Blocks.PUMPKIN), 10);
@@ -168,10 +176,10 @@ public final class LevelUp {
             towItems.put(Items.COOKED_FISH, 12);
             towItems.put(Items.COOKED_MUTTON, 12);
             towItems.put(Items.COOKED_RABBIT, 12);
-            towItems.put(Items.IRON_INGOT, 16);
-            towItems.put(Item.getItemFromBlock(Blocks.GOLD_ORE), 20);
-            towItems.put(Items.GOLD_INGOT, 24);
-            towItems.put(Items.DIAMOND, 40);
+            towItems.put("ingotIron", 16);
+            towItems.put("oreGold", 20);
+            towItems.put("ingotGold", 24);
+            towItems.put("gemDiamond", 40);
             xpTalisman = new Item().setUnlocalizedName("xpTalisman").setCreativeTab(CreativeTabs.TOOLS);
             GameRegistry.register(xpTalisman.setRegistryName("xp_talisman"));
             GameRegistry.addRecipe(new ShapedOreRecipe(xpTalisman, "GG ", " R ", " GG", 'G', "ingotGold", 'R', "dustRedstone"));
@@ -180,7 +188,7 @@ public final class LevelUp {
             GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "oreIron"));
             GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "gemDiamond"));
             GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "logWood"));
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.BRICK);
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(xpTalisman), xpTalisman, "ingotBrick"));
             GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.BOOK);
             GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "gemLapis"));
             GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "dustRedstone"));
@@ -411,7 +419,12 @@ public final class LevelUp {
             for (int i = 0; i < iinventory.getSizeInventory(); i++) {
                 ItemStack itemstack1 = iinventory.getStackInSlot(i);
                 if (itemstack1 != null) {
-                    if (towItems.containsKey(itemstack1.getItem())) {
+                    String oreDict = containsOreDictEntry(itemstack1);
+                    if(oreDict != null) {
+                        player.addExperience((int)Math.floor(itemstack1.stackSize * towItems.get(containsOreDictEntry(itemstack1)) / 4D));
+                        iinventory.getStackInSlot(i).stackSize = 0;
+                    }
+                    else if (towItems.containsKey(itemstack1.getItem())) {
                         player.addExperience((int) Math.floor(itemstack1.stackSize * towItems.get(itemstack1.getItem()) / 4D));
                         iinventory.getStackInSlot(i).stackSize = 0;
                     }
@@ -426,6 +439,26 @@ public final class LevelUp {
                 }
             }
         }
+    }
+
+    private static String containsOreDictEntry(ItemStack stack) {
+        String[] toCheck = {"logWood", "ingotIron", "ingotGold", "ingotBrick", "gemDiamond", "oreIron", "oreGold", "dustRedstone", "dye"};
+        for(String entry : toCheck) {
+            if(oreDictMatches(stack, OreDictionary.getOres(entry)))
+                return entry;
+        }
+        return null;
+    }
+
+    private static boolean oreDictMatches(ItemStack stack, List<ItemStack> oreDict) {
+        for(ItemStack ore : oreDict) {
+            if(ore.getItemDamage() == 32767 && ore.getItem() == stack.getItem())
+                return true;
+            else if(ItemStack.areItemsEqual(stack, ore))
+                return true;
+
+        }
+        return false;
     }
 
     public static boolean isUncraftable(Item item) {

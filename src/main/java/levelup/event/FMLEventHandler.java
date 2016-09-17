@@ -1,8 +1,11 @@
-package levelup;
+package levelup.event;
 
+import levelup.ClassBonus;
+import levelup.LevelUp;
+import levelup.player.PlayerExtendedProperties;
+import levelup.SkillPacketHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -15,11 +18,8 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerFurnace;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemDye;
-import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.world.World;
@@ -80,8 +80,8 @@ public final class FMLEventHandler {
                     PlayerExtendedProperties.from(player).addToSkill("XP", (int) Math.floor(diff));
             }
             //Farming grow crops
-            int skill;
-            if (!player.worldObj.isRemote && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe && (skill = getSkill(player, 9)) != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
+            int skill = getSkill(player, 9);
+            if (!player.worldObj.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
                 growCropsAround(player.worldObj, skill / 4, player);
             }
             //Athletics speed
@@ -126,15 +126,9 @@ public final class FMLEventHandler {
         int dist = range / 2 + 2;
         for (Object o : BlockPos.getAllInBox(new BlockPos(posX - dist, posY - dist, posZ - dist), new BlockPos(posX + dist + 1, posY + dist + 1, posZ + dist + 1))) {
             BlockPos pos = (BlockPos) o;
-            if (world.isAirBlock(pos.up())) {
-                Block block = world.getBlockState(pos).getBlock();
-                if (block instanceof IPlantable && !blackListedCrops.contains(block)) {
-                    Block soil = world.getBlockState(pos.down()).getBlock();
-                    if (!soil.isAir(world.getBlockState(pos.down()), world, pos.down()) && soil.canSustainPlant(world.getBlockState(pos.down()), world, pos.down(), EnumFacing.UP, (IPlantable) block)) {
-                        ItemDye.applyBonemeal(new ItemStack(Items.DYE, 1, 15), world, pos, player);
-                    }
-                }
-                break;
+            Block block = world.getBlockState(pos).getBlock();
+            if(block instanceof IPlantable && !blackListedCrops.contains(block)) {
+                world.scheduleUpdate(pos, block, block.tickRate(world));
             }
         }
     }

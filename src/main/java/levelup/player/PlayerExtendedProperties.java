@@ -1,5 +1,6 @@
-package levelup;
+package levelup.player;
 
+import levelup.ClassBonus;
 import levelup.capabilities.LevelUpCapability;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

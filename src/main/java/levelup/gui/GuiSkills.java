@@ -1,5 +1,9 @@
-package levelup;
+package levelup.gui;
 
+import levelup.ClassBonus;
+import levelup.LevelUp;
+import levelup.player.PlayerExtendedProperties;
+import levelup.SkillPacketHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;

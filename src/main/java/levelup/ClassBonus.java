@@ -1,5 +1,6 @@
 package levelup;
 
+import levelup.player.PlayerExtendedProperties;
 import net.minecraft.util.ResourceLocation;
 
 public final class ClassBonus {
