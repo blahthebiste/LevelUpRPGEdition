@@ -165,7 +165,7 @@ public final class LevelUp {
             towItems.put("ingotBrick", 4);
             towItems.put(Items.BOOK, 4);
             towItems.put("oreIron", 8);
-            towItems.put("dye", 8);
+            towItems.put("gemLapis", 8);
             towItems.put("dustRedstone", 8);
             towItems.put(Items.BREAD, 10);
             towItems.put(Items.MELON, 10);
@@ -442,7 +442,7 @@ public final class LevelUp {
     }
 
     private static String containsOreDictEntry(ItemStack stack) {
-        String[] toCheck = {"logWood", "ingotIron", "ingotGold", "ingotBrick", "gemDiamond", "oreIron", "oreGold", "dustRedstone", "dye"};
+        String[] toCheck = {"logWood", "ingotIron", "ingotGold", "ingotBrick", "gemDiamond", "oreIron", "oreGold", "dustRedstone", "gemLapis"};
         for(String entry : toCheck) {
             if(oreDictMatches(stack, OreDictionary.getOres(entry)))
                 return entry;
