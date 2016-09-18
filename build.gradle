@@ -20,12 +20,12 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "0.11-1.10.2"
+version = "0.12-1.10.2"
 group= "com.github.levelup" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LevelUp!"
 
 minecraft {
-    version = "1.10.2-12.18.1.2011"
+    version = "1.10.2-12.18.1.2076"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.

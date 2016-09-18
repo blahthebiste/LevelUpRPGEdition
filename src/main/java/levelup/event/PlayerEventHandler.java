@@ -360,34 +360,33 @@ public final class PlayerEventHandler {
      * Register base skill data to players
      */
     @SubscribeEvent
-    public void onEntityConstruct(AttachCapabilitiesEvent evt)
+    public void onEntityConstruct(AttachCapabilitiesEvent.Entity evt)
     {
-        evt.addCapability(ClassBonus.SKILL_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
-            IPlayerClass instance = LevelUpCapability.CAPABILITY_CLASS.getDefaultInstance();
-            @Override
-            public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-            {
-                return capability == LevelUpCapability.CAPABILITY_CLASS;
-            }
+        if(evt.getEntity() instanceof EntityPlayer) {
+            evt.addCapability(ClassBonus.SKILL_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
+                IPlayerClass instance = LevelUpCapability.CAPABILITY_CLASS.getDefaultInstance();
 
-            @Override
-            public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-            {
-                return capability == LevelUpCapability.CAPABILITY_CLASS ? LevelUpCapability.CAPABILITY_CLASS.<T>cast(instance) : null;
-            }
+                @Override
+                public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.CAPABILITY_CLASS;
+                }
 
-            @Override
-            public NBTTagCompound serializeNBT()
-            {
-                return ((NBTTagCompound)LevelUpCapability.CAPABILITY_CLASS.getStorage().writeNBT(LevelUpCapability.CAPABILITY_CLASS, instance, null));
-            }
+                @Override
+                public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.CAPABILITY_CLASS ? LevelUpCapability.CAPABILITY_CLASS.<T>cast(instance) : null;
+                }
 
-            @Override
-            public void deserializeNBT(NBTTagCompound tag)
-            {
-                LevelUpCapability.CAPABILITY_CLASS.getStorage().readNBT(LevelUpCapability.CAPABILITY_CLASS, instance, null, tag);
-            }
-        });
+                @Override
+                public NBTTagCompound serializeNBT() {
+                    return ((NBTTagCompound) LevelUpCapability.CAPABILITY_CLASS.getStorage().writeNBT(LevelUpCapability.CAPABILITY_CLASS, instance, null));
+                }
+
+                @Override
+                public void deserializeNBT(NBTTagCompound tag) {
+                    LevelUpCapability.CAPABILITY_CLASS.getStorage().readNBT(LevelUpCapability.CAPABILITY_CLASS, instance, null, tag);
+                }
+            });
+        }
     }
 
     /**
