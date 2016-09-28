@@ -17,7 +17,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 3
@@ -38,7 +38,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 1
@@ -59,7 +59,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 3
@@ -85,7 +85,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 3
@@ -106,7 +106,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 3

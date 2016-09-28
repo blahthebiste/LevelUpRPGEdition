@@ -8,6 +8,7 @@ import levelup.player.PlayerExtendedProperties;
 import levelup.capabilities.LevelUpCapability;
 import levelup.util.PlankCache;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -211,8 +212,9 @@ public final class PlayerEventHandler {
         if(noPlaceDuplicate)
         {
             ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
-            if(stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("NoPlacing"))
-                event.setResult(Event.Result.DENY);
+            if(stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("NoPlacing")) {
+                event.setUseItem(Event.Result.DENY);
+            }
         }
     }
 
@@ -282,9 +284,10 @@ public final class PlayerEventHandler {
 
     private ItemStack getDigLoot(World world, EntityPlayer player) {
         if(!world.isRemote) {
-            LootContext.Builder build = new LootContext.Builder((WorldServer) world);
-            build.withLuck((float) EnchantmentHelper.getLootingModifier(player) + player.getLuck());
-            return world.getLootTableManager().getLootTableFromLocation(diggingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
+            LootContext.Builder build = new LootContext.Builder((WorldServer) world).withPlayer(player);
+            build.withLuck((float) EnchantmentHelper.getMaxEnchantmentLevel(Enchantment.getEnchantmentByLocation("fortune"), player) + player.getLuck());
+            ItemStack tentativeStack = world.getLootTableManager().getLootTableFromLocation(diggingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
+            return tentativeStack;
         }
         return null;
     }

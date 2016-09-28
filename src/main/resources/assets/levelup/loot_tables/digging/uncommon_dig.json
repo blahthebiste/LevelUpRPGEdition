@@ -17,7 +17,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 1
@@ -38,7 +38,7 @@
               }
             },
             {
-              "function": "looting_enchant",
+              "function": "fortune_enchant",
               "count": {
                 "min": 0,
                 "max": 3
@@ -49,12 +49,21 @@
         {
           "type": "item",
           "name": "minecraft:iron_ingot",
-          "weight": 5
+          "weight": 5,
+          "functions": [
+            {
+              "function": "fortune_enchant",
+              "count": {
+                "min": 0,
+                "max": 1
+              }
+            }
+          ]
         },
         {
           "type": "item",
           "name": "minecraft:gold_ingot",
-          "weight": 5
+          "weight": 5,
         }
       ]
     }

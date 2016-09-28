@@ -6,10 +6,13 @@ import levelup.event.FMLEventHandler;
 import levelup.event.FightEventHandler;
 import levelup.event.PlayerEventHandler;
 import levelup.item.ItemRespecBook;
+import levelup.minetweaker.MineTweaker;
 import levelup.player.IPlayerClass;
 import levelup.player.PlayerExtendedProperties;
 import levelup.proxy.SkillProxy;
+import levelup.util.CraftingBlacklist;
 import levelup.util.PlankCache;
+import levelup.util.UtilRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.item.ItemBlock;
@@ -18,6 +21,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -81,6 +85,9 @@ public final class LevelUp {
             proxy.register(xpTalisman, "levelup:xp_talisman");
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
+        UtilRegistry.init();
+        if(Loader.isModLoaded("MineTweaker3"))
+            MineTweaker.init();
 
         for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
             ItemStack log = null;
@@ -433,7 +440,7 @@ public final class LevelUp {
         } else {
             for (int j = 0; j < iinventory.getSizeInventory(); j++) {
                 ItemStack itemstack2 = iinventory.getStackInSlot(j);
-                if (itemstack2 != null && !isUncraftable(itemstack.getItem())) {
+                if (itemstack2 != null && !isUncraftable(itemstack) && !isUncraftable(itemstack.getItem())) {
                     giveCraftingXP(player, itemstack2);
                     giveBonusCraftingXP(player);
                 }
@@ -461,7 +468,11 @@ public final class LevelUp {
         return false;
     }
 
-    public static boolean isUncraftable(Item item) {
-        return item == Item.getItemFromBlock(Blocks.HAY_BLOCK) || item == Item.getItemFromBlock(Blocks.GOLD_BLOCK) || item == Item.getItemFromBlock(Blocks.IRON_BLOCK) || item == Item.getItemFromBlock(Blocks.DIAMOND_BLOCK);
+    private static boolean isUncraftable(ItemStack stack) {
+        return CraftingBlacklist.contains(stack);//item == Item.getItemFromBlock(Blocks.HAY_BLOCK) || item == Item.getItemFromBlock(Blocks.GOLD_BLOCK) || item == Item.getItemFromBlock(Blocks.IRON_BLOCK) || item == Item.getItemFromBlock(Blocks.DIAMOND_BLOCK);
+    }
+
+    private static boolean isUncraftable(Item item) {
+        return CraftingBlacklist.contains(item);
     }
 }

@@ -7,12 +7,12 @@
         {
           "type": "loot_table",
           "name": "levelup:digging/uncommon_dig",
-          "weight": 10
+          "weight": 14
         },
         {
           "type": "loot_table",
           "name": "levelup:digging/rare_dig",
-          "weight": 5
+          "weight": 1
         },
         {
           "type": "loot_table",
