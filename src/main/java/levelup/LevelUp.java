@@ -167,49 +167,29 @@ public final class LevelUp {
             config.save();
         if (talismanEnabled) {
             towItems = new HashMap<Object, Integer>();
-            towItems.put("logWood", 2);
-            towItems.put(Items.COAL, 2);
-            towItems.put("ingotBrick", 4);
-            towItems.put(Items.BOOK, 4);
-            towItems.put("oreIron", 8);
-            towItems.put("gemLapis", 8);
-            towItems.put("dustRedstone", 8);
-            towItems.put(Items.BREAD, 10);
-            towItems.put(Items.MELON, 10);
-            towItems.put(Item.getItemFromBlock(Blocks.PUMPKIN), 10);
-            towItems.put(Items.COOKED_PORKCHOP, 12);
-            towItems.put(Items.COOKED_BEEF, 12);
-            towItems.put(Items.COOKED_CHICKEN, 12);
-            towItems.put(Items.COOKED_FISH, 12);
-            towItems.put(Items.COOKED_MUTTON, 12);
-            towItems.put(Items.COOKED_RABBIT, 12);
-            towItems.put("ingotIron", 16);
-            towItems.put("oreGold", 20);
-            towItems.put("ingotGold", 24);
-            towItems.put("gemDiamond", 40);
             xpTalisman = new Item().setUnlocalizedName("xpTalisman").setCreativeTab(CreativeTabs.TOOLS);
             GameRegistry.register(xpTalisman.setRegistryName("xp_talisman"));
             GameRegistry.addRecipe(new ShapedOreRecipe(xpTalisman, "GG ", " R ", " GG", 'G', "ingotGold", 'R', "dustRedstone"));
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COAL);
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "oreGold"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "oreIron"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "gemDiamond"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "logWood"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(xpTalisman), xpTalisman, "ingotBrick"));
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.BOOK);
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "gemLapis"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "dustRedstone"));
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.BREAD);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.MELON);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_PORKCHOP);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_BEEF);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_CHICKEN);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_FISH);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_MUTTON);
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Items.COOKED_RABBIT);
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "ingotIron"));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, "ingotGold"));
-            GameRegistry.addShapelessRecipe(new ItemStack(xpTalisman), xpTalisman, Blocks.PUMPKIN);
+            initTalismanProperty("logWood", 2);
+            initTalismanProperty(Items.COAL, 2);
+            initTalismanProperty("ingotBrick", 4);
+            initTalismanProperty(Items.BOOK, 4);
+            initTalismanProperty("oreIron", 8);
+            initTalismanProperty("gemLapis", 8);
+            initTalismanProperty("dustRedstone", 8);
+            initTalismanProperty(Items.BREAD, 10);
+            initTalismanProperty(Items.MELON, 10);
+            initTalismanProperty(Item.getItemFromBlock(Blocks.PUMPKIN), 10);
+            initTalismanProperty(Items.COOKED_PORKCHOP, 12);
+            initTalismanProperty(Items.COOKED_BEEF, 12);
+            initTalismanProperty(Items.COOKED_CHICKEN, 12);
+            initTalismanProperty(Items.COOKED_FISH, 12);
+            initTalismanProperty(Items.COOKED_MUTTON, 12);
+            initTalismanProperty(Items.COOKED_RABBIT, 12);
+            initTalismanProperty("ingotIron", 16);
+            initTalismanProperty("oreGold", 20);
+            initTalismanProperty("ingotGold", 24);
+            initTalismanProperty("gemDiamond", 40);
         }
         if (bookEnabled) {
             respecBook = new ItemRespecBook().setUnlocalizedName("respecBook").setCreativeTab(CreativeTabs.TOOLS);
@@ -230,6 +210,11 @@ public final class LevelUp {
         }
         FMLCommonHandler.instance().bus().register(FMLEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+    }
+
+    private void initTalismanProperty(Object item, int value) {
+        towItems.put(item, value);
+        GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, item));
     }
 
     private void initClientProperties() {
@@ -459,7 +444,7 @@ public final class LevelUp {
 
     private static boolean oreDictMatches(ItemStack stack, List<ItemStack> oreDict) {
         for(ItemStack ore : oreDict) {
-            if(ore.getItemDamage() == 32767 && ore.getItem() == stack.getItem())
+            if(ore.getItemDamage() == OreDictionary.WILDCARD_VALUE && ore.getItem() == stack.getItem())
                 return true;
             else if(ItemStack.areItemsEqual(stack, ore))
                 return true;
