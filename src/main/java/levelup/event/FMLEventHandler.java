@@ -2,8 +2,12 @@ package levelup.event;
 
 import levelup.ClassBonus;
 import levelup.LevelUp;
+import levelup.api.IProcessor;
+import levelup.capabilities.LevelUpCapability;
 import levelup.player.PlayerExtendedProperties;
 import levelup.SkillPacketHandler;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -18,10 +22,8 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ContainerFurnace;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
@@ -51,6 +53,26 @@ public final class FMLEventHandler {
         if (event.phase == TickEvent.Phase.START) {
             EntityPlayer player = event.player;
             //Furnace speed bonus for Smelting / Cooking
+            if(player != null && !player.worldObj.isRemote) {
+                List<TileEntity> tile = new ArrayList<TileEntity>();
+                BlockPos checkPos = new BlockPos(player.posX, player.posY, player.posZ);
+                for(BlockPos pos : BlockPos.getAllInBox(checkPos.add(-4, -2, -4), checkPos.add(4, 3, 4))) {
+                    if(pos.getY() > 0) {
+                        if(event.player.worldObj.getTileEntity(pos) != null) {
+                            TileEntity entity = event.player.worldObj.getTileEntity(pos);
+                            if(entity.hasCapability(LevelUpCapability.MACHINE_PROCESSING, EnumFacing.DOWN))
+                                tile.add(entity);
+                        }
+                    }
+                }
+                if(!tile.isEmpty()) {
+                    for(TileEntity entity : tile) {
+                        IProcessor process = entity.getCapability(LevelUpCapability.MACHINE_PROCESSING, EnumFacing.DOWN);
+                        process.extraProcessing(player);
+                    }
+                }
+            }
+            /*
             if (!player.worldObj.isRemote && player.openContainer instanceof ContainerFurnace) {
                 TileEntityFurnace furnace = (TileEntityFurnace)((ContainerFurnace) player.openContainer).tileFurnace;
                 if (furnace != null && furnace.isBurning()) {//isBurning
@@ -72,7 +94,7 @@ public final class FMLEventHandler {
                         }
                     }
                 }
-            }
+            }*/
             //Give points on levelup
             if (PlayerExtendedProperties.getPlayerClass(player) != 0) {
                 double diff = PlayerEventHandler.xpPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.from(player).getSkillPoints();
@@ -155,7 +177,7 @@ public final class FMLEventHandler {
 
     /**
      * Add more output when smelting food for Cooking and other items for Smelting
-     */
+     *//*
     @SubscribeEvent
     public void onSmelting(PlayerEvent.ItemSmeltedEvent event) {
         if (!event.player.worldObj.isRemote) {
@@ -174,7 +196,7 @@ public final class FMLEventHandler {
                 entityitem.setOwner(event.player.getName());
             }
         }
-    }
+    }*/
 
     /**
      * Track player crafting to give additional XP

@@ -33,7 +33,7 @@ public class CraftBlacklist {
     public static class Add extends BaseListAddition<ItemStack> {
         protected Add(ItemStack stack) {
             super("blacklist", CraftBlacklist.blacklist);
-            recipes.add(new ItemStack(stack.getItem(), 1, stack.getMetadata()));
+            recipes.add(stack.copy());
         }
 
         @Override

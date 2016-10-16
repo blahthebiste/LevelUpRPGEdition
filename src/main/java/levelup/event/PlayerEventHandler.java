@@ -2,6 +2,9 @@ package levelup.event;
 
 import com.google.common.collect.Sets;
 import levelup.ClassBonus;
+import levelup.api.IProcessor;
+import levelup.capabilities.CapabilityBrewingStand;
+import levelup.capabilities.CapabilityFurnace;
 import levelup.player.IPlayerClass;
 import levelup.LevelUp;
 import levelup.player.PlayerExtendedProperties;
@@ -10,6 +13,9 @@ import levelup.util.PlankCache;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.item.*;
+import net.minecraft.tileentity.TileEntityBrewingStand;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -34,10 +40,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPickaxe;
-import net.minecraft.item.ItemSpade;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
@@ -163,47 +165,47 @@ public final class PlayerEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onFishInteract(PlayerInteractEvent.RightClickItem event) {
         if (event.getResult() != Event.Result.DENY)
-            //if (event.action == Action.RIGHT_CLICK_AIR) {
-        {   EntityFishHook hook = event.getEntityPlayer().fishEntity;
-                if (hook != null && hook.caughtEntity == null && hook.ticksCatchable > 0) {//Not attached to some random stuff, and within the time frame for catching
-                    ItemStack loot = getFishingLoot(event.getWorld(), event.getEntityPlayer());
-                    if (loot != null) {
-                        ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
-                        int i = stack.stackSize;
-                        int j = stack.getItemDamage();
-                        stack.damageItem(1, event.getEntityPlayer());
-                        event.getEntityPlayer().swingArm(event.getHand());
-                        event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, stack);
-                        if (event.getEntityPlayer().capabilities.isCreativeMode) {
-                            stack.stackSize = i;
-                            if (stack.isItemStackDamageable()) {
-                                stack.setItemDamage(j);
-                            }
+        {
+            EntityFishHook hook = event.getEntityPlayer().fishEntity;
+            if (hook != null && hook.caughtEntity == null && hook.ticksCatchable > 0) {//Not attached to some random stuff, and within the time frame for catching
+                ItemStack loot = getFishingLoot(event.getWorld(), event.getEntityPlayer());
+                if (loot != null) {
+                    ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
+                    int i = stack.stackSize;
+                    int j = stack.getItemDamage();
+                    stack.damageItem(1, event.getEntityPlayer());
+                    event.getEntityPlayer().swingArm(event.getHand());
+                    event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, stack);
+                    if (event.getEntityPlayer().capabilities.isCreativeMode) {
+                        stack.stackSize = i;
+                        if (stack.isItemStackDamageable()) {
+                            stack.setItemDamage(j);
                         }
-                        if (stack.stackSize <= 0) {
-                            event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, null);
-                            MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(event.getEntityPlayer(), stack, event.getHand()));
-                        }
-                        if (!event.getEntityPlayer().isHandActive() && event.getEntityPlayer() instanceof EntityPlayerMP) {
-                            ((EntityPlayerMP) event.getEntityPlayer()).sendContainerToPlayer(event.getEntityPlayer().inventoryContainer);
-                        }
-                        event.setResult(Event.Result.DENY);
-                        if (!hook.worldObj.isRemote) {
-                            EntityItem entityitem = new EntityItem(hook.worldObj, hook.posX, hook.posY, hook.posZ, loot.copy());
-                            double d5 = hook.angler.posX - hook.posX;
-                            double d6 = hook.angler.posY - hook.posY;
-                            double d7 = hook.angler.posZ - hook.posZ;
-                            double d8 = MathHelper.sqrt_double(d5 * d5 + d6 * d6 + d7 * d7);
-                            double d9 = 0.1D;
-                            entityitem.motionX = d5 * d9;
-                            entityitem.motionY = d6 * d9 + MathHelper.sqrt_double(d8) * 0.08D;
-                            entityitem.motionZ = d7 * d9;
-                            hook.worldObj.spawnEntityInWorld(entityitem);
-                            hook.angler.worldObj.spawnEntityInWorld(new EntityXPOrb(hook.angler.worldObj, hook.angler.posX, hook.angler.posY + 0.5D, hook.angler.posZ + 0.5D, event.getEntityPlayer().getRNG().nextInt(6) + 1));
-                        }
+                    }
+                    if (stack.stackSize <= 0) {
+                        event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, null);
+                        MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(event.getEntityPlayer(), stack, event.getHand()));
+                    }
+                    if (!event.getEntityPlayer().isHandActive() && event.getEntityPlayer() instanceof EntityPlayerMP) {
+                        ((EntityPlayerMP) event.getEntityPlayer()).sendContainerToPlayer(event.getEntityPlayer().inventoryContainer);
+                    }
+                    event.setResult(Event.Result.DENY);
+                    if (!hook.worldObj.isRemote) {
+                        EntityItem entityitem = new EntityItem(hook.worldObj, hook.posX, hook.posY, hook.posZ, loot.copy());
+                        double d5 = hook.angler.posX - hook.posX;
+                        double d6 = hook.angler.posY - hook.posY;
+                        double d7 = hook.angler.posZ - hook.posZ;
+                        double d8 = MathHelper.sqrt_double(d5 * d5 + d6 * d6 + d7 * d7);
+                        double d9 = 0.1D;
+                        entityitem.motionX = d5 * d9;
+                        entityitem.motionY = d6 * d9 + MathHelper.sqrt_double(d8) * 0.08D;
+                        entityitem.motionZ = d7 * d9;
+                        hook.worldObj.spawnEntityInWorld(entityitem);
+                        hook.angler.worldObj.spawnEntityInWorld(new EntityXPOrb(hook.angler.worldObj, hook.angler.posX, hook.angler.posY + 0.5D, hook.angler.posZ + 0.5D, event.getEntityPlayer().getRNG().nextInt(6) + 1));
                     }
                 }
             }
+        }
     }
 
     @SubscribeEvent
@@ -252,9 +254,9 @@ public final class PlayerEventHandler {
                         }
                     }
                     if (!foundBlock) {
-                        Item ID = state.getBlock().getItemDropped(state, random, 0);
+                        Item ID = state.getBlock().getItemDropped(state, random, event.getFortuneLevel());
                         if (ID != null) {
-                            int qutity = state.getBlock().quantityDropped(state, 0, random);
+                            int qutity = state.getBlock().quantityDropped(state, event.getFortuneLevel(), random);
                             if (qutity > 0)
                                 event.getDrops().add(new ItemStack(ID, qutity, state.getBlock().damageDropped(state)));
                         }
@@ -286,8 +288,7 @@ public final class PlayerEventHandler {
         if(!world.isRemote) {
             LootContext.Builder build = new LootContext.Builder((WorldServer) world).withPlayer(player);
             build.withLuck((float) EnchantmentHelper.getMaxEnchantmentLevel(Enchantment.getEnchantmentByLocation("fortune"), player) + player.getLuck());
-            ItemStack tentativeStack = world.getLootTableManager().getLootTableFromLocation(diggingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
-            return tentativeStack;
+            return world.getLootTableManager().getLootTableFromLocation(diggingLoot).generateLootForPools(player.getRNG(), build.build()).get(0);
         }
         return null;
     }
@@ -360,6 +361,65 @@ public final class PlayerEventHandler {
     }
 
     /**
+     * Register furnace capability
+     */
+    @SubscribeEvent
+    public void registerFurnaceCap(AttachCapabilitiesEvent.TileEntity evt) {
+        if(evt.getTileEntity() instanceof TileEntityFurnace) {
+            final TileEntityFurnace furnace = (TileEntityFurnace)evt.getTileEntity();
+            evt.addCapability(ClassBonus.FURNACE_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
+                IProcessor instance = new CapabilityFurnace(furnace);
+
+                @Override
+                public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.MACHINE_PROCESSING;
+                }
+
+                @Override
+                public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.MACHINE_PROCESSING ? LevelUpCapability.MACHINE_PROCESSING.<T>cast(instance) : null;
+                }
+
+                @Override
+                public NBTTagCompound serializeNBT() {
+                    return ((NBTTagCompound) LevelUpCapability.MACHINE_PROCESSING.getStorage().writeNBT(LevelUpCapability.MACHINE_PROCESSING, instance, null));
+                }
+
+                @Override
+                public void deserializeNBT(NBTTagCompound tag) {
+                    LevelUpCapability.MACHINE_PROCESSING.getStorage().readNBT(LevelUpCapability.MACHINE_PROCESSING, instance, null, tag);
+                }
+            });
+        }
+        else if(evt.getTileEntity() instanceof TileEntityBrewingStand) {
+            final TileEntityBrewingStand stand = (TileEntityBrewingStand)evt.getTileEntity();
+            evt.addCapability(ClassBonus.FURNACE_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
+                IProcessor instance = new CapabilityBrewingStand(stand);
+
+                @Override
+                public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.MACHINE_PROCESSING;
+                }
+
+                @Override
+                public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+                    return capability == LevelUpCapability.MACHINE_PROCESSING ? LevelUpCapability.MACHINE_PROCESSING.<T>cast(instance) : null;
+                }
+
+                @Override
+                public NBTTagCompound serializeNBT() {
+                    return ((NBTTagCompound) LevelUpCapability.MACHINE_PROCESSING.getStorage().writeNBT(LevelUpCapability.MACHINE_PROCESSING, instance, null));
+                }
+
+                @Override
+                public void deserializeNBT(NBTTagCompound tag) {
+                    LevelUpCapability.MACHINE_PROCESSING.getStorage().readNBT(LevelUpCapability.MACHINE_PROCESSING, instance, null, tag);
+                }
+            });
+        }
+    }
+
+    /**
      * Register base skill data to players
      */
     @SubscribeEvent
@@ -407,12 +467,20 @@ public final class PlayerEventHandler {
     /**
      * Keep track of registered ores blocks, for mining xp compatibility
      */
-    @SubscribeEvent
-    public void onOreRegister(OreDictionary.OreRegisterEvent event) {
-        if (event.getName().startsWith("ore") && event.getOre() != null && event.getOre().getItem() != null) {
-            Block ore = Block.getBlockFromItem(event.getOre().getItem());
-            if (ore != Blocks.AIR && !(ore instanceof BlockOre || ore instanceof BlockRedstoneOre)) {
-                ores.add(ore);
+    public static void registerOres() {
+        for(String ore : OreDictionary.getOreNames()) {
+            if(ore.startsWith("ore")) {
+                if(OreDictionary.getOres(ore) != null && !OreDictionary.getOres(ore).isEmpty()) {
+                    for(ItemStack stack : OreDictionary.getOres(ore)) {
+                        if(stack.getItem() instanceof ItemBlock) {
+                            Block block = ((ItemBlock)stack.getItem()).getBlock();
+                            if(!(block instanceof BlockOre) && !(block instanceof BlockRedstoneOre)) {
+                                if(!ores.contains(block))
+                                    ores.add(block);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

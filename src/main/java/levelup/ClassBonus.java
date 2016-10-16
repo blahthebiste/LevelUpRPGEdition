@@ -8,6 +8,7 @@ public final class ClassBonus {
      * The key used for registering skill data into players
      */
     public static final ResourceLocation SKILL_LOCATION = new ResourceLocation("levelup", "skills");
+    public static final ResourceLocation FURNACE_LOCATION = new ResourceLocation("levelup", "cooking");
     public final static String SKILL_ID = "LevelUpSkills";
     /**
      * The sub keys used when registering each skill data

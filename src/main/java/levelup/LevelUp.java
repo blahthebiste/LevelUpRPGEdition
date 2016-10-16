@@ -1,5 +1,7 @@
 package levelup;
 
+import levelup.api.IProcessor;
+import levelup.api.LevelUpAPI;
 import levelup.capabilities.LevelUpCapability;
 import levelup.event.BowEventHandler;
 import levelup.event.FMLEventHandler;
@@ -124,6 +126,7 @@ public final class LevelUp {
                 }
             }
         }
+        PlayerEventHandler.registerOres();
     }
 
     private static ItemStack getRecipeOutput(ItemStack input) {
@@ -161,6 +164,7 @@ public final class LevelUp {
         boolean legacyRecipes = config.getBoolean("Enable Recipes", "Items", true, "Enable legacy pumpkin and flint recipes");
         useServerProperties();
         CapabilityManager.INSTANCE.register(IPlayerClass.class, new LevelUpCapability.CapabilityPlayerClass<IPlayerClass>(), PlayerExtendedProperties.class);
+        CapabilityManager.INSTANCE.register(IProcessor.class, new LevelUpCapability.CapabilityProcessorClass<IProcessor>(), LevelUpCapability.CapabilityProcessorDefault.class);
         List<String> blackList = Arrays.asList(config.getStringList("Crops for farming", "BlackList", new String[]{""}, "That won't be affected by farming growth skill, uses internal block name. No sync to client needed."));
         FMLEventHandler.INSTANCE.addCropsToBlackList(blackList);
         if (config.hasChanged())
@@ -208,7 +212,7 @@ public final class LevelUp {
         if (event.getSourceFile().getName().endsWith(".jar")) {
             proxy.tryUseMUD();
         }
-        FMLCommonHandler.instance().bus().register(FMLEventHandler.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(FMLEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
     }
 
@@ -245,7 +249,8 @@ public final class LevelUp {
                 config.get(cat, "Add Bonus XP on Mining", bonusMiningXP, limitedBonus),
                 config.get(cat, "Add XP on Crafting some items", true, "This is a global bonus, limited to a few craftable items"),
                 config.get(cat, "Add XP on Mining some ore", oreMiningXP, "This is a global bonus, limited to a few ores"),
-                config.get(cat, "Add Bonus XP on Fighting", bonusFightingXP, limitedBonus)};
+                config.get(cat, "Add Bonus XP on Fighting", bonusFightingXP, limitedBonus),
+                config.get(cat, "Furnace ejects smelting bonus", LevelUpAPI.furnaceEjection, "Enabling this will cause doubled furnace items to eject themselves instead of going into the results slot")};
     }
 
     public void useServerProperties() {
@@ -263,6 +268,7 @@ public final class LevelUp {
         bonusMiningXP = serverProperties[9].getBoolean();
         oreMiningXP = serverProperties[11].getBoolean();
         bonusFightingXP = serverProperties[12].getBoolean();
+        LevelUpAPI.furnaceEjection = serverProperties[13].getBoolean();
         if (serverProperties[10].getBoolean()) {
             List<Item> ingrTier1, ingrTier2, ingrTier3, ingrTier4;
             ingrTier1 = Arrays.asList(Items.STICK, Items.LEATHER, Item.getItemFromBlock(Blocks.STONE));
