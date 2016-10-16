@@ -2,7 +2,7 @@ package levelup.minetweaker;
 
 import levelup.minetweaker.utils.BaseListAddition;
 import levelup.minetweaker.utils.LogHelper;
-import levelup.util.CraftingBlacklist;
+import levelup.util.SmeltingBlacklist;
 import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
@@ -14,9 +14,11 @@ import stanhebben.zenscript.annotations.ZenMethod;
 
 import java.util.List;
 
-@ZenClass("mods.levelup.CraftBlacklist")
-public class CraftBlacklist {
-    private final static List<ItemStack> blacklist = CraftingBlacklist.getBlacklist();
+import static levelup.minetweaker.CraftBlacklist.toStack;
+
+@ZenClass("mods.levelup.SmeltBlacklist")
+public class SmeltBlacklist {
+    private final static List<ItemStack> blacklist = SmeltingBlacklist.getBlacklist();
 
     @ZenMethod
     public static void add(IIngredient input) {
@@ -32,26 +34,13 @@ public class CraftBlacklist {
 
     public static class Add extends BaseListAddition<ItemStack> {
         protected Add(ItemStack stack) {
-            super("crafting blacklist", CraftBlacklist.blacklist);
+            super("crafting blacklist", SmeltBlacklist.blacklist);
             recipes.add(stack.copy());
         }
 
         @Override
         protected String getRecipeInfo(ItemStack stack) {
             return LogHelper.getStackDescription(stack);
-        }
-    }
-
-    public static ItemStack toStack(IItemStack iStack) {
-        if (iStack == null) {
-            return null;
-        } else {
-            Object internal = iStack.getInternal();
-            if (!(internal instanceof ItemStack)) {
-                LogHelper.logError("Not a valid item stack: " + iStack);
-            }
-
-            return (ItemStack) internal;
         }
     }
 }

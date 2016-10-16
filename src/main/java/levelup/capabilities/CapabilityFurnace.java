@@ -2,6 +2,7 @@ package levelup.capabilities;
 
 import levelup.api.LevelUpAPI;
 import levelup.event.FMLEventHandler;
+import levelup.util.SmeltingBlacklist;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -68,7 +69,7 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
 
     private boolean isDoublingValid(TileEntityFurnace tile) {
         ItemStack smeltingItem = tile.getStackInSlot(0);
-        return FurnaceRecipes.instance().getSmeltingResult(smeltingItem) != null;
+        return FurnaceRecipes.instance().getSmeltingResult(smeltingItem) != null && !SmeltingBlacklist.contains(smeltingItem);
     }
 
     private void ejectExtraItem(ItemStack stack) {

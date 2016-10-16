@@ -8,7 +8,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CraftingBlacklist
+public class SmeltingBlacklist
 {
     private static List<ItemStack> blacklist = new ArrayList<ItemStack>();
 

@@ -22,7 +22,6 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -250,7 +249,7 @@ public final class LevelUp {
                 config.get(cat, "Add XP on Crafting some items", true, "This is a global bonus, limited to a few craftable items"),
                 config.get(cat, "Add XP on Mining some ore", oreMiningXP, "This is a global bonus, limited to a few ores"),
                 config.get(cat, "Add Bonus XP on Fighting", bonusFightingXP, limitedBonus),
-                config.get(cat, "Furnace ejects smelting bonus", LevelUpAPI.furnaceEjection, "Enabling this will cause doubled furnace items to eject themselves instead of going into the results slot")};
+                config.get(cat, "Furnace ejects smelting bonus", LevelUpAPI.furnaceEjection, "Disabling this will cause doubled furnace items to be added to the result slot instead of being ejected")};
     }
 
     public void useServerProperties() {
@@ -349,7 +348,7 @@ public final class LevelUp {
     public static void giveCraftingXP(EntityPlayer player, ItemStack itemstack) {
         if (tiers != null)
             for (int i = 0; i < tiers.length; i++) {
-                if (tiers[i].contains(itemstack.getItem())) {
+                if (tiers[i].contains(itemstack.getItem()) && !isUncraftable(itemstack)) {
                     incrementCraftCounter(player, i);
                 }
             }
@@ -431,7 +430,7 @@ public final class LevelUp {
         } else {
             for (int j = 0; j < iinventory.getSizeInventory(); j++) {
                 ItemStack itemstack2 = iinventory.getStackInSlot(j);
-                if (itemstack2 != null && !isUncraftable(itemstack) && !isUncraftable(itemstack.getItem())) {
+                if (itemstack2 != null && !isUncraftable(itemstack)) {
                     giveCraftingXP(player, itemstack2);
                     giveBonusCraftingXP(player);
                 }

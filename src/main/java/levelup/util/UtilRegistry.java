@@ -24,6 +24,10 @@ public class UtilRegistry {
                 for(ItemStack stack : OreDictionary.getOres(name))
                     CraftingBlacklist.addItem(stack.copy());
             }
+            else if(name.startsWith("dust")) {
+                for(ItemStack stack : OreDictionary.getOres(name))
+                    SmeltingBlacklist.addItem(stack.copy());
+            }
         }
     }
 }
