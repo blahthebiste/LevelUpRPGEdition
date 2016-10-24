@@ -5,6 +5,7 @@ import levelup.LevelUp;
 import levelup.player.PlayerExtendedProperties;
 import levelup.SkillPacketHandler;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiButton;
@@ -72,6 +73,7 @@ public final class GuiSkills extends GuiScreen {
         }
         drawCenteredString(fontRendererObj, s, width / 2, height / 6 + 168, 0xffffff);
         drawCenteredString(fontRendererObj, s1, width / 2, height / 6 + 180, 0xffffff);
+        drawCenteredString(fontRendererObj, I18n.format("xp.next", getExperiencePoints(mc.thePlayer)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }
 
@@ -110,5 +112,12 @@ public final class GuiSkills extends GuiScreen {
 
     private int getSkillOffset(int i) {
         return skillsPrev[i] + skills[i];
+    }
+
+    private int getExperiencePoints(EntityPlayer player)
+    {
+        int cap = player.xpBarCap();
+        int total = (int)(player.xpBarCap() * player.experience);
+        return cap - total;
     }
 }

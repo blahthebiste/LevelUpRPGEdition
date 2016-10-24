@@ -8,6 +8,8 @@ hud.skill.text1=Skill Points: %d
 hud.skill.text2=Class: %s
 hud.skill.select=Choose a Class
 
+xp.next=To next level: %s
+
 key.categories.gui=GUI
 
 skill1.name=Mining
