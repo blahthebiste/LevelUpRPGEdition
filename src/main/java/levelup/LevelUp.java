@@ -8,7 +8,7 @@ import levelup.event.FMLEventHandler;
 import levelup.event.FightEventHandler;
 import levelup.event.PlayerEventHandler;
 import levelup.item.ItemRespecBook;
-import levelup.minetweaker.MineTweaker;
+//import levelup.minetweaker.MineTweaker;
 import levelup.player.IPlayerClass;
 import levelup.player.PlayerExtendedProperties;
 import levelup.proxy.SkillProxy;
@@ -22,7 +22,6 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -87,8 +86,8 @@ public final class LevelUp {
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
         UtilRegistry.init();
-        if(Loader.isModLoaded("MineTweaker3"))
-            MineTweaker.init();
+        //if(Loader.isModLoaded("MineTweaker3"))
+            //MineTweaker.init();
 
         for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
             ItemStack log = null;
@@ -223,8 +222,8 @@ public final class LevelUp {
     private void initClientProperties() {
         clientProperties = new Property[]{
                 config.get("HUD", "allow HUD", allowHUD, "If anything should be rendered on screen at all.").setRequiresMcRestart(true),
-                config.get("HUD", "render HUD on Top Left", renderTopLeft),
-                config.get("HUD", "render HUD on Exp Bar", renderExpBar),
+                config.get("HUD", "render HUD on Top Left", renderTopLeft, "Should the player class be displayed in the top left corner."),
+                config.get("HUD", "render HUD on Exp Bar", renderExpBar, "Should available skill points be displayed on the experience bar."),
                 config.get("FOV", "speed based", changeFOV, "Should FOV change based on player speed from athletics / sneak skills." )};
         allowHUD = clientProperties[0].getBoolean();
         renderTopLeft = clientProperties[1].getBoolean();
@@ -404,7 +403,7 @@ public final class LevelUp {
     public static boolean isTalismanRecipe(IInventory iinventory) {
         if (xpTalisman != null)
             for (int i = 0; i < iinventory.getSizeInventory(); i++) {
-                if (iinventory.getStackInSlot(i) != null && iinventory.getStackInSlot(i).getItem() == xpTalisman) {
+                if (iinventory.getStackInSlot(i) != ItemStack.field_190927_a && iinventory.getStackInSlot(i).getItem() == xpTalisman) {
                     return true;
                 }
             }
@@ -415,22 +414,22 @@ public final class LevelUp {
         if (isTalismanRecipe(iinventory)) {
             for (int i = 0; i < iinventory.getSizeInventory(); i++) {
                 ItemStack itemstack1 = iinventory.getStackInSlot(i);
-                if (itemstack1 != null) {
+                if (itemstack1 != ItemStack.field_190927_a) {
                     String oreDict = containsOreDictEntry(itemstack1);
                     if(oreDict != null) {
-                        player.addExperience((int)Math.floor(itemstack1.stackSize * towItems.get(containsOreDictEntry(itemstack1)) / 4D));
-                        iinventory.getStackInSlot(i).stackSize = 0;
+                        player.addExperience((int)Math.floor(itemstack1.func_190916_E() * towItems.get(containsOreDictEntry(itemstack1)) / 4D));
+                        iinventory.getStackInSlot(i).func_190920_e(0);
                     }
                     else if (towItems.containsKey(itemstack1.getItem())) {
-                        player.addExperience((int) Math.floor(itemstack1.stackSize * towItems.get(itemstack1.getItem()) / 4D));
-                        iinventory.getStackInSlot(i).stackSize = 0;
+                        player.addExperience((int) Math.floor(itemstack1.func_190916_E() * towItems.get(itemstack1.getItem()) / 4D));
+                        iinventory.getStackInSlot(i).func_190920_e(0);
                     }
                 }
             }
         } else {
             for (int j = 0; j < iinventory.getSizeInventory(); j++) {
                 ItemStack itemstack2 = iinventory.getStackInSlot(j);
-                if (itemstack2 != null && !isUncraftable(itemstack)) {
+                if (itemstack2 != ItemStack.field_190927_a && !isUncraftable(itemstack)) {
                     giveCraftingXP(player, itemstack2);
                     giveBonusCraftingXP(player);
                 }

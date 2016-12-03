@@ -2,6 +2,7 @@ package levelup.event;
 
 import levelup.player.PlayerExtendedProperties;
 import net.minecraft.item.ItemShield;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -31,10 +32,10 @@ public final class FightEventHandler {
                 }
                 if (getDistance(event.getEntityLiving(), entityplayer) < 256F && entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 1.5F;
-                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 1.5));
+                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
                 }
             } else {
-                if (entityplayer.getHeldItemMainhand() != null) {
+                if (entityplayer.getHeldItemMainhand() != ItemStack.field_190927_a) {
                     int j = getSwordSkill(entityplayer);
                     if (entityplayer.getRNG().nextDouble() <= j / 200D)
                         i *= 2.0F;
@@ -42,7 +43,7 @@ public final class FightEventHandler {
                 }
                 if (entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 2.0F;
-                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 2));
+                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 2), true);
                 }
             }
         }
@@ -60,7 +61,7 @@ public final class FightEventHandler {
 
     private boolean isBlocking(EntityPlayer player)
     {
-        return player.isHandActive() && player.getActiveItemStack() != null && player.getActiveItemStack().getItem() instanceof ItemShield;
+        return player.isHandActive() && player.getActiveItemStack() != ItemStack.field_190927_a && player.getActiveItemStack().getItem() instanceof ItemShield;
     }
 
     @SubscribeEvent

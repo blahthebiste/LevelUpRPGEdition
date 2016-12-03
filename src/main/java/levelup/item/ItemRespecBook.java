@@ -6,6 +6,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
@@ -23,20 +24,21 @@ public final class ItemRespecBook extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemstack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack itemstack = player.getHeldItem(hand);
         if (!world.isRemote) {
             PlayerExtendedProperties.from(player).convertPointsToXp(itemstack.getItemDamage() > 0);
             FMLEventHandler.INSTANCE.loadPlayer(player);
         }
         if (!player.capabilities.isCreativeMode)
-            itemstack.stackSize--;
+            itemstack.func_190918_g(1);
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item item, CreativeTabs tab, List<ItemStack> list) {
+    public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list) {
         super.getSubItems(item, tab, list);
         list.add(new ItemStack(item, 1, 1));
     }

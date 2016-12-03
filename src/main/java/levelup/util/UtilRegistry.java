@@ -14,8 +14,8 @@ public class UtilRegistry {
     private static void initBlacklist() {
         getOreLists();
         CraftingBlacklist.addItem(Blocks.HAY_BLOCK);
-        CraftingBlacklist.addItem(Blocks.field_189878_dg);
-        CraftingBlacklist.addItem(Blocks.field_189880_di);
+        CraftingBlacklist.addItem(Blocks.NETHER_WART_BLOCK);
+        CraftingBlacklist.addItem(Blocks.BONE_BLOCK);
     }
 
     private static void getOreLists() {

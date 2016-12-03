@@ -125,7 +125,7 @@ public final class PlayerEventHandler {
         ItemStack itemstack = event.getEntityPlayer().getHeldItemMainhand();
         IBlockState state = event.getState();
         Block block = state.getBlock();
-        if (itemstack != null)
+        if (itemstack != ItemStack.field_190927_a)
             if (oldSpeedDigging && itemstack.getItem() instanceof ItemSpade) {
                 if (block instanceof BlockDirt || block instanceof BlockGravel) {
                     event.setNewSpeed(event.getNewSpeed() * itemstack.getStrVsBlock(state) / 0.5F);
@@ -171,19 +171,19 @@ public final class PlayerEventHandler {
                 ItemStack loot = getFishingLoot(event.getWorld(), event.getEntityPlayer());
                 if (loot != null) {
                     ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
-                    int i = stack.stackSize;
+                    int i = stack.func_190916_E();
                     int j = stack.getItemDamage();
                     stack.damageItem(1, event.getEntityPlayer());
                     event.getEntityPlayer().swingArm(event.getHand());
                     event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, stack);
                     if (event.getEntityPlayer().capabilities.isCreativeMode) {
-                        stack.stackSize = i;
+                        stack.func_190920_e(i);
                         if (stack.isItemStackDamageable()) {
                             stack.setItemDamage(j);
                         }
                     }
-                    if (stack.stackSize <= 0) {
-                        event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, null);
+                    if (stack.func_190916_E() <= 0) {
+                        event.getEntityPlayer().inventory.setInventorySlotContents(event.getEntityPlayer().inventory.currentItem, ItemStack.field_190927_a);
                         MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(event.getEntityPlayer(), stack, event.getHand()));
                     }
                     if (!event.getEntityPlayer().isHandActive() && event.getEntityPlayer() instanceof EntityPlayerMP) {
@@ -192,16 +192,16 @@ public final class PlayerEventHandler {
                     event.setResult(Event.Result.DENY);
                     if (!hook.worldObj.isRemote) {
                         EntityItem entityitem = new EntityItem(hook.worldObj, hook.posX, hook.posY, hook.posZ, loot.copy());
-                        double d5 = hook.angler.posX - hook.posX;
-                        double d6 = hook.angler.posY - hook.posY;
-                        double d7 = hook.angler.posZ - hook.posZ;
+                        double d5 = hook.func_190619_l().posX - hook.posX;
+                        double d6 = hook.func_190619_l().posY - hook.posY;
+                        double d7 = hook.func_190619_l().posZ - hook.posZ;
                         double d8 = MathHelper.sqrt_double(d5 * d5 + d6 * d6 + d7 * d7);
                         double d9 = 0.1D;
                         entityitem.motionX = d5 * d9;
                         entityitem.motionY = d6 * d9 + MathHelper.sqrt_double(d8) * 0.08D;
                         entityitem.motionZ = d7 * d9;
                         hook.worldObj.spawnEntityInWorld(entityitem);
-                        hook.angler.worldObj.spawnEntityInWorld(new EntityXPOrb(hook.angler.worldObj, hook.angler.posX, hook.angler.posY + 0.5D, hook.angler.posZ + 0.5D, event.getEntityPlayer().getRNG().nextInt(6) + 1));
+                        hook.func_190619_l().worldObj.spawnEntityInWorld(new EntityXPOrb(hook.func_190619_l().worldObj, hook.func_190619_l().posX, hook.func_190619_l().posY + 0.5D, hook.func_190619_l().posZ + 0.5D, event.getEntityPlayer().getRNG().nextInt(6) + 1));
                     }
                 }
             }
@@ -214,8 +214,9 @@ public final class PlayerEventHandler {
         if(noPlaceDuplicate)
         {
             ItemStack stack = event.getEntityPlayer().inventory.getCurrentItem();
-            if(stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("NoPlacing")) {
-                event.setUseItem(Event.Result.DENY);
+            if(stack != ItemStack.field_190927_a && stack.hasTagCompound()) {
+                if(stack.getTagCompound().hasKey("NoPlacing"))
+                    event.setUseItem(Event.Result.DENY);
             }
         }
     }
@@ -245,14 +246,17 @@ public final class PlayerEventHandler {
                     LevelUp.incrementOreCounter(event.getHarvester(), blockToCounter.get(state.getBlock()));
                 if (random.nextDouble() <= skill / 200D) {
                     boolean foundBlock = false;
+                    ItemStack newOre = null;
                     for (ItemStack stack : event.getDrops()) {
                         if (stack != null && state.getBlock() == Block.getBlockFromItem(stack.getItem())) {
                             writeNoPlacing(stack);
-                            stack.stackSize += 1;
+                            newOre = stack.copy();
                             foundBlock = true;
                             break;
                         }
                     }
+                    if(newOre != null)
+                        event.getDrops().add(newOre);
                     if (!foundBlock) {
                         Item ID = state.getBlock().getItemDropped(state, random, event.getFortuneLevel());
                         if (ID != null) {
