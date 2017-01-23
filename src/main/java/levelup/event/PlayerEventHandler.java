@@ -246,16 +246,16 @@ public final class PlayerEventHandler {
                     LevelUp.incrementOreCounter(event.getHarvester(), blockToCounter.get(state.getBlock()));
                 if (random.nextDouble() <= skill / 200D) {
                     boolean foundBlock = false;
-                    ItemStack newOre = null;
+                    ItemStack newOre = ItemStack.field_190927_a;
                     for (ItemStack stack : event.getDrops()) {
-                        if (stack != null && state.getBlock() == Block.getBlockFromItem(stack.getItem())) {
+                        if (stack != ItemStack.field_190927_a && state.getBlock() == Block.getBlockFromItem(stack.getItem())) {
                             writeNoPlacing(stack);
                             newOre = stack.copy();
                             foundBlock = true;
                             break;
                         }
                     }
-                    if(newOre != null)
+                    if(newOre != ItemStack.field_190927_a)
                         event.getDrops().add(newOre);
                     if (!foundBlock) {
                         Item ID = state.getBlock().getItemDropped(state, random, event.getFortuneLevel());
@@ -263,6 +263,14 @@ public final class PlayerEventHandler {
                             int qutity = state.getBlock().quantityDropped(state, event.getFortuneLevel(), random);
                             if (qutity > 0)
                                 event.getDrops().add(new ItemStack(ID, qutity, state.getBlock().damageDropped(state)));
+                        }
+                    }
+                }
+                else if (LevelUp.oreNoPlace) {
+                    for (ItemStack stack : event.getDrops()) {
+                        if (stack != ItemStack.field_190927_a && state.getBlock() == Block.getBlockFromItem(stack.getItem())) {
+                            writeNoPlacing(stack);
+                            break;
                         }
                     }
                 }
