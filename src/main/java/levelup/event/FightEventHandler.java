@@ -32,10 +32,10 @@ public final class FightEventHandler {
                 }
                 if (getDistance(event.getEntityLiving(), entityplayer) < 256F && entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 1.5F;
-                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
+                    entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
                 }
             } else {
-                if (entityplayer.getHeldItemMainhand() != ItemStack.field_190927_a) {
+                if (entityplayer.getHeldItemMainhand() != ItemStack.EMPTY) {
                     int j = getSwordSkill(entityplayer);
                     if (entityplayer.getRNG().nextDouble() <= j / 200D)
                         i *= 2.0F;
@@ -43,7 +43,7 @@ public final class FightEventHandler {
                 }
                 if (entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 2.0F;
-                    entityplayer.addChatComponentMessage(new TextComponentTranslation("sneak.attack", 2), true);
+                    entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 2), true);
                 }
             }
         }
@@ -61,7 +61,7 @@ public final class FightEventHandler {
 
     private boolean isBlocking(EntityPlayer player)
     {
-        return player.isHandActive() && player.getActiveItemStack() != ItemStack.field_190927_a && player.getActiveItemStack().getItem() instanceof ItemShield;
+        return player.isHandActive() && player.getActiveItemStack() != ItemStack.EMPTY && player.getActiveItemStack().getItem() instanceof ItemShield;
     }
 
     @SubscribeEvent
@@ -83,18 +83,18 @@ public final class FightEventHandler {
     }
 
     public static boolean canSeePlayer(EntityLivingBase entityLiving) {
-        EntityPlayer entityplayer = entityLiving.worldObj.getClosestPlayerToEntity(entityLiving, 16D);
+        EntityPlayer entityplayer = entityLiving.world.getClosestPlayerToEntity(entityLiving, 16D);
         return entityplayer != null && entityLiving.canEntityBeSeen(entityplayer) && (!entityplayer.isSneaking() || entityHasVisionOf(entityLiving, entityplayer));
     }
 
     public static float getDistance(EntityLivingBase entityLiving, EntityLivingBase entityliving1) {
-        return MathHelper.floor_double_long((entityliving1.posX - entityLiving.posX) * (entityliving1.posX - entityLiving.posX) + (entityliving1.posZ - entityLiving.posZ)
+        return MathHelper.floor((entityliving1.posX - entityLiving.posX) * (entityliving1.posX - entityLiving.posX) + (entityliving1.posZ - entityLiving.posZ)
                 * (entityliving1.posZ - entityLiving.posZ));
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public static float getPointDistance(double d, double d1, double d2, double d3) {
-        return MathHelper.floor_double_long((d2 - d) * (d2 - d) + (d3 - d1) * (d3 - d1));
+        return MathHelper.floor((d2 - d) * (d2 - d) + (d3 - d1) * (d3 - d1));
     }
 
     public static boolean compareAngles(float f, float f1, float f2) {
@@ -132,7 +132,7 @@ public final class FightEventHandler {
         float f1 = (float) (entityliving1.posZ - entityLiving.posZ);
         float f2 = entityLiving.rotationYaw;
         if (f2 < 0.0F) {
-            float f3 = (MathHelper.floor_float(MathHelper.abs(f2) / 360F) + 1.0F) * 360F;
+            float f3 = (MathHelper.floor(MathHelper.abs(f2) / 360F) + 1.0F) * 360F;
             f2 = f3 + f2;
         } else {
             while (f2 > 360F) {

@@ -21,13 +21,13 @@ public final class SkillKeyHandler {
 
     @SubscribeEvent
     public void keyDown(InputEvent.KeyInputEvent event) {
-        if (keys.isKeyDown() && Minecraft.getMinecraft().currentScreen == null && Minecraft.getMinecraft().thePlayer != null) {
+        if (keys.isKeyDown() && Minecraft.getMinecraft().currentScreen == null && Minecraft.getMinecraft().player != null) {
             if (LevelUpHUD.canShowSkills()) {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiSkills());
             } else if (LevelUpHUD.canSelectClass())
                 Minecraft.getMinecraft().displayGuiScreen(new GuiClasses());
             else
-                Minecraft.getMinecraft().thePlayer.addChatMessage(new TextComponentTranslation("level.invalid"));
+                Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("level.invalid"), true);
         }
     }
 }

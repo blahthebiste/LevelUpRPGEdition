@@ -32,7 +32,7 @@ public final class ItemRespecBook extends Item {
             FMLEventHandler.INSTANCE.loadPlayer(player);
         }
         if (!player.capabilities.isCreativeMode)
-            itemstack.func_190918_g(1);
+            itemstack.shrink(1);
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
     }
 

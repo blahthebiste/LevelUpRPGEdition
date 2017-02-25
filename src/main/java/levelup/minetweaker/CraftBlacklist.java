@@ -1,7 +1,7 @@
 package levelup.minetweaker;
 
-import levelup.minetweaker.utils.BaseListAddition;
-import levelup.minetweaker.utils.LogHelper;
+import com.blamejared.mtlib.helpers.LogHelper;
+import com.blamejared.mtlib.utils.BaseListAddition;
 import levelup.util.CraftingBlacklist;
 import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IIngredient;

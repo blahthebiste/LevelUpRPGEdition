@@ -36,7 +36,7 @@ public final class SkillClientProxy extends SkillProxy {
 
     @Override
     public EntityPlayer getPlayer() {
-        return FMLClientHandler.instance().getClient().thePlayer;
+        return FMLClientHandler.instance().getClient().player;
     }
 
     @Override

@@ -43,14 +43,14 @@ public class FortuneEnchantBonus extends LootFunction
             }
 
             float f = (float)i * this.count.generateFloat(rand);
-            int size = stack.func_190916_E() + Math.round(f);
+            int size = stack.getCount() + Math.round(f);
 
             if (this.limit != 0 && size > this.limit)
             {
-                stack.func_190920_e(this.limit);
+                stack.setCount(this.limit);
             }
             else {
-                stack.func_190920_e(size);
+                stack.setCount(size);
             }
         }
 

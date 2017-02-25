@@ -11,7 +11,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
 
-version = "0.13-1.11"
+version = "0.14-1.11.2"
 group= "com.github.levelup" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LevelUp!"
 
@@ -21,7 +21,7 @@ compileJava {
 }
 
 minecraft {
-    version = "1.11-13.19.0.2162"
+    version = "1.11.2-13.20.0.2226"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
@@ -29,12 +29,25 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20161111"
+    mappings = "snapshot_20161220"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
+repositories {
+    maven {
+        name 'DVS1 Maven FS'
+        url 'http://dvs1.progwml6.com/files/maven'
+    }
+    maven {
+        name "Base"
+        url "http://blamejared.com/maven"
+    }
+}
+
 dependencies {
-    
+    deobfCompile "MineTweaker3:MineTweaker3-API:+"
+    deobfCompile "com.blamejared:MTLib:+"
+    runtime "MineTweaker3:MineTweaker3-MC1112-Main:+"
 }
 
 jar{

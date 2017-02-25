@@ -24,12 +24,12 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
     @Override
     public void extraProcessing(EntityPlayer player) {
 
-        if(tile != null && !player.worldObj.isRemote) {
+        if(tile != null && !player.world.isRemote) {
             TileEntityFurnace furnace = (TileEntityFurnace)tile;
             if(furnace.isBurning()) {
                 if (furnace.canSmelt()) {
                     ItemStack stack = furnace.getStackInSlot(0);
-                    if (stack != ItemStack.field_190927_a) {
+                    if (stack != ItemStack.EMPTY) {
                         int bonus;
                         if (stack.getItem().getItemUseAction(stack) == EnumAction.EAT) {
                             bonus = FMLEventHandler.getSkill(player, 7);
@@ -46,13 +46,13 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
                             if(isDoublingValid(furnace) && player.getRNG().nextFloat() < (bonus / 200F)) {
                                 ItemStack result = FurnaceRecipes.instance().getSmeltingResult(stack);
                                 if(!LevelUpAPI.furnaceEjection) {
-                                    if (furnace.getStackInSlot(2) == ItemStack.field_190927_a) {
+                                    if (furnace.getStackInSlot(2) == ItemStack.EMPTY) {
                                         furnace.setInventorySlotContents(2, result.copy());
-                                    } else if (furnace.getStackInSlot(2) != ItemStack.field_190927_a) {
+                                    } else if (furnace.getStackInSlot(2) != ItemStack.EMPTY) {
                                         ItemStack product = furnace.getStackInSlot(2);
                                         if (ItemStack.areItemsEqual(result, product)) {
-                                            if (product.func_190916_E() + (result.func_190916_E() * 2) <= product.getMaxStackSize()) {
-                                                furnace.getStackInSlot(2).func_190917_f(result.func_190916_E());
+                                            if (product.getCount() + (result.getCount() * 2) <= product.getMaxStackSize()) {
+                                                furnace.getStackInSlot(2).grow(result.getCount());
                                             }
                                         }
                                     }
@@ -69,7 +69,7 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
 
     private boolean isDoublingValid(TileEntityFurnace tile) {
         ItemStack smeltingItem = tile.getStackInSlot(0);
-        return FurnaceRecipes.instance().getSmeltingResult(smeltingItem) != ItemStack.field_190927_a && !SmeltingBlacklist.contains(smeltingItem);
+        return FurnaceRecipes.instance().getSmeltingResult(smeltingItem) != ItemStack.EMPTY && !SmeltingBlacklist.contains(smeltingItem);
     }
 
     private void ejectExtraItem(ItemStack stack) {
@@ -79,7 +79,7 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
                 EnumFacing facing = furnace.getValue(BlockFurnace.FACING);
                 BlockPos offset = tile.getPos().offset(facing);
                 EntityItem item = new EntityItem(tile.getWorld(), offset.getX() + 0.5D, offset.getY() + 0.5D, offset.getZ() + 0.5D, stack);
-                tile.getWorld().spawnEntityInWorld(item);
+                tile.getWorld().spawnEntity(item);
             }
         }
     }

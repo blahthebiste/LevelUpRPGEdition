@@ -73,7 +73,7 @@ public final class SkillPacketHandler {
     }
 
     private void handlePacket(ByteBuf buf, EntityPlayer player) {
-        boolean isInit = player.worldObj.isRemote;
+        boolean isInit = player.world.isRemote;
         byte button = buf.readByte();
         int[] data = null;
         int sum = 0;

@@ -63,7 +63,7 @@ public final class GuiSkills extends GuiScreen {
             }
         }
         if (cl < 0)
-            cl = PlayerExtendedProperties.getPlayerClass(mc.thePlayer);
+            cl = PlayerExtendedProperties.getPlayerClass(mc.player);
         if (cl > 0) {
             drawCenteredString(fontRendererObj, I18n.format("hud.skill.text2", I18n.format("class" + cl + ".name")), width / 2, 2, 0xffffff);
         }
@@ -73,7 +73,7 @@ public final class GuiSkills extends GuiScreen {
         }
         drawCenteredString(fontRendererObj, s, width / 2, height / 6 + 168, 0xffffff);
         drawCenteredString(fontRendererObj, s1, width / 2, height / 6 + 180, 0xffffff);
-        drawCenteredString(fontRendererObj, I18n.format("xp.next", getExperiencePoints(mc.thePlayer)), width / 2, height / 6 + 192, 0xFFFFFF);
+        drawCenteredString(fontRendererObj, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }
 
@@ -105,7 +105,7 @@ public final class GuiSkills extends GuiScreen {
         if (skillsPrev == null) {
             skillsPrev = new int[skills.length];
             for (int i = 0; i < skills.length; i++) {
-                skillsPrev[i] = PlayerExtendedProperties.getSkillFromIndex(mc.thePlayer, i);
+                skillsPrev[i] = PlayerExtendedProperties.getSkillFromIndex(mc.player, i);
             }
         }
     }

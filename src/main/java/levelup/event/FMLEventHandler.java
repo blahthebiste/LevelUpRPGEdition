@@ -53,13 +53,13 @@ public final class FMLEventHandler {
         if (event.phase == TickEvent.Phase.START) {
             EntityPlayer player = event.player;
             //Furnace speed bonus for Smelting / Cooking
-            if(player != null && !player.worldObj.isRemote) {
+            if(player != null && !player.world.isRemote) {
                 List<TileEntity> tile = new ArrayList<TileEntity>();
                 BlockPos checkPos = new BlockPos(player.posX, player.posY, player.posZ);
                 for(BlockPos pos : BlockPos.getAllInBox(checkPos.add(-4, -2, -4), checkPos.add(4, 3, 4))) {
                     if(pos.getY() > 0) {
-                        if(event.player.worldObj.getTileEntity(pos) != null) {
-                            TileEntity entity = event.player.worldObj.getTileEntity(pos);
+                        if(event.player.world.getTileEntity(pos) != null) {
+                            TileEntity entity = event.player.world.getTileEntity(pos);
                             if(entity.hasCapability(LevelUpCapability.MACHINE_PROCESSING, EnumFacing.DOWN))
                                 tile.add(entity);
                         }
@@ -73,7 +73,7 @@ public final class FMLEventHandler {
                 }
             }
             /*
-            if (!player.worldObj.isRemote && player.openContainer instanceof ContainerFurnace) {
+            if (!player.world.isRemote && player.openContainer instanceof ContainerFurnace) {
                 TileEntityFurnace furnace = (TileEntityFurnace)((ContainerFurnace) player.openContainer).tileFurnace;
                 if (furnace != null && furnace.isBurning()) {//isBurning
                     if (furnace.canSmelt()) {//canCook
@@ -103,8 +103,8 @@ public final class FMLEventHandler {
             }
             //Farming grow crops
             int skill = getSkill(player, 9);
-            if (!player.worldObj.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
-                growCropsAround(player.worldObj, skill / 4, player);
+            if (!player.world.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
+                growCropsAround(player.world, skill / 4, player);
             }
             //Athletics speed
             IAttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
@@ -180,7 +180,7 @@ public final class FMLEventHandler {
      *//*
     @SubscribeEvent
     public void onSmelting(PlayerEvent.ItemSmeltedEvent event) {
-        if (!event.player.worldObj.isRemote) {
+        if (!event.player.world.isRemote) {
             Random random = event.player.getRNG();
             ItemStack add = null;
             if (event.smelting.getItemUseAction() == EnumAction.EAT) {
