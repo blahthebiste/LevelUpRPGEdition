@@ -136,10 +136,10 @@ public final class PlayerEventHandler {
             }
         if (block instanceof BlockStone || block == Blocks.COBBLESTONE || block == Blocks.OBSIDIAN || block instanceof BlockOre || ores.contains(block)) {
             if (getSkill(event.getEntityPlayer(), 0) > 4)
-                event.setNewSpeed(speed + (float)(getSkill(event.getEntityPlayer(), 0) / 5));
+                event.setNewSpeed(speed + (getSkill(event.getEntityPlayer(), 0) / 5 * 0.3F));
         } else if (state.getMaterial() == Material.WOOD) {
             if (getSkill(event.getEntityPlayer(), 3) > 4)
-                event.setNewSpeed(speed + (float)(getSkill(event.getEntityPlayer(), 3) / 5));
+                event.setNewSpeed(speed + (getSkill(event.getEntityPlayer(), 3) / 5 * 0.2F));
         }
     }
 
