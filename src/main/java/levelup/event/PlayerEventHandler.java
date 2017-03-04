@@ -125,7 +125,7 @@ public final class PlayerEventHandler {
         ItemStack itemstack = event.getEntityPlayer().getHeldItemMainhand();
         IBlockState state = event.getState();
         Block block = state.getBlock();
-        float speed = event.getOriginalSpeed();
+        float speed = event.getNewSpeed();
         if (itemstack != ItemStack.EMPTY)
             if (oldSpeedDigging && itemstack.getItem() instanceof ItemSpade) {
                 if (block instanceof BlockDirt || block instanceof BlockGravel) {
