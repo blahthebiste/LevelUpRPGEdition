@@ -481,6 +481,7 @@ public final class PlayerEventHandler {
     @SubscribeEvent
     public void onPlayerClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath() || !resetClassOnDeath || resetSkillOnDeath < 1.00F) {
+            System.out.println("Loading check...");
             NBTTagCompound data = new NBTTagCompound();
             PlayerExtendedProperties.from(event.getOriginal()).saveNBTData(data);
             PlayerExtendedProperties.from(event.getEntityPlayer()).loadNBTData(data);
