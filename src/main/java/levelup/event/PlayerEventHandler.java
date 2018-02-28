@@ -13,7 +13,9 @@ import levelup.util.PlankCache;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.*;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBrewingStand;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumFacing;
@@ -156,8 +158,8 @@ public final class PlayerEventHandler {
             if (resetSkillOnDeath > 0.00F) {
                 PlayerExtendedProperties.from((EntityPlayer) event.getEntityLiving()).takeSkillFraction(resetSkillOnDeath);
             }
-        } else if (event.getEntityLiving() instanceof EntityMob && event.getSource().getEntity() instanceof EntityPlayer) {
-            LevelUp.giveBonusFightingXP((EntityPlayer) event.getSource().getEntity());
+        } else if (event.getEntityLiving() instanceof EntityMob && event.getSource().getTrueSource() instanceof EntityPlayer) {
+            LevelUp.giveBonusFightingXP((EntityPlayer) event.getSource().getTrueSource());
         }
     }
 
@@ -347,7 +349,7 @@ public final class PlayerEventHandler {
     private ItemStack getPlanks(EntityPlayer player, ItemStack drop) {
         InventoryCrafting craft = new ContainerPlayer(player.inventory, !player.world.isRemote, player).craftMatrix;
         craft.setInventorySlotContents(1, drop);
-        return CraftingManager.getInstance().findMatchingRecipe(craft, player.world);
+        return CraftingManager.findMatchingRecipe(craft, player.world).getRecipeOutput();
     }
 
     /**
@@ -387,9 +389,9 @@ public final class PlayerEventHandler {
      * Register furnace capability
      */
     @SubscribeEvent
-    public void registerFurnaceCap(AttachCapabilitiesEvent.TileEntity evt) {
-        if(evt.getTileEntity() instanceof TileEntityFurnace) {
-            final TileEntityFurnace furnace = (TileEntityFurnace)evt.getTileEntity();
+    public void registerFurnaceCap(AttachCapabilitiesEvent<TileEntity> evt) {
+        if(evt.getObject() instanceof TileEntityFurnace) {
+            final TileEntityFurnace furnace = (TileEntityFurnace)evt.getObject();
             evt.addCapability(ClassBonus.FURNACE_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
                 IProcessor instance = new CapabilityFurnace(furnace);
 
@@ -414,8 +416,8 @@ public final class PlayerEventHandler {
                 }
             });
         }
-        else if(evt.getTileEntity() instanceof TileEntityBrewingStand) {
-            final TileEntityBrewingStand stand = (TileEntityBrewingStand)evt.getTileEntity();
+        else if(evt.getObject() instanceof TileEntityBrewingStand) {
+            final TileEntityBrewingStand stand = (TileEntityBrewingStand)evt.getObject();
             evt.addCapability(ClassBonus.FURNACE_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
                 IProcessor instance = new CapabilityBrewingStand(stand);
 
@@ -446,9 +448,9 @@ public final class PlayerEventHandler {
      * Register base skill data to players
      */
     @SubscribeEvent
-    public void onEntityConstruct(AttachCapabilitiesEvent.Entity evt)
+    public void onEntityConstruct(AttachCapabilitiesEvent<Entity> evt)
     {
-        if(evt.getEntity() instanceof EntityPlayer) {
+        if(evt.getObject() instanceof EntityPlayer) {
             evt.addCapability(ClassBonus.SKILL_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
                 IPlayerClass instance = LevelUpCapability.CAPABILITY_CLASS.getDefaultInstance();
 

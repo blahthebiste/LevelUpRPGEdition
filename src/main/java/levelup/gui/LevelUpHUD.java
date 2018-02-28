@@ -87,11 +87,11 @@ public final class LevelUpHUD extends Gui {
                 text = I18n.format("hud.skill.text1", skillXP);
         } else if (canSelectClass())
             text = I18n.format("hud.skill.select");
-        int x = (res.getScaledWidth() - Minecraft.getMinecraft().fontRendererObj.getStringWidth(text)) / 2;
+        int x = (res.getScaledWidth() - Minecraft.getMinecraft().fontRenderer.getStringWidth(text)) / 2;
         int y = res.getScaledHeight() - 29;
         if (text != null) {
             int col = Color.HSBtoRGB(0.2929688F, 1.0F, val) & 0xffffff;
-            Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, col);
+            Minecraft.getMinecraft().fontRenderer.drawString(text, x, y, col);
         }
         Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);//Icons texture reset
     }

@@ -22,13 +22,13 @@ public final class ConfigLevelUp extends GuiScreen implements IModGuiFactory {
     }
 
     @Override
-    public void initialize(Minecraft minecraftInstance) {
-        this.mc = minecraftInstance;
+    public boolean hasConfigGui() {
+        return true;
     }
 
     @Override
-    public Class<? extends GuiScreen> mainConfigGuiClass() {
-        return this.getClass();
+    public void initialize(Minecraft minecraftInstance) {
+        this.mc = minecraftInstance;
     }
 
     @SuppressWarnings("unchecked")
@@ -55,7 +55,7 @@ public final class ConfigLevelUp extends GuiScreen implements IModGuiFactory {
     @Override
     public void drawScreen(int par1, int par2, float par3) {
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRendererObj, I18n.format("config.levelup.title"), this.width / 2, this.height / 2 - 115, 0xFFFFFF);
+        this.drawCenteredString(this.fontRenderer, I18n.format("config.levelup.title"), this.width / 2, this.height / 2 - 115, 0xFFFFFF);
         super.drawScreen(par1, par2, par3);
     }
 
@@ -71,7 +71,7 @@ public final class ConfigLevelUp extends GuiScreen implements IModGuiFactory {
     }
 
     @Override
-    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
-        return null;
+    public GuiScreen createConfigGui(GuiScreen parentScreen) {
+        return this;
     }
 }

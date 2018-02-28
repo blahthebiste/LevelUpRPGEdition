@@ -3,6 +3,7 @@ package levelup.item;
 import levelup.player.PlayerExtendedProperties;
 import levelup.event.FMLEventHandler;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -38,14 +39,16 @@ public final class ItemRespecBook extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list) {
-        super.getSubItems(item, tab, list);
-        list.add(new ItemStack(item, 1, 1));
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
+        if (tab == this.getCreativeTab()) {
+            list.add(new ItemStack(this, 1, 0));
+            list.add(new ItemStack(this, 1, 1));
+        }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack itemStack, EntityPlayer entityPlayer, List<String> list, boolean isAdvanced) {
+    public void addInformation(ItemStack itemStack, World world, List<String> list, ITooltipFlag flag) {
         if (itemStack.getItemDamage() > 0) {
             list.add(I18n.format("respecbook.canresetclass"));
         }

@@ -13,19 +13,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 
 import java.util.*;
@@ -162,7 +157,7 @@ public final class FMLEventHandler {
         if (blackListedCrops == null)
             blackListedCrops = new ArrayList<IPlantable>(blackList.size());
         for (String txt : blackList) {
-            Object crop = GameData.getBlockRegistry().getObject(new ResourceLocation(txt));
+            Block crop = Block.REGISTRY.getObject(new ResourceLocation(txt));
             if (crop instanceof IPlantable)
                 blackListedCrops.add((IPlantable) crop);
         }

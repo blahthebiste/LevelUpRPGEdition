@@ -23,7 +23,7 @@ public final class SkillPacketHandler {
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
         final ByteBuf in = event.getPacket().payload();
-        final EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+        final EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
         if (event.getPacket().channel().equals(CHAN[1])) {
             addTask(event.getHandler(), new Runnable() {
                 @Override

@@ -8,8 +8,6 @@ import levelup.event.FMLEventHandler;
 import levelup.event.FightEventHandler;
 import levelup.event.PlayerEventHandler;
 import levelup.item.ItemRespecBook;
-//import levelup.minetweaker.MineTweaker;
-import levelup.minetweaker.MineTweaker;
 import levelup.player.IPlayerClass;
 import levelup.player.PlayerExtendedProperties;
 import levelup.proxy.SkillProxy;
@@ -22,8 +20,9 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -47,12 +46,9 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@Mod(modid = LevelUp.ID, name = "LevelUp!", version = "${version}", guiFactory = "levelup.ConfigLevelUp")
+@Mod(modid = LevelUp.ID, name = "Level Up! Legacy", version = "${version}", guiFactory = "levelup.ConfigLevelUp")
 public final class LevelUp {
     public final static String ID = "levelup";
     @Instance(value = ID)
@@ -61,7 +57,8 @@ public final class LevelUp {
     public static SkillProxy proxy;
     private Property[] clientProperties;
     private Property[] serverProperties;
-    private static Item xpTalisman, respecBook;
+    public static Item xpTalisman = new Item().setUnlocalizedName("xpTalisman").setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:xp_talisman"),
+            respecBook = new ItemRespecBook().setUnlocalizedName("respecBook").setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:respec_book");
     private static Map<Object, Integer> towItems;
     private static List[] tiers;
     private static Configuration config;
@@ -88,8 +85,6 @@ public final class LevelUp {
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
         UtilRegistry.init();
-        if(Loader.isModLoaded("crafttweaker"))
-            MineTweaker.init();
 
         for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
             ItemStack log = null;
@@ -130,38 +125,35 @@ public final class LevelUp {
     }
 
     private static ItemStack getRecipeOutput(ItemStack input) {
-        List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
-        for (IRecipe recipe : recipes) {
+        Iterator<IRecipe> recipe = CraftingManager.REGISTRY.iterator();
+        ItemStack output = ItemStack.EMPTY;
+        while (recipe.hasNext() && output.isEmpty()) {
             if (recipe instanceof ShapelessRecipes) {
                 ShapelessRecipes shapeless = (ShapelessRecipes) recipe;
-                if (shapeless.recipeItems.size() == 1 && shapeless.recipeItems.get(0).isItemEqual(input)) {
-                    return shapeless.getRecipeOutput();
+                if (shapeless.recipeItems.size() == 1 && shapeless.recipeItems.get(0).test(input)) {
+                    output = shapeless.getRecipeOutput();
                 }
             } else if (recipe instanceof ShapelessOreRecipe) {
                 ShapelessOreRecipe shapeless = (ShapelessOreRecipe) recipe;
-                if(shapeless.getRecipeSize() == 1) {
-                    if(shapeless.getInput().get(0) instanceof ItemStack) {
-                        if(((ItemStack)shapeless.getInput().get(0)).isItemEqual(input)) {
-                            return shapeless.getRecipeOutput();
-                        }
+                if(shapeless.getIngredients().size() == 1) {
+                    if(shapeless.getIngredients().get(0).test(input)) {
+                        output = shapeless.getRecipeOutput();
                     }
                 }
             }
         }
-        return null;
+        return output;
     }
 
     @EventHandler
     public void load(FMLPreInitializationEvent event) {
+        LevelUpRegistry.init();
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.addCustomCategoryComment("HUD", "Entirely client side. No need to sync.");
         initClientProperties();
         config.addCustomCategoryComment("Items", "Need to be manually synced to the client on a dedicated server");
         config.addCustomCategoryComment("Cheats", "Will be automatically synced to the client on a dedicated server");
         initServerProperties();
-        boolean talismanEnabled = config.getBoolean("Enable Talisman", "Items", true, "Enable item and related recipes");
-        boolean bookEnabled = config.getBoolean("Enable Unlearning Book", "Items", true, "Enable item and related recipe");
-        boolean legacyRecipes = config.getBoolean("Enable Recipes", "Items", true, "Enable legacy pumpkin and flint recipes");
         useServerProperties();
         CapabilityManager.INSTANCE.register(IPlayerClass.class, new LevelUpCapability.CapabilityPlayerClass<IPlayerClass>(), PlayerExtendedProperties.class);
         CapabilityManager.INSTANCE.register(IProcessor.class, new LevelUpCapability.CapabilityProcessorClass<IProcessor>(), LevelUpCapability.CapabilityProcessorDefault.class);
@@ -169,46 +161,6 @@ public final class LevelUp {
         FMLEventHandler.INSTANCE.addCropsToBlackList(blackList);
         if (config.hasChanged())
             config.save();
-        if (talismanEnabled) {
-            towItems = new HashMap<Object, Integer>();
-            xpTalisman = new Item().setUnlocalizedName("xpTalisman").setCreativeTab(CreativeTabs.TOOLS);
-            GameRegistry.register(xpTalisman.setRegistryName("xp_talisman"));
-            GameRegistry.addRecipe(new ShapedOreRecipe(xpTalisman, "GG ", " R ", " GG", 'G', "ingotGold", 'R', "dustRedstone"));
-            initTalismanProperty("logWood", 2);
-            initTalismanProperty(Items.COAL, 2);
-            initTalismanProperty("ingotBrick", 4);
-            initTalismanProperty(Items.BOOK, 4);
-            initTalismanProperty("oreIron", 8);
-            initTalismanProperty("gemLapis", 8);
-            initTalismanProperty("dustRedstone", 8);
-            initTalismanProperty(Items.BREAD, 10);
-            initTalismanProperty(Items.MELON, 10);
-            initTalismanProperty(Item.getItemFromBlock(Blocks.PUMPKIN), 10);
-            initTalismanProperty(Items.COOKED_PORKCHOP, 12);
-            initTalismanProperty(Items.COOKED_BEEF, 12);
-            initTalismanProperty(Items.COOKED_CHICKEN, 12);
-            initTalismanProperty(Items.COOKED_FISH, 12);
-            initTalismanProperty(Items.COOKED_MUTTON, 12);
-            initTalismanProperty(Items.COOKED_RABBIT, 12);
-            initTalismanProperty("ingotIron", 16);
-            initTalismanProperty("oreGold", 20);
-            initTalismanProperty("ingotGold", 24);
-            initTalismanProperty("gemDiamond", 40);
-        }
-        if (bookEnabled) {
-            respecBook = new ItemRespecBook().setUnlocalizedName("respecBook").setCreativeTab(CreativeTabs.TOOLS);
-            GameRegistry.register(respecBook.setRegistryName("respec_book"));
-            ItemStack output = new ItemStack(respecBook);
-            if (config.getBoolean("unlearning Book Reset Class", "Cheats", false, "Should unlearning book also remove class")) {
-                output.setItemDamage(1);
-            }
-            GameRegistry.addRecipe(new ShapedOreRecipe(output, "OEO", "DBD", "ODO", 'O', "obsidian", 'D', "dye",
-                    'E', "enderpearl", 'B', Items.BOOK));
-        }
-        if (legacyRecipes) {
-            GameRegistry.addShapelessRecipe(new ItemStack(Items.PUMPKIN_SEEDS, 4), Blocks.PUMPKIN);
-            GameRegistry.addRecipe(new ItemStack(Blocks.GRAVEL, 4), "##", "##", '#', Items.FLINT);
-        }
         if (event.getSourceFile().getName().endsWith(".jar")) {
             proxy.tryUseMUD();
         }
@@ -216,9 +168,33 @@ public final class LevelUp {
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
     }
 
-    private void initTalismanProperty(Object item, int value) {
+    protected static void initToW(RegistryEvent.Register<IRecipe> evt) {
+        towItems = new HashMap<Object, Integer>();
+        initTalismanProperty(evt, "logWood", 2, "log");
+        initTalismanProperty(evt, Items.COAL, 2, "coal");
+        initTalismanProperty(evt, "ingotBrick", 4, "brick");
+        initTalismanProperty(evt, Items.BOOK, 4, "book");
+        initTalismanProperty(evt, "oreIron", 8, "iron_ore");
+        initTalismanProperty(evt, "gemLapis", 8, "lapis");
+        initTalismanProperty(evt, "dustRedstone", 8, "redstone");
+        initTalismanProperty(evt, Items.BREAD, 10, "bread");
+        initTalismanProperty(evt, Items.MELON, 10, "melon");
+        initTalismanProperty(evt, Item.getItemFromBlock(Blocks.PUMPKIN), 10, "pumpkin");
+        initTalismanProperty(evt, Items.COOKED_PORKCHOP, 12, "porkchop");
+        initTalismanProperty(evt, Items.COOKED_BEEF, 12, "beef");
+        initTalismanProperty(evt, Items.COOKED_CHICKEN, 12, "chicken");
+        initTalismanProperty(evt, Items.COOKED_FISH, 12, "fish");
+        initTalismanProperty(evt, Items.COOKED_MUTTON, 12, "mutton");
+        initTalismanProperty(evt, Items.COOKED_RABBIT, 12, "rabbit");
+        initTalismanProperty(evt, "ingotIron", 16, "iron_ingot");
+        initTalismanProperty(evt, "oreGold", 20, "gold_ore");
+        initTalismanProperty(evt, "ingotGold", 24, "gold_ingot");
+        initTalismanProperty(evt, "gemDiamond", 40, "diamond");
+    }
+
+    private static void initTalismanProperty(RegistryEvent.Register<IRecipe> evt, Object item, int value, String name) {
         towItems.put(item, value);
-        GameRegistry.addRecipe(new ShapelessOreRecipe(xpTalisman, xpTalisman, item));
+        evt.getRegistry().register(new ShapelessOreRecipe(new ResourceLocation("levelup:talisman"), xpTalisman, xpTalisman, item).setRegistryName(new ResourceLocation("levelup:talisman_" + name)));
     }
 
     private void initClientProperties() {

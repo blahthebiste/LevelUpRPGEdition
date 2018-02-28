@@ -65,15 +65,15 @@ public final class GuiSkills extends GuiScreen {
         if (cl < 0)
             cl = PlayerExtendedProperties.getPlayerClass(mc.player);
         if (cl > 0) {
-            drawCenteredString(fontRendererObj, I18n.format("hud.skill.text2", I18n.format("class" + cl + ".name")), width / 2, 2, 0xffffff);
+            drawCenteredString(fontRenderer, I18n.format("hud.skill.text2", I18n.format("class" + cl + ".name")), width / 2, 2, 0xffffff);
         }
         for (int x = 0; x < 6; x++) {
-            drawCenteredString(fontRendererObj, I18n.format("skill" + (x + 1) + ".name") + ": " + getSkillOffset(x), width / 2 - offset, 20 + 32 * x, 0xffffff);
-            drawCenteredString(fontRendererObj, I18n.format("skill" + (x + 7) + ".name") + ": " + getSkillOffset(x + 6), width / 2 + offset, 20 + 32 * x, 0xffffff);
+            drawCenteredString(fontRenderer, I18n.format("skill" + (x + 1) + ".name") + ": " + getSkillOffset(x), width / 2 - offset, 20 + 32 * x, 0xffffff);
+            drawCenteredString(fontRenderer, I18n.format("skill" + (x + 7) + ".name") + ": " + getSkillOffset(x + 6), width / 2 + offset, 20 + 32 * x, 0xffffff);
         }
-        drawCenteredString(fontRendererObj, s, width / 2, height / 6 + 168, 0xffffff);
-        drawCenteredString(fontRendererObj, s1, width / 2, height / 6 + 180, 0xffffff);
-        drawCenteredString(fontRendererObj, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
+        drawCenteredString(fontRenderer, s, width / 2, height / 6 + 168, 0xffffff);
+        drawCenteredString(fontRenderer, s1, width / 2, height / 6 + 180, 0xffffff);
+        drawCenteredString(fontRenderer, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }
 

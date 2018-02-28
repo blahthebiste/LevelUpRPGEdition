@@ -20,8 +20,8 @@ public final class GuiClasses extends GuiScreen {
     @Override
     public void drawScreen(int i, int j, float f) {
         drawDefaultBackground();
-        drawCenteredString(fontRendererObj, I18n.format("class" + cl + ".tooltip"), width / 2, height / 6 + 148, 0xffffff);
-        drawCenteredString(fontRendererObj, I18n.format("gui.class.title", I18n.format("class" + cl + ".name")), width / 2, height / 6 + 174, 0xffffff);
+        drawCenteredString(fontRenderer, I18n.format("class" + cl + ".tooltip"), width / 2, height / 6 + 148, 0xffffff);
+        drawCenteredString(fontRenderer, I18n.format("gui.class.title", I18n.format("class" + cl + ".name")), width / 2, height / 6 + 174, 0xffffff);
         super.drawScreen(i, j, f);
     }
 

@@ -1,0 +1,28 @@
+{
+  "result": {
+    "item": "levelup:respec_book"
+  },
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "OEO",
+    "DBD",
+    "ODO"
+  ],
+  "key": {
+    "O": {
+      "ore": "obsidian",
+      "type": "forge:ore_dict"
+    },
+    "D": {
+      "ore": "dye",
+      "type": "forge:ore_dict"
+    },
+    "E": {
+      "ore": "enderpearl",
+      "type": "forge:ore_dict"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "result": {
+    "item": "levelup:respec_book"
+  },
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "FF",
+    "FF"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:flint"
+    }
+  }
+}

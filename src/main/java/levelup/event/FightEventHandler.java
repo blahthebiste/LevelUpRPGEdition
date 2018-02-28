@@ -24,8 +24,8 @@ public final class FightEventHandler {
     public void onHurting(LivingHurtEvent event) {
         DamageSource damagesource = event.getSource();
         float i = event.getAmount();
-        if (damagesource.getEntity() instanceof EntityPlayer) {
-            EntityPlayer entityplayer = (EntityPlayer) damagesource.getEntity();
+        if (damagesource.getTrueSource() instanceof EntityPlayer) {
+            EntityPlayer entityplayer = (EntityPlayer) damagesource.getTrueSource();
             if (damagesource instanceof EntityDamageSourceIndirect) {
                 if (!damagesource.damageType.equals("arrow")) {
                     i *= 1.0F + BowEventHandler.getArcherSkill(entityplayer) / 100F;
