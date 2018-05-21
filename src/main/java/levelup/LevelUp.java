@@ -47,6 +47,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 @Mod(modid = LevelUp.ID, name = "Level Up! Legacy", version = "${version}", guiFactory = "levelup.ConfigLevelUp")
 public final class LevelUp {
@@ -68,8 +69,11 @@ public final class LevelUp {
 
     @EventHandler
     public void load(FMLInitializationEvent event) {
+        Logger logger = Logger.getLogger("levelup");
+        logger.info("[Level Up] registering events");
         MinecraftForge.EVENT_BUS.register(BowEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(FightEventHandler.INSTANCE);
+        logger.info("[Level Up] registering packets");
         SkillPacketHandler sk = new SkillPacketHandler();
         initChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(SkillPacketHandler.CHAN[0]);
         initChannel.register(sk);
@@ -79,15 +83,16 @@ public final class LevelUp {
         skillChannel.register(sk);
         configChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(SkillPacketHandler.CHAN[3]);
         configChannel.register(sk);
+        logger.info("[Level Up] registering clientside stuff");
         proxy.registerGui();
         if(xpTalisman!=null)
             proxy.register(xpTalisman, "levelup:xp_talisman");
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
-        UtilRegistry.init();
-
+        UtilRegistry.init();/*
+logger.info("[Level Up] registering oredict stuff");
         for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
-            ItemStack log = null;
+            ItemStack log;
             ItemStack plank = new ItemStack(Blocks.PLANKS, 2, type.getMetadata());
             if (type.getMetadata() < 4) {
                 log = new ItemStack(Blocks.LOG, 1, type.getMetadata());
@@ -98,9 +103,10 @@ public final class LevelUp {
             Block block = ((ItemBlock)log.getItem()).getBlock();
             PlankCache.addBlock(block, log.getMetadata(), plank);
         }
+        logger.info("[Level Up] vanilla logs loaded");
         List<ItemStack> logs = OreDictionary.getOres("logWood");
         for(ItemStack log : logs) {
-            if(log.getItem() != null && log.getItem() instanceof ItemBlock) {
+            if(log.getItem() != Items.AIR && log.getItem() instanceof ItemBlock) {
                 Block block = ((ItemBlock) log.getItem()).getBlock();
                 if (!block.getRegistryName().getResourceDomain().equals("minecraft")) {
                     if (log.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
@@ -109,6 +115,7 @@ public final class LevelUp {
                             if (planks != null) {
                                 ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
                                 PlankCache.addBlock(block, i, cache);
+                                logger.info("[Level Up] registered log " + block.getRegistryName().toString());
                             }
                         }
                     } else {
@@ -116,12 +123,14 @@ public final class LevelUp {
                         if (planks != null) {
                             ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
                             PlankCache.addBlock(block, log.getMetadata(), cache);
+                            logger.info("[Level Up] registered log " + block.getRegistryName().toString());
                         }
                     }
                 }
             }
         }
-        PlayerEventHandler.registerOres();
+        logger.info("[Level Up] and the rest of the ores...");
+        PlayerEventHandler.registerOres();*/
     }
 
     private static ItemStack getRecipeOutput(ItemStack input) {
