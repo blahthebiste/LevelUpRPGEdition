@@ -92,76 +92,76 @@ public final class FMLEventHandler {
             }*/
             //Give points on levelup
             if (PlayerExtendedProperties.getPlayerClass(player) != 0) {
-                double diff = PlayerEventHandler.xpPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.from(player).getSkillPoints();
+                double diff = PlayerEventHandler.skillPointsPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.from(player).getSkillPoints();
                 if (diff >= 1.0D)
-                    PlayerExtendedProperties.from(player).addToSkill("XP", (int) Math.floor(diff));
+                    PlayerExtendedProperties.from(player).addToSkill("UnspentSkillPoints", (int) Math.floor(diff));
             }
             //Farming grow crops
-            int skill = getSkill(player, 9);
-            if (!player.world.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
-                growCropsAround(player.world, skill / 4, player);
-            }
+//            int skill = getSkill(player, 9);
+//            if (!player.world.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
+//                growCropsAround(player.world, skill / 4, player);
+//            }
             //Athletics speed
-            IAttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-            AttributeModifier mod;
-            skill = getSkill(player, 6);
-            if (skill != 0) {
-                mod = new AttributeModifier(speedID, "SprintingSkillSpeed", skill / 100F, 2);
-                if (player.isSprinting()) {
-                    if (atinst.getModifier(speedID) == null) {
-                        atinst.applyModifier(mod);
-                    }
-                } else if (atinst.getModifier(speedID) != null) {
-                    atinst.removeModifier(mod);
-                }
-                if (player.fallDistance > 0) {
-                    player.fallDistance *= 1 - skill / 5 / 100F;
-                }
-            }
+//            IAttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+//            AttributeModifier mod;
+//            skill = getSkill(player, 6);
+//            if (skill != 0) {
+//                mod = new AttributeModifier(speedID, "SprintingSkillSpeed", skill / 100F, 2);
+//                if (player.isSprinting()) {
+//                    if (atinst.getModifier(speedID) == null) {
+//                        atinst.applyModifier(mod);
+//                    }
+//                } else if (atinst.getModifier(speedID) != null) {
+//                    atinst.removeModifier(mod);
+//                }
+//                if (player.fallDistance > 0) {
+//                    player.fallDistance *= 1 - skill / 5 / 100F;
+//                }
+//            }
             //Sneaking speed
-            skill = getSkill(player, 8);
-            if (skill != 0) {
-                mod = new AttributeModifier(sneakID, "SneakingSkillSpeed", 2 * skill / 100F, 2);
-                if (player.isSneaking()) {
-                    if (atinst.getModifier(sneakID) == null) {
-                        atinst.applyModifier(mod);
-                    }
-                } else if (atinst.getModifier(sneakID) != null) {
-                    atinst.removeModifier(mod);
-                }
-            }
+//            skill = getSkill(player, 8);
+//            if (skill != 0) {
+//                mod = new AttributeModifier(sneakID, "SneakingSkillSpeed", 2 * skill / 100F, 2);
+//                if (player.isSneaking()) {
+//                    if (atinst.getModifier(sneakID) == null) {
+//                        atinst.applyModifier(mod);
+//                    }
+//                } else if (atinst.getModifier(sneakID) != null) {
+//                    atinst.removeModifier(mod);
+//                }
+//            }
         }
     }
 
     /**
      * Apply bonemeal on non-black-listed blocks around player
      */
-    private void growCropsAround(World world, int range, EntityPlayer player) {
-        int posX = (int) player.posX;
-        int posY = (int) player.posY;
-        int posZ = (int) player.posZ;
-        int dist = range / 2 + 2;
-        for (Object o : BlockPos.getAllInBox(new BlockPos(posX - dist, posY - dist, posZ - dist), new BlockPos(posX + dist + 1, posY + dist + 1, posZ + dist + 1))) {
-            BlockPos pos = (BlockPos) o;
-            Block block = world.getBlockState(pos).getBlock();
-            if(block instanceof IPlantable && !blackListedCrops.contains(block)) {
-                world.scheduleUpdate(pos, block, block.tickRate(world));
-            }
-        }
-    }
+//    private void growCropsAround(World world, int range, EntityPlayer player) {
+//        int posX = (int) player.posX;
+//        int posY = (int) player.posY;
+//        int posZ = (int) player.posZ;
+//        int dist = range / 2 + 2;
+//        for (Object o : BlockPos.getAllInBox(new BlockPos(posX - dist, posY - dist, posZ - dist), new BlockPos(posX + dist + 1, posY + dist + 1, posZ + dist + 1))) {
+//            BlockPos pos = (BlockPos) o;
+//            Block block = world.getBlockState(pos).getBlock();
+//            if(block instanceof IPlantable && !blackListedCrops.contains(block)) {
+//                world.scheduleUpdate(pos, block, block.tickRate(world));
+//            }
+//        }
+//    }
 
     /**
      * Converts given black-listed names into blocks for the internal black-list
      */
-    public void addCropsToBlackList(List<String> blackList) {
-        if (blackListedCrops == null)
-            blackListedCrops = new ArrayList<IPlantable>(blackList.size());
-        for (String txt : blackList) {
-            Block crop = Block.REGISTRY.getObject(new ResourceLocation(txt));
-            if (crop instanceof IPlantable)
-                blackListedCrops.add((IPlantable) crop);
-        }
-    }
+//    public void addCropsToBlackList(List<String> blackList) {
+//        if (blackListedCrops == null)
+//            blackListedCrops = new ArrayList<IPlantable>(blackList.size());
+//        for (String txt : blackList) {
+//            Block crop = Block.REGISTRY.getObject(new ResourceLocation(txt));
+//            if (crop instanceof IPlantable)
+//                blackListedCrops.add((IPlantable) crop);
+//        }
+//    }
 
     /**
      * Helper to retrieve skill points from the index
@@ -196,10 +196,10 @@ public final class FMLEventHandler {
     /**
      * Track player crafting to give additional XP
      */
-    @SubscribeEvent
-    public void onCrafting(PlayerEvent.ItemCraftedEvent event) {
-        LevelUp.takenFromCrafting(event.player, event.crafting, event.craftMatrix);
-    }
+//    @SubscribeEvent
+//    public void onCrafting(PlayerEvent.ItemCraftedEvent event) {
+//        LevelUp.takenFromCrafting(event.player, event.crafting, event.craftMatrix);
+//    }
 
     /**
      * Track player changing dimension to update skill points data

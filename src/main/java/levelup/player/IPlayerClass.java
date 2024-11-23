@@ -10,7 +10,7 @@ public interface IPlayerClass
 
     byte getPlayerClass();
 
-    Map<String, int[]> getCounterMap();
+//    Map<String, int[]> getCounterMap();
 
     NBTTagCompound saveNBTData(NBTTagCompound tag);
 

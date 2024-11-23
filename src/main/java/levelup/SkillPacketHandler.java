@@ -88,7 +88,7 @@ public final class SkillPacketHandler {
         if (!isInit) {
             if (properties.hasClass())
                 if (data != null && button == -1 && sum == 0) {
-                    if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillFromIndex("XP")) {
+                    if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillFromIndex("UnspentSkillPoints")) {
                         for (int index = 0; index < data.length; index++) {
                             if (data[index] != 0) {
                                 properties.addToSkill(ClassBonus.skillNames[index], data[index]);

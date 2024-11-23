@@ -12,15 +12,15 @@ public final class PlayerExtendedProperties implements IPlayerClass
 {
     private byte playerClass;
     private Map<String, Integer> skillMap = new HashMap<String, Integer>();
-    private Map<String, int[]> counterMap = new HashMap<String, int[]>();
-    public final static String[] counters = {"ore", "craft", "bonus"};
+    //private Map<String, int[]> counterMap = new HashMap<String, int[]>();
+    //public final static String[] counters = {"ore", "craft", "bonus"}; // TODO: use these for something else?
 
     public PlayerExtendedProperties() {
         for (String name : ClassBonus.skillNames)
             skillMap.put(name, 0);
-        counterMap.put(counters[0], new int[]{0, 0, 0, 0});
-        counterMap.put(counters[1], new int[]{0, 0, 0, 0});
-        counterMap.put(counters[2], new int[]{0, 0, 0});//ore bonus, craft bonus, kill bonus
+//        counterMap.put(counters[0], new int[]{0, 0, 0, 0});
+//        counterMap.put(counters[1], new int[]{0, 0, 0, 0});
+//        counterMap.put(counters[2], new int[]{0, 0, 0});//ore bonus, craft bonus, kill bonus
     }
 
     @Override
@@ -29,9 +29,9 @@ public final class PlayerExtendedProperties implements IPlayerClass
         for (String name : ClassBonus.skillNames) {
             compound.setInteger(name, skillMap.get(name));
         }
-        for (String cat : counters) {
-            compound.setIntArray(cat, counterMap.get(cat));
-        }
+//        for (String cat : counters) {
+//            compound.setIntArray(cat, counterMap.get(cat));
+//        }
         return compound;
     }
 
@@ -41,9 +41,9 @@ public final class PlayerExtendedProperties implements IPlayerClass
         for (String name : ClassBonus.skillNames) {
             skillMap.put(name, compound.getInteger(name));
         }
-        for (String cat : counters) {
-            counterMap.put(cat, compound.getIntArray(cat));
-        }
+//        for (String cat : counters) {
+//            counterMap.put(cat, compound.getIntArray(cat));
+//        }
     }
 
     public static IPlayerClass from(EntityPlayer player) {
@@ -97,18 +97,18 @@ public final class PlayerExtendedProperties implements IPlayerClass
         }
     }
 
-    public static Map<String, int[]> getCounterMap(EntityPlayer player) {
-        return from(player).getCounterMap();
-    }
+//    public static Map<String, int[]> getCounterMap(EntityPlayer player) {
+//        return from(player).getCounterMap();
+//    }
 
-    public Map<String, int[]> getCounterMap()
-    {
-        return this.counterMap;
-    }
+//    public Map<String, int[]> getCounterMap()
+//    {
+//        return this.counterMap;
+//    }
 
     public void capSkills() {
         for (String name : ClassBonus.skillNames) {
-            if (name.equals("XP"))
+            if (name.equals("UnspentSkillPoints"))
                 continue;
             int j = skillMap.get(name);
             if (j > ClassBonus.getMaxSkillPoints()) {
@@ -142,7 +142,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     public void convertPointsToXp(boolean resetClass) {
         final byte clas = playerClass;
         setPlayerClass((byte) 0);
-        skillMap.put("XP", getSkillPoints());
+        skillMap.put("UnspentSkillPoints", getSkillPoints());
         setPlayerData(new int[ClassBonus.skillNames.length - 1]);
         if (!resetClass)
             setPlayerClass(clas);

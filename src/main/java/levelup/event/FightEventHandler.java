@@ -1,5 +1,6 @@
 package levelup.event;
 
+import levelup.LevelUp;
 import levelup.player.PlayerExtendedProperties;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
@@ -14,6 +15,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 
+import java.util.logging.Level;
+
 public final class FightEventHandler {
     public static final FightEventHandler INSTANCE = new FightEventHandler();
 
@@ -27,26 +30,32 @@ public final class FightEventHandler {
         if (damagesource.getTrueSource() instanceof EntityPlayer) {
             EntityPlayer entityplayer = (EntityPlayer) damagesource.getTrueSource();
             if (damagesource instanceof EntityDamageSourceIndirect) {
-                if (!damagesource.damageType.equals("arrow")) {
-                    i *= 1.0F + BowEventHandler.getArcherSkill(entityplayer) / 100F;
-                }
+                // CODE TO SCALE ARROW DAMAGE BASED ON FINEESE??
+//                if (!damagesource.damageType.equals("arrow")) {
+//                    i *= 1.0F + LevelUp.getFinesse(entityplayer) / 100F;
+//                }
+                // CODE FOR RANGED SNEAK ATTACKS:
                 if (getDistance(event.getEntityLiving(), entityplayer) < 256F && entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 1.5F;
                     entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
                 }
             } else {
+                // CODE FOR RANDOM CRITS:
                 if (entityplayer.getHeldItemMainhand() != ItemStack.EMPTY) {
-                    int j = getSwordSkill(entityplayer);
+                    int j = LevelUp.getLuck(entityplayer);
                     if (entityplayer.getRNG().nextDouble() <= j / 200D)
                         i *= 2.0F;
                     i *= 1.0F + j / 5 / 20F;
                 }
+                // CODE FOR MELEE SNEAK ATTACKS:
                 if (entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
                     i *= 2.0F;
                     entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 2), true);
                 }
             }
         }
+        // CODE FOR RANDOM BLOCK CHANCE:
+        /*
         if (event.getEntityLiving() instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) event.getEntityLiving();
             int j = getDefenseSkill(player);
@@ -55,7 +64,7 @@ public final class FightEventHandler {
             if (isBlocking(player) && player.getRNG().nextFloat() < j / 100F) {
                 i *= 0F;
             }
-        }
+        }*/
         event.setAmount(i);
     }
 
@@ -64,6 +73,7 @@ public final class FightEventHandler {
         return player.isHandActive() && player.getActiveItemStack() != ItemStack.EMPTY && player.getActiveItemStack().getItem() instanceof ItemShield;
     }
 
+    // MORE SNEAK ATTACK CALCULATIONS:
     @SubscribeEvent
     public void onTargetSet(LivingSetAttackTargetEvent event) {
         if (event.getTarget() instanceof EntityPlayer && event.getEntityLiving() instanceof EntityMob) {
@@ -74,13 +84,6 @@ public final class FightEventHandler {
         }
     }
 
-    private int getDefenseSkill(EntityPlayer player) {
-        return PlayerExtendedProperties.getSkillFromIndex(player, 2);
-    }
-
-    private int getSwordSkill(EntityPlayer player) {
-        return PlayerExtendedProperties.getSkillFromIndex(player, 1);
-    }
 
     public static boolean canSeePlayer(EntityLivingBase entityLiving) {
         EntityPlayer entityplayer = entityLiving.world.getClosestPlayerToEntity(entityLiving, 16D);
@@ -118,7 +121,8 @@ public final class FightEventHandler {
         if (entityLiving == null || player == null) {
             return false;
         }
-        if (getDistance(entityLiving, player) > 256F - PlayerExtendedProperties.from(player).getSkillFromIndex("Sneaking") / 5 * 12.8F) {
+        // MORE CALCULATIONS FOR HOW STEALTH STAT AFFECTS AGGRO RANGE OF ENEMIES:
+        if (getDistance(entityLiving, player) > 256F - ((float)LevelUp.getStealth(player) / 5) * 12.8F) {
             return false;
         }
         return entityLiving.canEntityBeSeen(player) && entityIsFacing(player, entityLiving);

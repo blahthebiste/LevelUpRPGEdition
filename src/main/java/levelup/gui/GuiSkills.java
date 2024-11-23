@@ -11,6 +11,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
+import static levelup.player.PlayerExtendedProperties.getPlayerClass;
+
 public final class GuiSkills extends GuiScreen {
     private boolean closedWithButton;
     private final static int offset = 80;
@@ -30,12 +32,27 @@ public final class GuiSkills extends GuiScreen {
             mc.setIngameFocus();
         } else if (guibutton.id < 21) {
             if (getSkillOffset(skills.length - 1) > 0 && getSkillOffset(guibutton.id - 1) < ClassBonus.getMaxSkillPoints()) {
-                skills[guibutton.id - 1]++;
-                skills[skills.length - 1]--;
+                if(guibutton.id < 7) { // Class skills
+                    skills[guibutton.id + (cl * 6) - 1]++;
+                }
+                else { // Neutral skills
+                    skills[guibutton.id - 7]++;
+                }
+                skills[skills.length - 1]--; // Deduct skill points
             }
-        } else if (guibutton.id > 20 && skills[guibutton.id - 21] > 0) {
-            skills[guibutton.id - 21]--;
-            skills[skills.length - 1]++;
+        } else { // Minus buttons.
+            if(guibutton.id < 27) { // Class skills
+                if(skills[guibutton.id + (cl * 6) - 21] > 0) { // Only decrement down to zero
+                    skills[guibutton.id + (cl * 6) - 21]--;
+                    skills[skills.length - 1]++; // Refund skill points
+                }
+            }
+            else { // Neutral skills
+                if (skills[guibutton.id - 27] > 0) { // Only decrement down to zero
+                    skills[guibutton.id - 27]--;
+                    skills[skills.length - 1]++; // Refund skill points
+                }
+            }
         }
     }
 
@@ -47,8 +64,26 @@ public final class GuiSkills extends GuiScreen {
     @Override
     public void drawScreen(int i, int j, float f) {
         drawDefaultBackground();
-        String s = "";
-        String s1 = "";
+        String skillDescription1 = "";
+        String skillDescription2 = "";
+        if (cl < 0)
+            cl = getPlayerClass(mc.player);
+        if (cl > 0) {
+            drawCenteredString(fontRenderer, I18n.format("hud.skill.text2", I18n.format("class" + cl + ".name")), width / 2, 2, 0xffffff);
+        }
+        if(cl == 0) {
+            // Draw neutral skills only
+            for (int x = 1; x <= 6; x++) {
+                drawCenteredString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getSkillOffset(x-1), width / 2, 20 + 32 * (x-1), 0xffffff);
+            }
+        }
+        else {
+            // Draw neutral and class skills
+            for (int x = 1; x <= 6; x++) {
+                drawCenteredString(fontRenderer, I18n.format("skill" + (x + (cl*6)) + ".name") + ": " + getSkillOffset(x-1 + (cl*6)), width / 2 - offset, 20 + 32 * (x-1), 0xffffff);
+                drawCenteredString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getSkillOffset(x-1), width / 2 + offset, 20 + 32 * (x-1), 0xffffff);
+            }
+        }
         for (Object button : buttonList) {
             int l = ((GuiButton) button).id;
             if (l < 1 || l > 99) {
@@ -57,22 +92,19 @@ public final class GuiSkills extends GuiScreen {
             if (l > 20) {
                 l -= 20;
             }
-            if (((GuiButton) button).mousePressed(mc, i, j)) {
-                s = I18n.format("skill" + l + ".tooltip1");
-                s1 = I18n.format("skill" + l + ".tooltip2");
+            if (((GuiButton) button).mousePressed(mc, i, j)) { //1-12 are the skills
+                if(l < 7) { // Class skills
+                    skillDescription1 = I18n.format("skill" + (l + (cl * 6)) + ".tooltip1");
+                    skillDescription2 = I18n.format("skill" + (l + (cl * 6)) + ".tooltip2");
+                }
+                else { // Neutral skills
+                    skillDescription1 = I18n.format("skill" + (l - 6) + ".tooltip1");
+                    skillDescription2 = I18n.format("skill" + (l - 6) + ".tooltip2");
+                }
             }
         }
-        if (cl < 0)
-            cl = PlayerExtendedProperties.getPlayerClass(mc.player);
-        if (cl > 0) {
-            drawCenteredString(fontRenderer, I18n.format("hud.skill.text2", I18n.format("class" + cl + ".name")), width / 2, 2, 0xffffff);
-        }
-        for (int x = 0; x < 6; x++) {
-            drawCenteredString(fontRenderer, I18n.format("skill" + (x + 1) + ".name") + ": " + getSkillOffset(x), width / 2 - offset, 20 + 32 * x, 0xffffff);
-            drawCenteredString(fontRenderer, I18n.format("skill" + (x + 7) + ".name") + ": " + getSkillOffset(x + 6), width / 2 + offset, 20 + 32 * x, 0xffffff);
-        }
-        drawCenteredString(fontRenderer, s, width / 2, height / 6 + 168, 0xffffff);
-        drawCenteredString(fontRenderer, s1, width / 2, height / 6 + 180, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription1, width / 2, height / 6 + 148, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription2, width / 2, height / 6 + 160, 0xffffff);
         drawCenteredString(fontRenderer, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }

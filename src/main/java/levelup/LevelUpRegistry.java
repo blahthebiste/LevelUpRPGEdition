@@ -1,7 +1,5 @@
 package levelup;
 
-import levelup.event.PlayerEventHandler;
-import levelup.util.UtilRegistry;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.event.RegistryEvent;
@@ -18,10 +16,9 @@ public class LevelUpRegistry {
         evt.getRegistry().register(LevelUp.respecBook);
     }
 
-    @SubscribeEvent
+   /* @SubscribeEvent
     public static void registerRecipes(RegistryEvent.Register<IRecipe> evt) {
         LevelUp.initToW(evt);
-        UtilRegistry.initPlankCache();
-        PlayerEventHandler.registerOres();
     }
+    */
 }

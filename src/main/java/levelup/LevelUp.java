@@ -11,12 +11,6 @@ import levelup.item.ItemRespecBook;
 import levelup.player.IPlayerClass;
 import levelup.player.PlayerExtendedProperties;
 import levelup.proxy.SkillProxy;
-import levelup.util.CraftingBlacklist;
-import levelup.util.PlankCache;
-import levelup.util.UtilRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
@@ -31,7 +25,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -43,7 +36,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.*;
@@ -58,8 +50,8 @@ public final class LevelUp {
     public static SkillProxy proxy;
     private Property[] clientProperties;
     private Property[] serverProperties;
-    public static Item xpTalisman = new Item().setUnlocalizedName("xpTalisman").setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:xp_talisman"),
-            respecBook = new ItemRespecBook().setUnlocalizedName("respecBook").setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:respec_book");
+    public static Item xpTalisman = new Item().setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:xp_talisman"),
+            respecBook = new ItemRespecBook().setCreativeTab(CreativeTabs.TOOLS).setRegistryName("levelup:respec_book");
     private static Map<Object, Integer> towItems;
     private static List[] tiers;
     private static Configuration config;
@@ -89,48 +81,6 @@ public final class LevelUp {
             proxy.register(xpTalisman, "levelup:xp_talisman");
         if(respecBook!=null)
             proxy.register(respecBook, "levelup:respec_book");
-        UtilRegistry.init();/*
-logger.info("[Level Up] registering oredict stuff");
-        for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
-            ItemStack log;
-            ItemStack plank = new ItemStack(Blocks.PLANKS, 2, type.getMetadata());
-            if (type.getMetadata() < 4) {
-                log = new ItemStack(Blocks.LOG, 1, type.getMetadata());
-
-            } else {
-                log = new ItemStack(Blocks.LOG2, 1, type.getMetadata() - 4);
-            }
-            Block block = ((ItemBlock)log.getItem()).getBlock();
-            PlankCache.addBlock(block, log.getMetadata(), plank);
-        }
-        logger.info("[Level Up] vanilla logs loaded");
-        List<ItemStack> logs = OreDictionary.getOres("logWood");
-        for(ItemStack log : logs) {
-            if(log.getItem() != Items.AIR && log.getItem() instanceof ItemBlock) {
-                Block block = ((ItemBlock) log.getItem()).getBlock();
-                if (!block.getRegistryName().getResourceDomain().equals("minecraft")) {
-                    if (log.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                        for (int i = 0; i < 4; i++) {
-                            ItemStack planks = getRecipeOutput(new ItemStack(log.getItem(), 1, i));
-                            if (planks != null) {
-                                ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
-                                PlankCache.addBlock(block, i, cache);
-                                logger.info("[Level Up] registered log " + block.getRegistryName().toString());
-                            }
-                        }
-                    } else {
-                        ItemStack planks = getRecipeOutput(log);
-                        if (planks != null) {
-                            ItemStack cache = new ItemStack(planks.getItem(), 2, planks.getMetadata());
-                            PlankCache.addBlock(block, log.getMetadata(), cache);
-                            logger.info("[Level Up] registered log " + block.getRegistryName().toString());
-                        }
-                    }
-                }
-            }
-        }
-        logger.info("[Level Up] and the rest of the ores...");
-        PlayerEventHandler.registerOres();*/
     }
 
     private static ItemStack getRecipeOutput(ItemStack input) {
@@ -166,8 +116,6 @@ logger.info("[Level Up] registering oredict stuff");
         useServerProperties();
         CapabilityManager.INSTANCE.register(IPlayerClass.class, new LevelUpCapability.CapabilityPlayerClass<IPlayerClass>(), PlayerExtendedProperties.class);
         CapabilityManager.INSTANCE.register(IProcessor.class, new LevelUpCapability.CapabilityProcessorClass<IProcessor>(), LevelUpCapability.CapabilityProcessorDefault.class);
-        List<String> blackList = Arrays.asList(config.getStringList("Crops for farming", "BlackList", new String[]{""}, "That won't be affected by farming growth skill, uses internal block name. No sync to client needed."));
-        FMLEventHandler.INSTANCE.addCropsToBlackList(blackList);
         if (config.hasChanged())
             config.save();
         if (event.getSourceFile().getName().endsWith(".jar")) {
@@ -177,29 +125,29 @@ logger.info("[Level Up] registering oredict stuff");
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
     }
 
-    protected static void initToW(RegistryEvent.Register<IRecipe> evt) {
-        towItems = new HashMap<Object, Integer>();
-        initTalismanProperty(evt, "logWood", 2, "log");
-        initTalismanProperty(evt, Items.COAL, 2, "coal");
-        initTalismanProperty(evt, "ingotBrick", 4, "brick");
-        initTalismanProperty(evt, Items.BOOK, 4, "book");
-        initTalismanProperty(evt, "oreIron", 8, "iron_ore");
-        initTalismanProperty(evt, "gemLapis", 8, "lapis");
-        initTalismanProperty(evt, "dustRedstone", 8, "redstone");
-        initTalismanProperty(evt, Items.BREAD, 10, "bread");
-        initTalismanProperty(evt, Items.MELON, 10, "melon");
-        initTalismanProperty(evt, Item.getItemFromBlock(Blocks.PUMPKIN), 10, "pumpkin");
-        initTalismanProperty(evt, Items.COOKED_PORKCHOP, 12, "porkchop");
-        initTalismanProperty(evt, Items.COOKED_BEEF, 12, "beef");
-        initTalismanProperty(evt, Items.COOKED_CHICKEN, 12, "chicken");
-        initTalismanProperty(evt, Items.COOKED_FISH, 12, "fish");
-        initTalismanProperty(evt, Items.COOKED_MUTTON, 12, "mutton");
-        initTalismanProperty(evt, Items.COOKED_RABBIT, 12, "rabbit");
-        initTalismanProperty(evt, "ingotIron", 16, "iron_ingot");
-        initTalismanProperty(evt, "oreGold", 20, "gold_ore");
-        initTalismanProperty(evt, "ingotGold", 24, "gold_ingot");
-        initTalismanProperty(evt, "gemDiamond", 40, "diamond");
-    }
+//    protected static void initToW(RegistryEvent.Register<IRecipe> evt) {
+//        towItems = new HashMap<Object, Integer>();
+//        initTalismanProperty(evt, "logWood", 2, "log");
+//        initTalismanProperty(evt, Items.COAL, 2, "coal");
+//        initTalismanProperty(evt, "ingotBrick", 4, "brick");
+//        initTalismanProperty(evt, Items.BOOK, 4, "book");
+//        initTalismanProperty(evt, "oreIron", 8, "iron_ore");
+//        initTalismanProperty(evt, "gemLapis", 8, "lapis");
+//        initTalismanProperty(evt, "dustRedstone", 8, "redstone");
+//        initTalismanProperty(evt, Items.BREAD, 10, "bread");
+//        initTalismanProperty(evt, Items.MELON, 10, "melon");
+//        initTalismanProperty(evt, Item.getItemFromBlock(Blocks.PUMPKIN), 10, "pumpkin");
+//        initTalismanProperty(evt, Items.COOKED_PORKCHOP, 12, "porkchop");
+//        initTalismanProperty(evt, Items.COOKED_BEEF, 12, "beef");
+//        initTalismanProperty(evt, Items.COOKED_CHICKEN, 12, "chicken");
+//        initTalismanProperty(evt, Items.COOKED_FISH, 12, "fish");
+//        initTalismanProperty(evt, Items.COOKED_MUTTON, 12, "mutton");
+//        initTalismanProperty(evt, Items.COOKED_RABBIT, 12, "rabbit");
+//        initTalismanProperty(evt, "ingotIron", 16, "iron_ingot");
+//        initTalismanProperty(evt, "oreGold", 20, "gold_ore");
+//        initTalismanProperty(evt, "ingotGold", 24, "gold_ingot");
+//        initTalismanProperty(evt, "gemDiamond", 40, "diamond");
+//    }
 
     private static void initTalismanProperty(RegistryEvent.Register<IRecipe> evt, Object item, int value, String name) {
         towItems.put(item, value);
@@ -224,7 +172,7 @@ logger.info("[Level Up] registering oredict stuff");
         serverProperties = new Property[]{
                 config.get(cat, "Max points per skill", ClassBonus.getMaxSkillPoints(), "Minimum is 1"),
                 config.get(cat, "Bonus points for classes", ClassBonus.getBonusPoints(), "Points given when choosing a class, allocated automatically.\n Minimum is 0, Maximum is max points per skill times 2"),
-                config.get(cat, "Xp gain per level", PlayerEventHandler.xpPerLevel, "Minimum is 0"),
+                config.get(cat, "Skill Points gained per level", PlayerEventHandler.skillPointsPerLevel, "Minimum is 0"),
                 config.get(cat, "Skill points lost on death", (int) PlayerEventHandler.resetSkillOnDeath * 100, "How much skill points are lost on death, in percent.").setMinValue(0).setMaxValue(100),
                 config.get(cat, "Use old speed for dirt and gravel digging", PlayerEventHandler.oldSpeedDigging),
                 config.get(cat, "Use old speed for redstone breaking", PlayerEventHandler.oldSpeedRedstone, "Makes the redstone ore mining efficient"),
@@ -244,7 +192,7 @@ logger.info("[Level Up] registering oredict stuff");
         ClassBonus.setBonusPoints(serverProperties[1].getInt());
         double opt = serverProperties[2].getDouble();
         if (opt >= 0.0D)
-            PlayerEventHandler.xpPerLevel = opt <= ClassBonus.getMaxSkillPoints() ? opt : ClassBonus.getMaxSkillPoints();
+            PlayerEventHandler.skillPointsPerLevel = opt <= ClassBonus.getMaxSkillPoints() ? opt : ClassBonus.getMaxSkillPoints();
         PlayerEventHandler.resetSkillOnDeath = (float) serverProperties[3].getInt() / 100.00F;
         PlayerEventHandler.oldSpeedDigging = serverProperties[4].getBoolean();
         PlayerEventHandler.oldSpeedRedstone = serverProperties[5].getBoolean();
@@ -291,104 +239,6 @@ logger.info("[Level Up] registering oredict stuff");
         }
     }
 
-    public static void giveBonusFightingXP(EntityPlayer player) {
-        if (bonusFightingXP) {
-            byte pClass = PlayerExtendedProperties.getPlayerClass(player);
-            if (pClass == 2 || pClass == 5 || pClass == 8 || pClass == 11) {
-                player.addExperience(2);
-            }
-        }
-    }
-
-    public static void giveBonusCraftingXP(EntityPlayer player) {
-        if (bonusCraftingXP) {
-            byte pClass = PlayerExtendedProperties.getPlayerClass(player);
-            if (pClass == 3 || pClass == 6 || pClass == 9 || pClass == 12) {
-                runBonusCounting(player, 1);
-            }
-        }
-    }
-
-    public static void giveBonusMiningXP(EntityPlayer player) {
-        if (bonusMiningXP) {
-            byte pClass = PlayerExtendedProperties.getPlayerClass(player);
-            if (pClass == 1 || pClass == 4 || pClass == 7 || pClass == 10) {
-                runBonusCounting(player, 0);
-            }
-        }
-    }
-
-    private static void runBonusCounting(EntityPlayer player, int type) {
-        Map<String, int[]> counters = PlayerExtendedProperties.getCounterMap(player);
-        int[] bonus = counters.get(PlayerExtendedProperties.counters[2]);
-        if (bonus == null || bonus.length == 0) {
-            bonus = new int[]{0, 0, 0};
-        }
-        if (bonus[type] < 4) {
-            bonus[type]++;
-        } else {
-            bonus[type] = 0;
-            player.addExperience(2);
-        }
-        counters.put(PlayerExtendedProperties.counters[2], bonus);
-    }
-
-    public static void giveCraftingXP(EntityPlayer player, ItemStack itemstack) {
-        if (tiers != null)
-            for (int i = 0; i < tiers.length; i++) {
-                if (tiers[i].contains(itemstack.getItem()) && !isUncraftable(itemstack)) {
-                    incrementCraftCounter(player, i);
-                }
-            }
-    }
-
-    private static void incrementCraftCounter(EntityPlayer player, int i) {
-        Map<String, int[]> counters = PlayerExtendedProperties.getCounterMap(player);
-        int[] craft = counters.get(PlayerExtendedProperties.counters[1]);
-        if (craft.length <= i) {
-            int[] craftnew = new int[i + 1];
-            System.arraycopy(craft, 0, craftnew, 0, craft.length);
-            counters.put(PlayerExtendedProperties.counters[1], craftnew);
-            craft = craftnew;
-        }
-        craft[i]++;
-        float f = (float) Math.pow(2D, 3 - i);
-        boolean flag;
-        for (flag = false; f <= craft[i]; f += 0.5F) {
-            player.addExperience(1);
-            flag = true;
-        }
-        if (flag) {
-            craft[i] = 0;
-        }
-        counters.put(PlayerExtendedProperties.counters[1], craft);
-    }
-
-    public static void incrementOreCounter(EntityPlayer player, int i) {
-        if (oreMiningXP) {
-            Map<String, int[]> counters = PlayerExtendedProperties.getCounterMap(player);
-            int[] ore = counters.get(PlayerExtendedProperties.counters[0]);
-            if (ore.length <= i) {
-                int[] orenew = new int[i + 1];
-                System.arraycopy(ore, 0, orenew, 0, ore.length);
-                counters.put(PlayerExtendedProperties.counters[0], orenew);
-                ore = orenew;
-            }
-            ore[i]++;
-            float f = (float) Math.pow(2D, 3 - i) / 2.0F;
-            boolean flag;
-            for (flag = false; f <= ore[i]; f += 0.5F) {
-                player.addExperience(1);
-                flag = true;
-            }
-            if (flag) {
-                ore[i] = 0;
-            }
-            counters.put(PlayerExtendedProperties.counters[0], ore);
-        }
-        giveBonusMiningXP(player);
-    }
-
     public static boolean isTalismanRecipe(IInventory iinventory) {
         if (xpTalisman != null)
             for (int i = 0; i < iinventory.getSizeInventory(); i++) {
@@ -399,6 +249,7 @@ logger.info("[Level Up] registering oredict stuff");
         return false;
     }
 
+    /*
     public static void takenFromCrafting(EntityPlayer player, ItemStack itemstack, IInventory iinventory) {
         if (isTalismanRecipe(iinventory)) {
             for (int i = 0; i < iinventory.getSizeInventory(); i++) {
@@ -424,17 +275,18 @@ logger.info("[Level Up] registering oredict stuff");
                 }
             }
         }
-    }
+    }*/
 
-    private static String containsOreDictEntry(ItemStack stack) {
-        String[] toCheck = {"logWood", "ingotIron", "ingotGold", "ingotBrick", "gemDiamond", "oreIron", "oreGold", "dustRedstone", "gemLapis"};
-        for(String entry : toCheck) {
-            if(oreDictMatches(stack, OreDictionary.getOres(entry)))
-                return entry;
-        }
-        return null;
-    }
+//    private static String containsOreDictEntry(ItemStack stack) {
+//        String[] toCheck = {"logWood", "ingotIron", "ingotGold", "ingotBrick", "gemDiamond", "oreIron", "oreGold", "dustRedstone", "gemLapis"};
+//        for(String entry : toCheck) {
+//            if(oreDictMatches(stack, OreDictionary.getOres(entry)))
+//                return entry;
+//        }
+//        return null;
+//    }
 
+    // Could be useful later...
     private static boolean oreDictMatches(ItemStack stack, List<ItemStack> oreDict) {
         for(ItemStack ore : oreDict) {
             if(ore.getItemDamage() == OreDictionary.WILDCARD_VALUE && ore.getItem() == stack.getItem())
@@ -446,11 +298,40 @@ logger.info("[Level Up] registering oredict stuff");
         return false;
     }
 
-    private static boolean isUncraftable(ItemStack stack) {
-        return CraftingBlacklist.contains(stack);//item == Item.getItemFromBlock(Blocks.HAY_BLOCK) || item == Item.getItemFromBlock(Blocks.GOLD_BLOCK) || item == Item.getItemFromBlock(Blocks.IRON_BLOCK) || item == Item.getItemFromBlock(Blocks.DIAMOND_BLOCK);
+
+    // TODO: get accurate indices
+    public static int getVitality(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 0);
     }
 
-    private static boolean isUncraftable(Item item) {
-        return CraftingBlacklist.contains(item);
+    public static int getMight(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 1);
+    }
+
+    public static int getFinesse(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 2);
+    }
+
+    public static int getFocus(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 3);
+    }
+
+    public static int getStealth(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 4);
+    }
+
+    public static int getDevotion(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 5);
+    }
+
+    public static int getLuck(EntityPlayer player) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, 6);
+    }
+
+    /**
+     * Helper to retrieve skill points from the index
+     */
+    public static int getSkill(EntityPlayer player, int id) {
+        return PlayerExtendedProperties.getSkillFromIndex(player, id);
     }
 }

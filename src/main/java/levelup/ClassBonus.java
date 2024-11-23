@@ -8,21 +8,34 @@ public final class ClassBonus {
      * The key used for registering skill data into players
      */
     public static final ResourceLocation SKILL_LOCATION = new ResourceLocation("levelup", "skills");
-    public static final ResourceLocation FURNACE_LOCATION = new ResourceLocation("levelup", "cooking");
+//    public static final ResourceLocation FURNACE_LOCATION = new ResourceLocation("levelup", "cooking");
     public final static String SKILL_ID = "LevelUpSkills";
+
     /**
      * The sub keys used when registering each skill data
      */
-    public final static String[] skillNames = {"Mining", "Sword", "Defense", "WoodCutting", "Smelting", "Archery", "Athletics", "Cooking", "Sneaking", "Farming", "Fishing", "Digging", "XP"};
+    public final static String[] skillNames = {
+            "Vitality", "Might", "Finesse", "Focus", "Stealth", "Devotion", "Luck", // Core Attributes
+//            "Fatality", "Bulky", "Fleet", "Embed", "Brutalize", "Thwart", // Neutral skills
+//            "Rampage", "Culling", "Rend", "Savagery", "Determination", "Grit", // Berserker skills
+//            "Blessing", "Aura", "Repel", "Smite", "Purify", "Sunburst", // Cleric skills
+//            "Morph", "Morph2", "Morph3", "Morph4", "Morph5", "Morph6", // Druid skills
+//            "Stalwart", "Cleave", "Cavalry", "Fortress", "Disarm", "Counter", // Knight skills
+//            "Snipe", "Quickdraw", "Velocity", "Bullseye", "Piercing", "Strafe", // Archer skills
+//            "Vanish", "Stealth", "Nimble", "Envenom", "Lightweight", "Assassinate", // Rogue skills
+//            "Wizardry", "Wizardry2", "Wizardry3", "Wizardry4", "Wizardry5", "Wizardry6", // Wizard skills
+            "UnspentSkillPoints"
+    };
+
     /**
      * Total points given when choosing a class
      * Allocated in three skills for most classes
      */
-    private static int bonusPoints = 20;
+    private static int bonusPoints = 0;
     /**
      * The maximum value for each skill
      */
-    private static int maxSkillPoints = 50;
+    private static int maxSkillPoints = 100;
 
     public static int getBonusPoints() {
         return bonusPoints;
@@ -30,7 +43,7 @@ public final class ClassBonus {
 
     public static void setBonusPoints(int value) {
         if (value >= 0)
-            bonusPoints = value <= maxSkillPoints * 2 ? value : maxSkillPoints * 2;
+            bonusPoints = Math.min(value, maxSkillPoints * 2);
     }
 
     public static int getMaxSkillPoints() {
@@ -51,14 +64,14 @@ public final class ClassBonus {
         if (clas.isNone())
             return;
         if (clas.hasOnlyOneSkill()) {
-            addBonusToSkill(properties, skillNames[clas.main], bonusPoints, isNew);
+            addBonusToSkill(properties, skillNames[clas.bigStatBonus], bonusPoints, isNew);
             return;
         }
         int small = bonusPoints / 4;
         int big = bonusPoints - 2 * small;//Make sure all points are allocated no matter what value bonus is
-        addBonusToSkill(properties, skillNames[clas.main], big, isNew);
-        addBonusToSkill(properties, skillNames[clas.sec1], small, isNew);
-        addBonusToSkill(properties, skillNames[clas.sec2], small, isNew);
+        addBonusToSkill(properties, skillNames[clas.bigStatBonus], big, isNew);
+        addBonusToSkill(properties, skillNames[clas.smallStatBonus1], small, isNew);
+        addBonusToSkill(properties, skillNames[clas.smallStatBonus2], small, isNew);
     }
 
     /**
@@ -66,32 +79,27 @@ public final class ClassBonus {
      * First remove all bonus points from the old class,
      * then add all bonus points for the new one
      */
+    // No longer necessary, until we decide to give classes innate skills without them spending a skill point
     public static void applyBonus(PlayerExtendedProperties properties, byte oldClass, byte newClass) {
-        applyBonus(properties, oldClass, false);
-        applyBonus(properties, newClass, true);
+//        applyBonus(properties, oldClass, false);
+//        applyBonus(properties, newClass, true);
     }
 
-    public static enum CLASSES {
-        NONE(-1, -1, -1),
-        MINER(0, 11, 4),
-        WARRIOR(1, 2, 5),
-        ARTISAN(4, 3, 7),
-        SPELUNKER(2, 6, 0),
-        SCOUT(5, 8, 6),
-        FARMER(9, 10, 3),
-        ARCHAEOLOGIST(11, 3, 0),
-        ASSASSIN(8, 1, 5),
-        LUMBERJACK(3, 2, 6),
-        HERMIT(7, 11, 0),
-        ZEALOT(6, 1, 2),
-        FISHERMAN(10, 7, 3),
-        FREELANCE(12, 12, 12);
-        private final int main, sec1, sec2;
+    public enum CLASSES { // TODO: remove, clean up, or rework stat bonuses
+        NONE(0, 0, 0),
+        BERSERKER(-1, -1, -1),
+        CLERIC(2, 6, 0),
+        DRUID(5, 8, 6),
+        KNIGHT(0, 11, 4),
+        ARCHER(1, 2, 5),
+        ROGUE(4, 3, 7),
+        WIZARD(9, 10, 3);
+        private final int bigStatBonus, smallStatBonus1, smallStatBonus2;
 
-        private CLASSES(int main, int sec1, int sec2) {
-            this.main = main;
-            this.sec1 = sec1;
-            this.sec2 = sec2;
+        CLASSES(int bigStatBonus, int smallStatBonus1, int smallStatBonus2) {
+            this.bigStatBonus = bigStatBonus;
+            this.smallStatBonus1 = smallStatBonus1;
+            this.smallStatBonus2 = smallStatBonus2;
         }
 
         public static CLASSES from(byte b) {
@@ -105,7 +113,7 @@ public final class ClassBonus {
         }
 
         public boolean hasOnlyOneSkill() {
-            return this.main == this.sec1 && this.main == this.sec2;
+            return this.bigStatBonus == this.smallStatBonus1 && this.bigStatBonus == this.smallStatBonus2;
         }
     }
 }

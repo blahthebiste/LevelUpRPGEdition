@@ -30,7 +30,7 @@ public final class LevelUpHUD extends Gui {
         byte playerClass = PlayerExtendedProperties.getPlayerClass(LevelUp.proxy.getPlayer());
         if (playerClass != 0) {
             if (!LevelUp.renderExpBar) {
-                int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("XP");
+                int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
                 if (skillXP > 0) {
                     left.add(I18n.format("hud.skill.text1", skillXP));
                 }
@@ -82,7 +82,7 @@ public final class LevelUpHUD extends Gui {
         }
         String text = null;
         if (canShowSkills()) {
-            int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("XP");
+            int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
             if (skillXP > 0 && PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillPoints() < getTotalSkillPoints())
                 text = I18n.format("hud.skill.text1", skillXP);
         } else if (canSelectClass())
@@ -101,7 +101,7 @@ public final class LevelUpHUD extends Gui {
             return true;
         else {
             int points = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillPoints();
-            return points > PlayerEventHandler.minLevel * PlayerEventHandler.xpPerLevel || points > ClassBonus.getBonusPoints();
+            return points > PlayerEventHandler.minLevel * PlayerEventHandler.skillPointsPerLevel || points > ClassBonus.getBonusPoints();
         }
     }
 

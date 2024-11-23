@@ -1,26 +1,13 @@
 package levelup.capabilities;
 
-import levelup.api.LevelUpAPI;
-import levelup.event.FMLEventHandler;
-import levelup.util.SmeltingBlacklist;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 
 public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefault
 {
     public CapabilityFurnace(TileEntityFurnace furnace) {
         super(furnace);
     }
-
+/*
     @Override
     public void extraProcessing(EntityPlayer player) {
 
@@ -83,4 +70,6 @@ public class CapabilityFurnace extends LevelUpCapability.CapabilityProcessorDefa
             }
         }
     }
+
+ */
 }

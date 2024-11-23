@@ -1,17 +1,17 @@
 [
-{
-  "modid": "levelup",
-  "name": "Level Up!",
-  "description": "",
-  "version": $version,
-  "credits": "",
-  "logoFile": "",
-  "mcversion": $mcversion,
-  "url": "http://www.minecraftforum.net/topic/666507-",
-  "updateUrl": "",
-  "authorList": ["BeetoGuy", "PowerUp217","GotoLink"],
-  "parent":"",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "leveluprpg",
+    "name": "LevelUp! RPG Edition",
+    "description": "A fork of LevelUp! Legacy that leans more into traditional RPG classes",
+    "version": "${version}",
+    "url": "https://github.com/blahthebiste/LevelUPRPGEdition",
+    "updateUrl": "https://curseforge.com",
+    "authorList": [
+      "lumberjacksparrow"
+    ],
+    "credits": "Original Authors: BeetoGuy, GotoLink",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]
