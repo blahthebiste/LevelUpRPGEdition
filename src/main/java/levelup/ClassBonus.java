@@ -16,14 +16,6 @@ public final class ClassBonus {
      */
     public final static String[] skillNames = {
             "Vitality", "Might", "Finesse", "Focus", "Stealth", "Devotion", "Luck", // Core Attributes
-//            "Fatality", "Bulky", "Fleet", "Embed", "Brutalize", "Thwart", // Neutral skills
-//            "Rampage", "Culling", "Rend", "Savagery", "Determination", "Grit", // Berserker skills
-//            "Blessing", "Aura", "Repel", "Smite", "Purify", "Sunburst", // Cleric skills
-//            "Morph", "Morph2", "Morph3", "Morph4", "Morph5", "Morph6", // Druid skills
-//            "Stalwart", "Cleave", "Cavalry", "Fortress", "Disarm", "Counter", // Knight skills
-//            "Snipe", "Quickdraw", "Velocity", "Bullseye", "Piercing", "Strafe", // Archer skills
-//            "Vanish", "Stealth", "Nimble", "Envenom", "Lightweight", "Assassinate", // Rogue skills
-//            "Wizardry", "Wizardry2", "Wizardry3", "Wizardry4", "Wizardry5", "Wizardry6", // Wizard skills
             "UnspentSkillPoints"
     };
 
@@ -90,7 +82,6 @@ public final class ClassBonus {
         BERSERKER(-1, -1, -1),
         CLERIC(2, 6, 0),
         DRUID(5, 8, 6),
-        KNIGHT(0, 11, 4),
         ARCHER(1, 2, 5),
         ROGUE(4, 3, 7),
         WIZARD(9, 10, 3);

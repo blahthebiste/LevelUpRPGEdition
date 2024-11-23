@@ -32,13 +32,11 @@ public final class GuiClasses extends GuiScreen {
         buttonList.clear();
         buttonList.add(new GuiButton(0, width / 2 + 96, height / 6 + 168, 96, 20, I18n.format("gui.done")));
         buttonList.add(new GuiButton(100, width / 2 - 192, height / 6 + 168, 96, 20, I18n.format("gui.cancel")));
-        for (int j = 1; j < 7; j = j + 3) {
+        for (int j = 1; j < 6; j = j + 3) {
             for (int i = 0; i < 3; i++) {
                 buttonList.add(new GuiButton(i + j, width / 2 - 160 + i * 112, 18 + 32 * (j - 1) / 3, 96, 20, I18n.format("class" + (i + j) + ".name")));
             }
         }
-        // For now do Wizard separately since we don't have a number of classes divisible by 3
-        buttonList.add(new GuiButton(7, width / 2 - 48, 82, 96, 20, I18n.format("class7.name")));
     }
 
     @Override
