@@ -2,38 +2,30 @@ package levelup.event;
 
 import levelup.ClassBonus;
 import levelup.LevelUp;
-import levelup.api.IProcessor;
-import levelup.capabilities.LevelUpCapability;
 import levelup.player.PlayerExtendedProperties;
 import levelup.SkillPacketHandler;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraft.block.Block;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 
 import java.util.*;
 
 public final class FMLEventHandler {
     /**
-     * Movement data for Athletics
+     * Attribute modifier uuids
      */
-    private static final UUID speedID = UUID.fromString("4f7637c8-6106-4050-96cb-e47f83bfa415");
-    /**
-     * Movement data for Sneaking
-     */
-    private static final UUID sneakID = UUID.fromString("a4dc0b04-f78a-43f6-8805-5ebfbab10b18");
+    private static final UUID luckUID = UUID.fromString("4f7637c8-6106-40d0-96cb-e47f83bfa415");
+    private static final UUID attackDamageUID = UUID.fromString("a4dc0b04-f78a-43f6-8805-5ebfaab10b18");
+    private static final UUID maxHPUID = UUID.fromString("34dc0b04-f48a-43f6-8805-5ebfaab10b18");
+    private static final UUID toughnessUID = UUID.fromString("24dc0b04-f48a-43f6-8805-5ebfaab10b18");
+
     public static final FMLEventHandler INSTANCE = new FMLEventHandler();
     /**
      * Blocks that could be crops, but should be left alone by Farming skill
@@ -47,89 +39,54 @@ public final class FMLEventHandler {
     public void onPlayerUpdate(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             EntityPlayer player = event.player;
-            //Furnace speed bonus for Smelting / Cooking
-            if(player != null && !player.world.isRemote) {
-                List<TileEntity> tile = new ArrayList<TileEntity>();
-                BlockPos checkPos = new BlockPos(player.posX, player.posY, player.posZ);
-                for(BlockPos pos : BlockPos.getAllInBox(checkPos.add(-4, -2, -4), checkPos.add(4, 3, 4))) {
-                    if(pos.getY() > 0) {
-                        if(event.player.world.getTileEntity(pos) != null) {
-                            TileEntity entity = event.player.world.getTileEntity(pos);
-                            if(entity.hasCapability(LevelUpCapability.MACHINE_PROCESSING, EnumFacing.DOWN))
-                                tile.add(entity);
-                        }
-                    }
-                }
-                if(!tile.isEmpty()) {
-                    for(TileEntity entity : tile) {
-                        IProcessor process = entity.getCapability(LevelUpCapability.MACHINE_PROCESSING, EnumFacing.DOWN);
-                        process.extraProcessing(player);
-                    }
-                }
-            }
-            /*
-            if (!player.world.isRemote && player.openContainer instanceof ContainerFurnace) {
-                TileEntityFurnace furnace = (TileEntityFurnace)((ContainerFurnace) player.openContainer).tileFurnace;
-                if (furnace != null && furnace.isBurning()) {//isBurning
-                    if (furnace.canSmelt()) {//canCook
-                        ItemStack stack = furnace.getStackInSlot(0);
-                        if (stack != null) {
-                            int bonus;
-                            if (stack.getItem().getItemUseAction(stack) == EnumAction.EAT) {
-                                bonus = getSkill(player, 7);
-                            } else {
-                                bonus = getSkill(player, 4);
-                            }
-                            if (bonus > 10) {
-                                int time = player.getRNG().nextInt(bonus / 10);
-                                if (time != 0 && furnace.getField(2) + time < furnace.getField(3)) {//Increase burn time
-                                    furnace.setField(2, furnace.getField(2) + time);
-                                }
-                            }
-                        }
-                    }
-                }
-            }*/
             //Give points on levelup
             if (PlayerExtendedProperties.getPlayerClass(player) != 0) {
                 double diff = PlayerEventHandler.skillPointsPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.from(player).getSkillPoints();
                 if (diff >= 1.0D)
                     PlayerExtendedProperties.from(player).addToSkill("UnspentSkillPoints", (int) Math.floor(diff));
             }
-            //Farming grow crops
-//            int skill = getSkill(player, 9);
-//            if (!player.world.isRemote/* && player.getHeldItemMainhand()!=null && player.getHeldItemMainhand().getItem() instanceof ItemHoe*/ && skill != 0 && player.getRNG().nextFloat() <= skill / 2500F) {
-//                growCropsAround(player.world, skill / 4, player);
-//            }
-            //Athletics speed
-//            IAttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-//            AttributeModifier mod;
-//            skill = getSkill(player, 6);
-//            if (skill != 0) {
-//                mod = new AttributeModifier(speedID, "SprintingSkillSpeed", skill / 100F, 2);
-//                if (player.isSprinting()) {
-//                    if (atinst.getModifier(speedID) == null) {
-//                        atinst.applyModifier(mod);
-//                    }
-//                } else if (atinst.getModifier(speedID) != null) {
-//                    atinst.removeModifier(mod);
-//                }
-//                if (player.fallDistance > 0) {
-//                    player.fallDistance *= 1 - skill / 5 / 100F;
-//                }
-//            }
-            //Sneaking speed
-//            skill = getSkill(player, 8);
-//            if (skill != 0) {
-//                mod = new AttributeModifier(sneakID, "SneakingSkillSpeed", 2 * skill / 100F, 2);
-//                if (player.isSneaking()) {
-//                    if (atinst.getModifier(sneakID) == null) {
-//                        atinst.applyModifier(mod);
-//                    }
-//                } else if (atinst.getModifier(sneakID) != null) {
-//                    atinst.removeModifier(mod);
-//                }
-//            }
+            // Luck modifier
+            IAttributeInstance luckAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.LUCK);
+            AttributeModifier mod;
+            int luck = LevelUp.getLuck(player);
+            if (luck != 0) {
+                // Add luck at a 1-to-1 ratio
+                if (luckAttributeInstance.getModifier(luckUID) != null) {
+                    luckAttributeInstance.removeModifier(luckUID);
+                }
+                mod = new AttributeModifier(luckUID, "BonusLuckFromSkill", luck, 0);
+                luckAttributeInstance.applyModifier(mod);
+            }
+            // Melee attack damage modifier
+            IAttributeInstance attackDamageAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+            int might = LevelUp.getMight(player);
+            if (might != 0) {
+                // Add +0.25 melee damage per point of might
+                if (attackDamageAttributeInstance.getModifier(attackDamageUID) != null) {
+                    attackDamageAttributeInstance.removeModifier(attackDamageUID);
+                }
+                mod = new AttributeModifier(attackDamageUID, "BonusMightFromSkill", might * 0.25F, 0);
+                attackDamageAttributeInstance.applyModifier(mod);
+            }
+            // Max HP modifier
+            int vitality = LevelUp.getVitality(player);
+            if (vitality != 0) {
+                IAttributeInstance maxHPAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+                IAttributeInstance toughnessAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
+                // Add max HP at a 1-to-1 ratio
+                if (maxHPAttributeInstance.getModifier(maxHPUID) != null) {
+                    maxHPAttributeInstance.removeModifier(maxHPUID);
+                }
+                mod = new AttributeModifier(maxHPUID, "BonusMaxHPFromSkill", vitality, 0);
+                maxHPAttributeInstance.applyModifier(mod);
+                // Toughness modifier
+                // Add 1 toughness per 5 Vitality
+                if (toughnessAttributeInstance.getModifier(toughnessUID) != null) {
+                    toughnessAttributeInstance.removeModifier(toughnessUID);
+                }
+                mod = new AttributeModifier(toughnessUID, "BonusToughnessFromSkill", (vitality / 5.0F), 0);
+                toughnessAttributeInstance.applyModifier(mod);
+            }
         }
     }
 
@@ -166,9 +123,9 @@ public final class FMLEventHandler {
     /**
      * Helper to retrieve skill points from the index
      */
-    public static int getSkill(EntityPlayer player, int id) {
-        return PlayerExtendedProperties.getSkillFromIndex(player, id);
-    }
+//    public static int getSkill(EntityPlayer player, int id) {
+//        return PlayerExtendedProperties.getSkillFromIndex(player, id);
+//    }
 
     /**
      * Add more output when smelting food for Cooking and other items for Smelting
@@ -236,6 +193,26 @@ public final class FMLEventHandler {
             byte cl = PlayerExtendedProperties.getPlayerClass(player);
             int[] data = PlayerExtendedProperties.from(player).getPlayerData(false);
             LevelUp.initChannel.sendTo(SkillPacketHandler.getPacket(Side.CLIENT, 0, cl, data), (EntityPlayerMP) player);
+        }
+    }
+
+    // Remove attribute modifiers from the player
+    public void clearAllModifiers(EntityPlayer player) {
+        IAttributeInstance luckAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.LUCK);
+        IAttributeInstance attackDamageAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+        IAttributeInstance maxHPAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+        IAttributeInstance toughnessAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
+        if (luckAttributeInstance.getModifier(luckUID) != null) {
+            luckAttributeInstance.removeModifier(luckUID);
+        }
+        if (attackDamageAttributeInstance.getModifier(attackDamageUID) != null) {
+            attackDamageAttributeInstance.removeModifier(attackDamageUID);
+        }
+        if (maxHPAttributeInstance.getModifier(maxHPUID) != null) {
+            maxHPAttributeInstance.removeModifier(maxHPUID);
+        }
+        if (toughnessAttributeInstance.getModifier(toughnessUID) != null) {
+            toughnessAttributeInstance.removeModifier(toughnessUID);
         }
     }
 }

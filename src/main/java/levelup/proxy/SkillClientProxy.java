@@ -2,7 +2,7 @@ package levelup.proxy;
 
 import levelup.LevelUp;
 import levelup.gui.LevelUpHUD;
-import levelup.event.SkillKeyHandler;
+import levelup.event.LevelUpMenuKeyHandler;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -31,7 +31,7 @@ public final class SkillClientProxy extends SkillProxy {
     @Override
     public void registerGui() {
         MinecraftForge.EVENT_BUS.register(LevelUpHUD.INSTANCE);
-        FMLCommonHandler.instance().bus().register(SkillKeyHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(LevelUpMenuKeyHandler.INSTANCE);
     }
 
     @Override

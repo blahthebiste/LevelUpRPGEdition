@@ -29,7 +29,8 @@ public final class ItemRespecBook extends Item {
     {
         ItemStack itemstack = player.getHeldItem(hand);
         if (!world.isRemote) {
-            PlayerExtendedProperties.from(player).convertPointsToXp(itemstack.getItemDamage() > 0);
+            PlayerExtendedProperties.from(player).refundSkillPoints(itemstack.getItemDamage() > 0);
+            FMLEventHandler.INSTANCE.clearAllModifiers(player);
             FMLEventHandler.INSTANCE.loadPlayer(player);
         }
         if (!player.capabilities.isCreativeMode)

@@ -11,11 +11,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
 
-public final class SkillKeyHandler {
-    public static final SkillKeyHandler INSTANCE = new SkillKeyHandler();
+public final class LevelUpMenuKeyHandler {
+    public static final LevelUpMenuKeyHandler INSTANCE = new LevelUpMenuKeyHandler();
     private final KeyBinding keys = new KeyBinding("LvlUpGUI", Keyboard.KEY_L, "key.categories.gui");
 
-    private SkillKeyHandler() {
+    private LevelUpMenuKeyHandler() {
         ClientRegistry.registerKeyBinding(keys);
     }
 

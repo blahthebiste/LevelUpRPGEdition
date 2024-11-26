@@ -2,8 +2,6 @@ package levelup.player;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.Map;
-
 public interface IPlayerClass
 {
     int getSkillFromIndex(String ID);
@@ -16,7 +14,7 @@ public interface IPlayerClass
 
     void loadNBTData(NBTTagCompound tag);
 
-    void convertPointsToXp(boolean convert);
+    void refundSkillPoints(boolean convert);
 
     int getSkillPoints();
 

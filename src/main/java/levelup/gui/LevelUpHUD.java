@@ -52,22 +52,22 @@ public final class LevelUpHUD extends Gui {
         }
     }
 
-    @SubscribeEvent
-    public void onFOV(FOVUpdateEvent event){
-        if(!LevelUp.changeFOV && !event.getEntity().isUser()) {
-            int skill = 0;
-            if(event.getEntity().isSneaking()){
-                skill = 2 * FMLEventHandler.getSkill(event.getEntity(), 8);
-            }else if(event.getEntity().isSprinting()){
-                skill = FMLEventHandler.getSkill(event.getEntity(), 6);
-            }
-            if(skill > 0){
-                event.setNewfov(event.getFov() - 0.5F);
-                event.setNewfov(event.getNewfov() * 1/(1.0F + skill / 100F));
-                event.setNewfov(event.getNewfov() + 0.5F);
-            }
-        }
-    }
+//    @SubscribeEvent
+//    public void onFOV(FOVUpdateEvent event){
+//        if(!LevelUp.changeFOV && !event.getEntity().isUser()) {
+//            int skill = 0;
+//            if(event.getEntity().isSneaking()){
+//                skill = 2 * FMLEventHandler.getSkill(event.getEntity(), 8);
+//            }else if(event.getEntity().isSprinting()){
+//                skill = FMLEventHandler.getSkill(event.getEntity(), 6);
+//            }
+//            if(skill > 0){
+//                event.setNewfov(event.getFov() - 0.5F);
+//                event.setNewfov(event.getNewfov() * 1/(1.0F + skill / 100F));
+//                event.setNewfov(event.getNewfov() + 0.5F);
+//            }
+//        }
+//    }
 
     private void addToExpBar(ScaledResolution res) {
         val += valIncr;

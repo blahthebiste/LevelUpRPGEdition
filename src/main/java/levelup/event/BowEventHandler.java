@@ -1,6 +1,6 @@
 package levelup.event;
 
-import levelup.player.PlayerExtendedProperties;
+import levelup.LevelUp;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -8,8 +8,6 @@ import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayer;
-
-import static levelup.LevelUp.getFinesse;
 
 public final class BowEventHandler {
     public static final BowEventHandler INSTANCE = new BowEventHandler();
@@ -38,8 +36,8 @@ public final class BowEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onBowUse(ArrowNockEvent event)
     {
-        int archer = getFinesse(event.getEntityPlayer());
-        if(archer > 4) {
+        int finesse = LevelUp.getFinesse(event.getEntityPlayer());
+        if(finesse > 0) {
             event.getEntityPlayer().setActiveHand(event.getHand());
             setItemUseCount(event.getEntityPlayer());
             event.setAction(new ActionResult<ItemStack>(EnumActionResult.SUCCESS, event.getBow()));
@@ -48,6 +46,6 @@ public final class BowEventHandler {
 
     // Quickens using the bow (pullback)
     private void setItemUseCount(EntityPlayer player) {
-        player.activeItemStackUseCount -= getFinesse(player) / 5;
+        player.activeItemStackUseCount -= (int)(((float)LevelUp.getFinesse(player))/2.5F);
     }
 }

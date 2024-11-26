@@ -22,7 +22,6 @@ public final class GuiSkills extends GuiScreen {
 
     @Override
     protected void actionPerformed(GuiButton guibutton) {
-        System.out.println("User pressed button with ID "+guibutton.id);
         if (guibutton.id == 0) {
             closedWithButton = true;
             mc.displayGuiScreen(null);
@@ -75,7 +74,7 @@ public final class GuiSkills extends GuiScreen {
 //        if(cl == 0) {
             // Draw neutral skills only
         for (int x = 1; x <= skills.length - 1; x++) {
-            drawCenteredString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getTotalSkillLevelPlusPending(x-1), width / 2, 20 + 27 * (x-1), 0xffffff);
+            drawString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getTotalSkillLevelPlusPending(x-1), (width / 2) - 50, 24 + 25 * (x-1), 0xffffff);
         }
 //        }
 //        else {
@@ -104,8 +103,8 @@ public final class GuiSkills extends GuiScreen {
 //                }
             }
         }
-        drawCenteredString(fontRenderer, skillDescription1, width / 2, height / 6 + 148, 0xffffff);
-        drawCenteredString(fontRenderer, skillDescription2, width / 2, height / 6 + 160, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription1, width / 2, height / 6 + 156, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription2, width / 2, height / 6 + 168, 0xffffff);
         drawCenteredString(fontRenderer, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }
@@ -118,12 +117,11 @@ public final class GuiSkills extends GuiScreen {
         updateSkillList();
         buttonList.add(new GuiButton(0, width / 2 + 96, height / 6 + 180, 96, 20, I18n.format("gui.done")));
         buttonList.add(new GuiButton(100, width / 2 - 192, height / 6 + 180, 96, 20, I18n.format("gui.cancel")));
+        // Make +/- buttons for each skill
         for (int index = 0; index < skills.length-1; index++) {
-            System.out.println("Adding plus button at index "+(1 + index));
-            buttonList.add(new GuiButton(1 + index, (width / 2 + 44), 15 + 27 * index, 20, 20, "+"));
+            buttonList.add(new GuiButton(1 + index, (width / 2) + 46, 15 + 25 * index, 20, 20, "+"));
 //            buttonList.add(new GuiButton(7 + index, width / 2 + 44 + offset, 15 + 32 * index, 20, 20, "+"));
-            System.out.println("Adding minus button at index "+(21 + index));
-            buttonList.add(new GuiButton(21 + index, width / 2 - 64, 15 + 27 * index, 20, 20, "-"));
+            buttonList.add(new GuiButton(21 + index, (width / 2) +16, 15 + 25 * index, 20, 20, "-"));
 //            buttonList.add(new GuiButton(27 + index, (width / 2 - 64) + offset, 15 + 32 * index, 20, 20, "-"));
         }
     }

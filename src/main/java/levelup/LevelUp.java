@@ -41,7 +41,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import java.util.*;
 import java.util.logging.Logger;
 
-@Mod(modid = LevelUp.ID, name = "Level Up! Legacy", version = "${version}", guiFactory = "levelup.ConfigLevelUp")
+@Mod(modid = LevelUp.ID, name = "${mod_id}", version = "${version}", guiFactory = "levelup.ConfigLevelUp")
 public final class LevelUp {
     public final static String ID = "levelup";
     @Instance(value = ID)

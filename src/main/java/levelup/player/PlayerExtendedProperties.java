@@ -139,7 +139,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     }
 
     @Override
-    public void convertPointsToXp(boolean resetClass) {
+    public void refundSkillPoints(boolean resetClass) {
         final byte clas = playerClass;
         setPlayerClass((byte) 0);
         skillMap.put("UnspentSkillPoints", getSkillPoints());
