@@ -47,7 +47,7 @@ public final class SkillPacketHandler {
 
     private void handleClassChange(byte newClass, EntityPlayerMP entityPlayerMP) {
         if (newClass >= 0) {
-            PlayerExtendedProperties.from(entityPlayerMP).setPlayerClass(newClass);
+            PlayerExtendedProperties.getClassOfPlayer(entityPlayerMP).setPlayerClass(newClass);
             FMLEventHandler.INSTANCE.loadPlayer(entityPlayerMP);
         }
     }
@@ -84,14 +84,14 @@ public final class SkillPacketHandler {
                 sum += data[i];
             }
         }
-        IPlayerClass properties = PlayerExtendedProperties.from(player);
+        IPlayerClass properties = PlayerExtendedProperties.getClassOfPlayer(player);
         if (!isInit) {
             if (properties.hasClass())
                 if (data != null && button == -1 && sum == 0) {
                     if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillFromIndex("UnspentSkillPoints")) {
                         for (int index = 0; index < data.length; index++) {
                             if (data[index] != 0) {
-                                properties.addToSkill(ClassBonus.skillNames[index], data[index]);
+                                properties.addToSkill(ClassBonus.skillNames[index], data[index], player);
                             }
                         }
                         FMLEventHandler.INSTANCE.loadPlayer(player);

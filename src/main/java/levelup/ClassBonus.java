@@ -1,6 +1,7 @@
 package levelup;
 
 import levelup.player.PlayerExtendedProperties;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 public final class ClassBonus {
@@ -47,23 +48,23 @@ public final class ClassBonus {
             ClassBonus.maxSkillPoints = value;
     }
 
-    public static void addBonusToSkill(PlayerExtendedProperties properties, String name, int bonus, boolean isNew) {
-        properties.addToSkill(name, bonus * (isNew ? 1 : -1));
+    public static void addBonusToSkill(PlayerExtendedProperties properties, String name, int bonus, boolean isNew, EntityPlayer player) {
+        properties.addToSkill(name, bonus * (isNew ? 1 : -1), player);
     }
 
-    private static void applyBonus(PlayerExtendedProperties properties, byte playerClass, boolean isNew) {
+    private static void applyBonus(PlayerExtendedProperties properties, byte playerClass, boolean isNew, EntityPlayer player) {
         CLASSES clas = CLASSES.from(playerClass);
         if (clas.isNone())
             return;
         if (clas.hasOnlyOneSkill()) {
-            addBonusToSkill(properties, skillNames[clas.bigStatBonus], bonusPoints, isNew);
+            addBonusToSkill(properties, skillNames[clas.bigStatBonus], bonusPoints, isNew, player);
             return;
         }
         int small = bonusPoints / 4;
         int big = bonusPoints - 2 * small;//Make sure all points are allocated no matter what value bonus is
-        addBonusToSkill(properties, skillNames[clas.bigStatBonus], big, isNew);
-        addBonusToSkill(properties, skillNames[clas.smallStatBonus1], small, isNew);
-        addBonusToSkill(properties, skillNames[clas.smallStatBonus2], small, isNew);
+        addBonusToSkill(properties, skillNames[clas.bigStatBonus], big, isNew, player);
+        addBonusToSkill(properties, skillNames[clas.smallStatBonus1], small, isNew, player);
+        addBonusToSkill(properties, skillNames[clas.smallStatBonus2], small, isNew, player);
     }
 
     /**

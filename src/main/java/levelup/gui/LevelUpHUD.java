@@ -3,14 +3,12 @@ package levelup.gui;
 import levelup.ClassBonus;
 import levelup.LevelUp;
 import levelup.player.PlayerExtendedProperties;
-import levelup.event.FMLEventHandler;
 import levelup.event.PlayerEventHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
@@ -30,7 +28,7 @@ public final class LevelUpHUD extends Gui {
         byte playerClass = PlayerExtendedProperties.getPlayerClass(LevelUp.proxy.getPlayer());
         if (playerClass != 0) {
             if (!LevelUp.renderExpBar) {
-                int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
+                int skillXP = PlayerExtendedProperties.getClassOfPlayer(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
                 if (skillXP > 0) {
                     left.add(I18n.format("hud.skill.text1", skillXP));
                 }
@@ -82,8 +80,8 @@ public final class LevelUpHUD extends Gui {
         }
         String text = null;
         if (canShowSkills()) {
-            int skillXP = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
-            if (skillXP > 0 && PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillPoints() < getTotalSkillPoints())
+            int skillXP = PlayerExtendedProperties.getClassOfPlayer(LevelUp.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
+            if (skillXP > 0 && PlayerExtendedProperties.getClassOfPlayer(LevelUp.proxy.getPlayer()).getSkillPoints() < getTotalSkillPoints())
                 text = I18n.format("hud.skill.text1", skillXP);
         } else if (canSelectClass())
             text = I18n.format("hud.skill.select");
@@ -100,13 +98,13 @@ public final class LevelUpHUD extends Gui {
         if (LevelUp.proxy.getPlayer().experienceLevel >= PlayerEventHandler.minLevel)
             return true;
         else {
-            int points = PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).getSkillPoints();
+            int points = PlayerExtendedProperties.getClassOfPlayer(LevelUp.proxy.getPlayer()).getSkillPoints();
             return points > PlayerEventHandler.minLevel * PlayerEventHandler.skillPointsPerLevel || points > ClassBonus.getBonusPoints();
         }
     }
 
     public static boolean canShowSkills() {
-        return PlayerExtendedProperties.from(LevelUp.proxy.getPlayer()).hasClass();
+        return PlayerExtendedProperties.getClassOfPlayer(LevelUp.proxy.getPlayer()).hasClass();
     }
 
     private static int getTotalSkillPoints() {

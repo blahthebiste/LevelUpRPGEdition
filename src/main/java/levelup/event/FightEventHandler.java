@@ -58,6 +58,7 @@ public final class FightEventHandler {
             EntityPlayer player = (EntityPlayer) event.getEntityLiving();
             float finesse = (float) LevelUp.getFinesse(player);
             damage -= (finesse/5.0F);
+            if(damage < 0.0F) damage = 0.0F;
         }
         event.setAmount(damage);
     }

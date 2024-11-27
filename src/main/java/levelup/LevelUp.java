@@ -298,8 +298,6 @@ public final class LevelUp {
         return false;
     }
 
-
-    // TODO: get accurate indices
     public static int getVitality(EntityPlayer player) {
         return PlayerExtendedProperties.getSkillFromIndex(player, 0);
     }
@@ -328,10 +326,4 @@ public final class LevelUp {
         return PlayerExtendedProperties.getSkillFromIndex(player, 6);
     }
 
-    /**
-     * Helper to retrieve skill points from the index
-     */
-    public static int getSkill(EntityPlayer player, int id) {
-        return PlayerExtendedProperties.getSkillFromIndex(player, id);
-    }
 }

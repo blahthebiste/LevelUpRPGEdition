@@ -1,5 +1,6 @@
 package levelup.player;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface IPlayerClass
@@ -14,7 +15,7 @@ public interface IPlayerClass
 
     void loadNBTData(NBTTagCompound tag);
 
-    void refundSkillPoints(boolean convert);
+    void refundSkillPoints(boolean convert, EntityPlayer player);
 
     int getSkillPoints();
 
@@ -24,7 +25,7 @@ public interface IPlayerClass
 
     void takeSkillFraction(float resetSkill);
 
-    void addToSkill(String name, int experience);
+    void addToSkill(String name, int experience, EntityPlayer player);
 
     int[] getPlayerData(boolean withClass);
 
