@@ -103,8 +103,8 @@ public final class GuiSkills extends GuiScreen {
 //                }
             }
         }
-        drawCenteredString(fontRenderer, skillDescription1, width / 2, height / 6 + 156, 0xffffff);
-        drawCenteredString(fontRenderer, skillDescription2, width / 2, height / 6 + 168, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription1, width / 2, height / 6 + 136, 0xffffff);
+        drawCenteredString(fontRenderer, skillDescription2, width / 2, height / 6 + 148, 0xffffff);
         drawCenteredString(fontRenderer, I18n.format("xp.next", getExperiencePoints(mc.player)), width / 2, height / 6 + 192, 0xFFFFFF);
         super.drawScreen(i, j, f);
     }

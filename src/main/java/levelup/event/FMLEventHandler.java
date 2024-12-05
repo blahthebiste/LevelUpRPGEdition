@@ -53,34 +53,6 @@ public final class FMLEventHandler {
         }
     }
 
-    @SubscribeEvent
-    public void onLivingHeal(LivingHealEvent event) {
-        if (event.getEntityLiving() instanceof EntityPlayer) {
-            EntityPlayer player = (EntityPlayer)event.getEntityLiving();
-            // CODE FOR DEVOTION IMPROVING HEALING
-            float devotion = (float)LevelUp.getDevotion(player);
-            float bonusHealingMultiplier = 1+(devotion*0.1F); // Each point increases healing by 10%
-            event.setAmount(event.getAmount()*bonusHealingMultiplier);
-        }
-    }
-
-    // Chance to keep positive potion effects based on Devotion
-    @SubscribeEvent
-    public void onPotionExpiry(PotionEvent.PotionExpiryEvent event) {
-        if(event.getEntityLiving() instanceof EntityPlayer) {
-            EntityPlayer player = (EntityPlayer)event.getEntityLiving();
-            player.sendMessage(new TextComponentString("Potion expired event"));
-            int devotion = LevelUp.getDevotion(player);
-            if (!event.getPotionEffect().getPotion().isBadEffect() && devotion > 0) {
-                player.sendMessage(new TextComponentString("Potion reapplied!"));
-                player.sendMessage(new TextComponentString("Devotion = "+devotion));
-                player.sendMessage(new TextComponentString("Amplifier = "+event.getPotionEffect().getAmplifier()));
-                player.sendMessage(new TextComponentString("Potion = "+event.getPotionEffect().getPotion().getName()));
-                event.getEntityLiving().addPotionEffect(new PotionEffect(event.getPotionEffect().getPotion(), devotion*20, event.getPotionEffect().getAmplifier()));
-            }
-        }
-    }
-
     /**
      * Apply bonemeal on non-black-listed blocks around player
      */

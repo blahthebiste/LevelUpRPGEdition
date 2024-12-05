@@ -26,12 +26,9 @@ skill4.tooltip2=Slightly improves mana regen.
 skill5.name=Sneak
 skill5.tooltip1=Reduces how far away enemies notice you from.
 skill5.tooltip2=Slightly improves crit damage.
-skill6.name=Devotion
-skill6.tooltip1=Increases how much healing you receive from all sources.
-skill6.tooltip2=Slightly improves the duration of buffs on you.
-skill7.name=Luck
-skill7.tooltip1=Improves loot from certain sources.
-skill7.tooltip2=Grants a small chance for a random critical strike.
+skill6.name=Luck
+skill6.tooltip1=Improves loot from certain sources.
+skill6.tooltip2=Grants a small chance for a random critical strike.
 gui.class.title=Selected: %s
 
 class0.name=<None>

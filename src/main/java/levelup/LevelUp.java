@@ -318,10 +318,6 @@ public final class LevelUp {
         return PlayerExtendedProperties.getSkillFromIndex(player, 4);
     }
 
-    public static int getDevotion(EntityPlayer player) {
-        return PlayerExtendedProperties.getSkillFromIndex(player, 5);
-    }
-
     public static int getLuck(EntityPlayer player) {
         return PlayerExtendedProperties.getSkillFromIndex(player, 6);
     }
