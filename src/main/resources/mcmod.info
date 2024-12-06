@@ -3,7 +3,7 @@
     "modid": "leveluprpg",
     "name": "LevelUp! RPG Edition",
     "description": "A fork of LevelUp! Legacy that leans more into traditional RPG classes",
-    "version": "${version}",
+    "version": "1.0.0",
     "url": "https://github.com/blahthebiste/LevelUPRPGEdition",
     "updateUrl": "https://curseforge.com",
     "authorList": [

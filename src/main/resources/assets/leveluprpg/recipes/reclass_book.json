@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "leveluprpg:respec_book",
+    "data": 1
+  },
+  "type": "forge:ore_shaped",
+  "pattern": [
+    " E ",
+    "EBE",
+    " E "
+  ],
+  "key": {
+    "E": {
+      "ore": "enderpearl",
+      "type": "forge:ore_dict"
+    },
+    "B": {
+      "item": "leveluprpg:respec_book",
+      "data": 0
+    }
+  }
+}

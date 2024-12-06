@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
-  "package": "levelup.mixin",
-  "refmap": "refmap.levelup.json",
+  "package": "leveluprpg.mixin",
+  "refmap": "refmap.leveluprpg.json",
   "mixins": [
   ],
   "client": [
