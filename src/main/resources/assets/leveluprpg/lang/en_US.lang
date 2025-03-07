@@ -1,6 +1,8 @@
-﻿item.leveluprpg:respec_book.name=Book of Unlearning
+﻿item.leveluprpg.respec_book.name=Book of Unlearning
+item.leveluprpg.respec_book_full.name=Book of Unlearning
 
-respecbook.canresetclass=This book will also reset your class.
+respecbook.normal=This book will reset your skill points.
+respecbook.canresetclass=This book will reset your class and skill points.
 
 hud.skill.text1=Skill Points: %d
 hud.skill.text2=Class: %s
@@ -50,7 +52,6 @@ config.leveluprpg.title=LevelUp! Configuration Screen
 config.leveluprpg.option0=Allow HUD : %b
 config.leveluprpg.option1=Render HUD on Top Left : %b
 config.leveluprpg.option2=Render HUD on Exp Bar : %b
-config.leveluprpg.option3=FOV is based on speed : %b
 
 sneak.attack=Sneak attack for %d x damage!
 

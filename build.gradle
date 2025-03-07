@@ -16,11 +16,14 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
 
 
-version = mod_version
-group = mod_id
-archivesBaseName = mod_id
+version = '1.0.0'
+group = 'com.lumberjacksparrow.leveluprpg'
+archivesBaseName = 'leveluprpg'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceSets.all {
+    it.output.resourcesDir = it.output.classesDirs.getFiles().iterator().next()
+}
 
 minecraft {
     mappings channel: mappings_channel, version: mappings_version
@@ -86,6 +89,7 @@ processResources {
 sourceSets {
     main {
         refMap = mod_mixin_refmap.replace('${mod_id}', mod_id)
+        output.resourcesDir = output.classesDir
     }
 }
 

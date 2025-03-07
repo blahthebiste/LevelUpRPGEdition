@@ -1,6 +1,6 @@
 {
   "compatibilityLevel": "JAVA_8",
-  "package": "leveluprpg.mixin",
+  "package": "com.lumberjacksparrow.leveluprpg.mixin",
   "refmap": "refmap.leveluprpg.json",
   "mixins": [
   ],
