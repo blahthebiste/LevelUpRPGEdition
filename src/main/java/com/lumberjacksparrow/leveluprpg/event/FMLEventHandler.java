@@ -10,8 +10,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.*;
+
+import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getClassOfPlayer;
 
 public final class FMLEventHandler {
 
@@ -27,24 +30,37 @@ public final class FMLEventHandler {
     @SubscribeEvent
     public void onPlayerUpdate(TickEvent.PlayerTickEvent event) {
         EntityPlayer player = event.player;
-        if (event.phase == TickEvent.Phase.START) {
-            //Give points on leveluprpg
-            if (PlayerExtendedProperties.getPlayerClass(player) != 0) {
-                double diff = PlayerEventHandler.skillPointsPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.getClassOfPlayer(player).getSkillPoints();
-                if (diff >= 1.0D)
-                    PlayerExtendedProperties.getClassOfPlayer(player).addToSkill("UnspentSkillPoints", (int) Math.floor(diff), player);
-            }
-        }
-        if(player == null || player.getEntityWorld().isRemote || player.getEntityWorld().getMinecraftServer() == null) {
+        if(player == null || player.getEntityWorld().isRemote || player.getEntityWorld().getMinecraftServer() == null || event.phase != TickEvent.Phase.START)
+        {
             return;
         }
+        //Give points on leveluprpg
+        if (PlayerExtendedProperties.getPlayerClass(player) != 0) {
+            double diff = PlayerEventHandler.skillPointsPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + ClassBonus.getBonusPoints() - PlayerExtendedProperties.getClassOfPlayer(player).getSkillPoints();
+            if (diff >= 1.0D)
+                PlayerExtendedProperties.getClassOfPlayer(player).addToSkill("UnspentSkillPoints", (int) Math.floor(diff), player);
+        }
+        // Mana regen
+        if(player.world.getWorldTime() % 20 == 0) {
+            doManaRegen(player);
+        }
+
+    }
+
+    public void doManaRegen(EntityPlayer player){
         int focus = LevelUpRPG.getFocus(player);
-        if(focus != 0) {
-            // Mana regen: just run the mana regen command each second
-            if(player.world.getWorldTime() % 20 == 0 ) {
-                String manaRegenCommand = "/addPlayerMana " + player.getName() + " "+(((float)focus)/5.0f);
-                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), manaRegenCommand);
-            }
+//        System.out.println("DEBUG: LevelUpRPG, focus = "+focus);
+        // Mana regen: just run the mana regen command each second
+        float amount = ((float)focus)/5.0f;
+//        System.out.println("DEBUG: LevelUpRPG, base mana regen = "+amount);
+        // Wizards get +4 mana regen per second
+        if("wizard".equalsIgnoreCase(getClassOfPlayer(player).getClassName())) {
+            amount += 5.0f;
+//            System.out.println("DEBUG: LevelUpRPG, new mana regen = "+amount);
+        }
+        if(amount > 0.0f) {
+            String manaRegenCommand = "/addPlayerMana " + player.getName() + " "+amount;
+            player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), manaRegenCommand);
         }
     }
 

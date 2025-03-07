@@ -223,6 +223,9 @@ public final class PlayerExtendedProperties implements IPlayerClass
         if (!resetClass)
             setPlayerClass(clas);
         clearAllModifiers(player);
+        // Reset max mana:
+        String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+10;
+        player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), maxManaCommand);
     }
 
     @Override
