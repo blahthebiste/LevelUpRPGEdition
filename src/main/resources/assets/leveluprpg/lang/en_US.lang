@@ -1,5 +1,6 @@
-﻿item.leveluprpg.respec_book.name=Book of Unlearning
-item.leveluprpg.respec_book_full.name=Book of Unlearning
+﻿
+item.leveluprpg.respec_book_full.name=§bBook of Unlearning
+item.leveluprpg.respec_book.name=Book of Unlearning
 
 respecbook.normal=This book will reset your skill points.
 respecbook.canresetclass=This book will reset your class and skill points.
