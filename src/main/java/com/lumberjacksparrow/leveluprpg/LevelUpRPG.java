@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -78,6 +79,11 @@ public final class LevelUpRPG {
         }
         MinecraftForge.EVENT_BUS.register(FMLEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+    }
+
+    @EventHandler
+    public void load(FMLPostInitializationEvent event) {
+        FightEventHandler.init();
     }
 
     private void initClientProperties() {

@@ -154,6 +154,26 @@ public final class PlayerExtendedProperties implements IPlayerClass
     }
 
     @Override
+    public String getClassName() {
+        switch (playerClass) {
+            case 1:
+                return "BERSERKER";
+            case 2:
+                return "CLERIC";
+            case 3:
+                return "DRUID";
+            case 4:
+                return "WIZARD";
+            case 5:
+                return "ARCHER";
+            case 6:
+                return "ROGUE";
+            default:
+                return "NONE";
+        }
+    }
+
+    @Override
     public void setPlayerClass(byte newClass) {
         if (newClass != playerClass) {
             ClassBonus.applyBonus(this, playerClass, newClass);

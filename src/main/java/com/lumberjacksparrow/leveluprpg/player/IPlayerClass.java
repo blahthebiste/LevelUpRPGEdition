@@ -9,6 +9,8 @@ public interface IPlayerClass
 
     byte getPlayerClass();
 
+    String getClassName();
+
 //    Map<String, int[]> getCounterMap();
 
     NBTTagCompound saveNBTData(NBTTagCompound tag);

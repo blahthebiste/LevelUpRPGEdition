@@ -2,10 +2,16 @@ package com.lumberjacksparrow.leveluprpg.event;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -19,10 +25,37 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 
+import java.util.HashMap;
+
+import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getClassOfPlayer;
+import static java.util.Objects.isNull;
+
 public final class FightEventHandler {
     public static final FightEventHandler INSTANCE = new FightEventHandler();
 
+    public static HashMap<String, ResourceLocation> arrowEntityToItemMap = new HashMap<>();
+    public static HashMap<String, ResourceLocation> tippedArrowEntityToItemMap = new HashMap<>();
+
     private FightEventHandler() {
+
+    }
+
+    public static void init() {
+        arrowEntityToItemMap.put("Arrow", new ResourceLocation("minecraft:arrow"));
+        arrowEntityToItemMap.put("entity.SpectralArrow.name", new ResourceLocation("minecraft:spectral_arrow"));
+        arrowEntityToItemMap.put("stymphalianarrow", new ResourceLocation("iceandfire:stymphalian_arrow"));
+        arrowEntityToItemMap.put("amphitherearrow", new ResourceLocation("iceandfire:amphithere_arrow"));
+        arrowEntityToItemMap.put("seaserpentarrow", new ResourceLocation("iceandfire:sea_serpent_arrow"));
+        arrowEntityToItemMap.put("dragonarrow", new ResourceLocation("iceandfire:dragonbone_arrow"));
+        arrowEntityToItemMap.put("hydra_arrow", new ResourceLocation("iceandfire:hydra_arrow"));
+        arrowEntityToItemMap.put("spartanweaponry:arrow_wood", new ResourceLocation("spartanweaponry:arrow_wood"));
+        arrowEntityToItemMap.put("spartanweaponry:arrow_iron", new ResourceLocation("spartanweaponry:arrow_iron"));
+        arrowEntityToItemMap.put("spartanweaponry:arrow_diamond", new ResourceLocation("spartanweaponry:arrow_diamond"));
+
+        tippedArrowEntityToItemMap.put("Arrow", new ResourceLocation("minecraft:tipped_arrow"));
+        tippedArrowEntityToItemMap.put("spartanweaponry:arrow_wood", new ResourceLocation("spartanweaponry:arrow_wood_tipped"));
+        tippedArrowEntityToItemMap.put("spartanweaponry:arrow_iron", new ResourceLocation("spartanweaponry:arrow_iron_tipped"));
+        tippedArrowEntityToItemMap.put("spartanweaponry:arrow_diamond", new ResourceLocation("spartanweaponry:arrow_diamond_tipped"));
     }
 
     @SubscribeEvent
@@ -33,6 +66,13 @@ public final class FightEventHandler {
         if (entityPlayer.getRNG().nextDouble() <= luck / 100D) { // 1% per luck
             event.setResult(Event.Result.ALLOW);
         }
+        // Rogues always crit while sneaking
+        if(entityPlayer.isSneaking() && "rogue".equalsIgnoreCase(getClassOfPlayer(entityPlayer).getClassName())) {
+            event.setResult(Event.Result.ALLOW);
+        }
+//        else {
+//            System.out.println("DEBUG: LevelUpRPG, player class was "+getClassOfPlayer(entityPlayer).getClassName());
+//        }
         // If a random crit or normal crit was active, apply bonus crit damage based on Sneak stat
         if(event.getResult().equals(Event.Result.ALLOW) || event.isVanillaCritical()) {
             int sneak = LevelUpRPG.getStealth(entityPlayer);
@@ -70,6 +110,43 @@ public final class FightEventHandler {
                     damage *= 1.5F;
                     entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
                 }
+                // Archer's returning arrow skill:
+                if(damagesource.isProjectile() && "archer".equalsIgnoreCase(getClassOfPlayer(entityplayer).getClassName())) {
+                    Entity ent = damagesource.getImmediateSource();
+                    if(ent instanceof EntityArrow) {
+                        EntityArrow arrow = (EntityArrow) ent;
+                        entityplayer.inventory.addItemStackToInventory(arrow.getArrowStack());
+/*                    if(!isNull(arrow) && (arrowEntityToItemMap.containsKey(arrow.getName()) || tippedArrowEntityToItemMap.containsKey(arrow.getName()))) {
+                        // Check for potion tipped arrows:
+                        NBTTagCompound nbtTag = arrow.getEntityData();
+                        System.out.println("DEBUG: LevelUpRPG, Entity def: "+ arrow.getName());
+                        System.out.println("DEBUG: LevelUpRPG, Entity nbt: "+ arrow.getEntityData());
+                        ItemStack arrowItemStack = null;
+                        if(!nbtTag.hasKey("Potion")) {
+                            System.out.println("DEBUG: LevelUpRPG, No potion effect.");
+                            arrowItemStack = new ItemStack(Item.REGISTRY.getObject(arrowEntityToItemMap.get(arrow.getName())));
+
+                        }
+                        else {
+                            NBTTagCompound potionEffect = nbtTag.getCompoundTag("Potion");
+                            System.out.println("DEBUG: LevelUpRPG, potion effect: "+potionEffect);
+                            arrowItemStack = new ItemStack(Item.REGISTRY.getObject(tippedArrowEntityToItemMap.get(arrow.getName())));
+                            arrowItemStack.setTagCompound(potionEffect);
+                        }
+                        if(isNull(arrowItemStack)) {
+                            System.out.println("WARNING: LevelUpRPG, ItemStack is null. Name: "+arrow.getName());
+                        }
+                        else {
+                            entityplayer.inventory.addItemStackToInventory(arrowItemStack);
+                        }
+                    }
+                    else {
+                        System.out.println("DEBUG: LevelUpRPG, arrow name is: "+arrow.getName());
+                    }
+
+ */
+                    }
+                }
             } else {
                 // CODE FOR MELEE SNEAK ATTACKS:
                 if (entityplayer.isSneaking() && !canSeePlayer(event.getEntityLiving()) && !entityIsFacing(event.getEntityLiving(), entityplayer)) {
@@ -79,6 +156,26 @@ public final class FightEventHandler {
             }
         }
         event.setAmount(damage);
+    }
+
+    // Berserker: on melee kill, regain full HP.
+    @SubscribeEvent
+    public void onLivingDeath(LivingDeathEvent event) {
+        if(isNull(event) || isNull(event.getSource()) || isNull(event.getSource().getTrueSource())) {
+            return;
+        }
+        if(event.getSource().isProjectile() || event.getSource().isMagicDamage()) {
+            // Player did not use melee weapon for this kill, so do nothing
+            return;
+        }
+        Entity killer = event.getSource().getTrueSource();
+        if(killer instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer)killer;
+            if("berserker".equalsIgnoreCase(getClassOfPlayer(player).getClassName())){
+                // The player was a berserker and killed with melee; give them 6 healing
+                player.heal(6);
+            }
+        }
     }
 
     private boolean isBlocking(EntityPlayer player)
