@@ -1,5 +1,6 @@
 package com.lumberjacksparrow.leveluprpg.item;
 
+import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.event.FMLEventHandler;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
 import mcp.MethodsReturnNonnullByDefault;
@@ -17,6 +18,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -65,7 +67,22 @@ public class ItemClericBook extends Item {
         if (!world.isRemote && entityLiving instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer)entityLiving;
             if(!player.capabilities.isCreativeMode) {
-                player.getCooldownTracker().setCooldown(this, COOLDOWN);
+                int luck = LevelUpRPG.getLuck(player);
+                if(luck > 0) {
+                    double roll = player.getRNG().nextDouble();
+                    double highrollChance = 0.02*luck; // 2% chance per luck point to ignore cooldown
+                    if(roll > highrollChance) { // Did not get lucky, no free cooldown
+                        player.getCooldownTracker().setCooldown(this, COOLDOWN);
+                    }
+                    else {
+                        player.sendStatusMessage(new TextComponentTranslation("cleric.gotlucky"), true);
+                    }
+                }
+                else {
+                    player.getCooldownTracker().setCooldown(this, COOLDOWN);
+                }
+                //int modifiedCooldown = COOLDOWN - (luck*300); // Reduce cooldown by 15 seconds for each point of luck
+
             }
             //Create the holy nova
             player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), holyNovaCommand);

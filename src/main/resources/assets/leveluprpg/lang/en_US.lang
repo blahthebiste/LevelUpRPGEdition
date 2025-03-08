@@ -7,8 +7,8 @@ respecbook.normal=This book will reset your skill points.
 respecbook.canresetclass=This book will reset your class and skill points.
 
 clericbook.notcleric=Clerics use these tomes to channel their devotion into powerful magic.
-clericbook.clericready=§aHold right-click to unleash your Holy Nova! (10 minute cooldown)
-clericbook.clericcooldown=Cooling down
+clericbook.clericready=§aHold right-click to unleash your Holy Nova!
+clericbook.clericcooldown=Cooling down (%d seconds remaining)
 
 hud.skill.text1=Skill Points: %d
 hud.skill.text2=Class: %s
@@ -62,3 +62,5 @@ config.leveluprpg.option2=Render HUD on Exp Bar : %b
 sneak.attack=Sneak attack for %d x damage!
 
 level.invalid=§e§l[Level Up!]§r§e You must reach level 4 before choosing a class.§r
+
+cleric.gotlucky=§aYou feel a surge of power. Your Holy Nova is ready once more!
