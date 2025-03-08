@@ -1,5 +1,6 @@
 package com.lumberjacksparrow.leveluprpg;
 
+import com.lumberjacksparrow.leveluprpg.item.ItemClericBook;
 import com.lumberjacksparrow.leveluprpg.item.ItemFullRespecBook;
 import com.lumberjacksparrow.leveluprpg.item.ItemRespecBook;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -17,10 +18,12 @@ import java.util.Objects;
 public class LevelUpRegistry {
     public static ItemRespecBook respecBook;
     public static ItemFullRespecBook respecBookFull;
+    public static ItemClericBook clericBook;
 
     public static void init() {
         respecBook = new ItemRespecBook();
         respecBookFull = new ItemFullRespecBook();
+        clericBook = new ItemClericBook();
     }
 
     @SubscribeEvent
@@ -28,12 +31,14 @@ public class LevelUpRegistry {
         System.out.println("DEBUG: LevelUpRPG, registering items");
         evt.getRegistry().register(respecBook);
         evt.getRegistry().register(respecBookFull);
+        evt.getRegistry().register(clericBook);
     }
 
     @SubscribeEvent
     public static void onModelRegister(ModelRegistryEvent event) {
         registerRender(respecBook);
         registerRender(respecBookFull);
+        registerRender(clericBook);
     }
 
     private static void registerRender(Item item)

@@ -1,9 +1,14 @@
 ﻿
 item.leveluprpg.respec_book_full.name=§bBook of Unlearning
 item.leveluprpg.respec_book.name=Book of Unlearning
+item.leveluprpg.cleric_book.name=§eBook of Benediction
 
 respecbook.normal=This book will reset your skill points.
 respecbook.canresetclass=This book will reset your class and skill points.
+
+clericbook.notcleric=Clerics use these tomes to channel their devotion into powerful magic.
+clericbook.clericready=§aHold right-click to unleash your Holy Nova! (10 minute cooldown)
+clericbook.clericcooldown=Cooling down
 
 hud.skill.text1=Skill Points: %d
 hud.skill.text2=Class: %s
