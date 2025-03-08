@@ -3,6 +3,7 @@
   "package": "com.lumberjacksparrow.leveluprpg.mixin",
   "refmap": "refmap.leveluprpg.json",
   "mixins": [
+    "ArrowStackAccessMixin"
   ],
   "client": [
   ],

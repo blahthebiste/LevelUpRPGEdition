@@ -83,7 +83,7 @@ public final class LevelUpRPG {
 
     @EventHandler
     public void load(FMLPostInitializationEvent event) {
-        FightEventHandler.init();
+
     }
 
     private void initClientProperties() {
