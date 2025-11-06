@@ -7,6 +7,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.HashMap;
@@ -174,11 +175,22 @@ public final class PlayerExtendedProperties implements IPlayerClass
     }
 
     @Override
-    public void setPlayerClass(byte newClass) {
+    public void setPlayerClass(byte newClass, EntityPlayer player) {
         if (newClass != playerClass) {
             ClassBonus.applyBonus(this, playerClass, newClass);
             capSkills();
             playerClass = newClass;
+            // Check for Druid. Run the command to grant them morphing
+            if(newClass == 3) {
+                String grantMorphingCommand = "/morph enable " + player.getName();
+                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), grantMorphingCommand);
+            }
+            else {
+                String removeMorphingCommand = "/morph disable " + player.getName();
+                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), removeMorphingCommand);
+                String forceDemorphCommand = "/morph demorph " + player.getName() + " true";
+                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), forceDemorphCommand);
+            }
         }
     }
 
@@ -217,11 +229,11 @@ public final class PlayerExtendedProperties implements IPlayerClass
     @Override
     public void refundSkillPoints(boolean resetClass, EntityPlayer player) {
         final byte clas = playerClass;
-        setPlayerClass((byte) 0);
+        setPlayerClass((byte) 0, player);
         skillMap.put("UnspentSkillPoints", getSkillPoints());
         setPlayerData(new int[ClassBonus.skillNames.length - 1]);
         if (!resetClass)
-            setPlayerClass(clas);
+            setPlayerClass(clas, player);
         clearAllModifiers(player);
         // Reset max mana:
         String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+10;

@@ -49,7 +49,7 @@ public final class SkillPacketHandler {
 
     private void handleClassChange(byte newClass, EntityPlayerMP entityPlayerMP) {
         if (newClass >= 0) {
-            PlayerExtendedProperties.getClassOfPlayer(entityPlayerMP).setPlayerClass(newClass);
+            PlayerExtendedProperties.getClassOfPlayer(entityPlayerMP).setPlayerClass(newClass, entityPlayerMP);
             FMLEventHandler.INSTANCE.loadPlayer(entityPlayerMP);
         }
     }
@@ -100,7 +100,7 @@ public final class SkillPacketHandler {
                     }
                 }
         } else if (data != null) {
-            properties.setPlayerClass(button);
+            properties.setPlayerClass(button, player);
             properties.setPlayerData(data);
         }
     }

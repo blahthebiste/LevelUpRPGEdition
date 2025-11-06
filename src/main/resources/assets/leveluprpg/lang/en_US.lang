@@ -41,17 +41,17 @@ gui.class.title=Selected: %s
 class0.name=<None>
 class0.tooltip= 
 class1.name=Berserker
-class1.tooltip=Chop foes to bits, relish in the blood-lust, and be too angry to die.
+class1.tooltip=Regain HP on each melee kill.
 class2.name=Cleric
-class2.tooltip=Use light to protect friends and innocents alike from the forces of darkness.
+class2.tooltip=Unleash powerful Holy Novas from your Book of Benediction.
 class3.name=Druid
 class3.tooltip=Shape-shift into any animal you have acquired.
 class4.name=Wizard
-class4.tooltip=I'm a what?!
+class4.tooltip=Recover mana much faster than most.
 class5.name=Archer
-class5.tooltip=Snipe the hair off of a bee from a mile away.
+class5.tooltip=Arrows that hit their mark are returned to you immediately.
 class6.name=Rogue
-class6.tooltip=Sneak in the shadows, back-stab unaware foes, and turn invisible.
+class6.tooltip=Your sneak attacks automatically crit.
 
 
 config.leveluprpg.title=LevelUp! Configuration Screen

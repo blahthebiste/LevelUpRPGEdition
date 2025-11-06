@@ -56,8 +56,6 @@ public final class LevelUpRPG {
         configChannel.register(sk);
         logger.info("[Level Up] registering clientside stuff");
         proxy.registerGui();
-        if(LevelUpRegistry.respecBook != null) proxy.register(LevelUpRegistry.respecBook, "levelup:respec_book");
-        if(LevelUpRegistry.respecBookFull != null) proxy.register(LevelUpRegistry.respecBookFull, "levelup:respec_book_full");
     }
 
     @EventHandler
@@ -141,6 +139,7 @@ public final class LevelUpRPG {
         }
     }
 
+    // Hard coded map of property ID to stat
     public static int getVitality(EntityPlayer player) {
         return PlayerExtendedProperties.getSkillFromIndex(player, 0);
     }

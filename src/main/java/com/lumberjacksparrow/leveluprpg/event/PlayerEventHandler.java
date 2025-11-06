@@ -56,7 +56,7 @@ public final class PlayerEventHandler {
     public void onDeath(LivingDeathEvent event) {
         if (event.getEntityLiving() instanceof EntityPlayer) {
             if (resetClassOnDeath) {
-                PlayerExtendedProperties.getClassOfPlayer((EntityPlayer) event.getEntityLiving()).setPlayerClass((byte) 0);
+                PlayerExtendedProperties.getClassOfPlayer((EntityPlayer) event.getEntityLiving()).setPlayerClass((byte) 0, (EntityPlayer) event.getEntityLiving());
             }
             if (resetSkillOnDeath > 0.00F) {
                 PlayerExtendedProperties.getClassOfPlayer((EntityPlayer) event.getEntityLiving()).takeSkillFraction(resetSkillOnDeath);

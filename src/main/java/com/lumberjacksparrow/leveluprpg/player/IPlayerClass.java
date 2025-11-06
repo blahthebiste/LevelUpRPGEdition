@@ -23,7 +23,7 @@ public interface IPlayerClass
 
     boolean hasClass();
 
-    void setPlayerClass(byte type);
+    void setPlayerClass(byte type, EntityPlayer player);
 
     void takeSkillFraction(float resetSkill);
 

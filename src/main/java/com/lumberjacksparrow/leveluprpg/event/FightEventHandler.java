@@ -108,7 +108,7 @@ public final class FightEventHandler {
         event.setAmount(damage);
     }
 
-    // Berserker: on melee kill, regain full HP.
+    // Berserker: on melee kill, regain some HP.
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         if(isNull(event) || isNull(event.getSource()) || isNull(event.getSource().getTrueSource())) {
