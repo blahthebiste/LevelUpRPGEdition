@@ -32,12 +32,12 @@ public class ItemRespecBook extends Item {
     {
         ItemStack itemstack = player.getHeldItem(hand);
         if (!world.isRemote) {
-            PlayerExtendedProperties.getClassOfPlayer(player).refundSkillPoints(false, player);
+            PlayerExtendedProperties.getFrom(player).refundSkillPoints(false, player);
             FMLEventHandler.INSTANCE.loadPlayer(player);
         }
         if (!player.capabilities.isCreativeMode)
             itemstack.shrink(1);
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
+        return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
     }
 
 

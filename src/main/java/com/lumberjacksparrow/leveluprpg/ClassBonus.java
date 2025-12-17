@@ -1,15 +1,13 @@
 package com.lumberjacksparrow.leveluprpg;
 
-import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+
 
 public final class ClassBonus {
     /**
      * The key used for registering skill data into players
      */
     public static final ResourceLocation SKILL_LOCATION = new ResourceLocation("com/lumberjacksparrow/leveluprpg", "skills");
-    public final static String SKILL_ID = "LevelUpSkills";
 
     /**
      * The sub keys used when registering each skill data
@@ -18,38 +16,11 @@ public final class ClassBonus {
             "Vitality", "Might", "Finesse", "Focus", "Stealth", "Luck", // Core Attributes
             "UnspentSkillPoints"
     };
-
-    /**
-     * Total points given when choosing a class
-     * Allocated in three skills for most classes
-     */
-    private static int bonusPoints = 0;
-    /**
-     * The maximum value for each skill
-     */
-    private static int maxSkillPoints = 20;
-
-    public static int getBonusPoints() {
-        return bonusPoints;
-    }
-
-    public static void setBonusPoints(int value) {
-        if (value >= 0)
-            bonusPoints = Math.min(value, maxSkillPoints * 2);
-    }
-
-    public static int getMaxSkillPoints() {
-        return maxSkillPoints;
-    }
-
-    public static void setSkillMax(int value) {
-        if (value > 0)
-            ClassBonus.maxSkillPoints = value;
-    }
-
+/*
     public static void addBonusToSkill(PlayerExtendedProperties properties, String name, int bonus, boolean isNew, EntityPlayer player) {
         properties.addToSkill(name, bonus * (isNew ? 1 : -1), player);
     }
+
 
     private static void applyBonus(PlayerExtendedProperties properties, byte playerClass, boolean isNew, EntityPlayer player) {
         CLASSES clas = CLASSES.from(playerClass);
@@ -70,7 +41,7 @@ public final class ClassBonus {
      * Handle class change
      * First remove all bonus points from the old class,
      * then add all bonus points for the new one
-     */
+
     // No longer necessary, until we decide to give classes innate skills without them spending a skill point
     public static void applyBonus(PlayerExtendedProperties properties, byte oldClass, byte newClass) {
 //        applyBonus(properties, oldClass, false);
@@ -106,5 +77,5 @@ public final class ClassBonus {
         public boolean hasOnlyOneSkill() {
             return this.bigStatBonus == this.smallStatBonus1 && this.bigStatBonus == this.smallStatBonus2;
         }
-    }
+    }*/
 }

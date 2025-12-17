@@ -5,13 +5,11 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IPlayerClass
 {
-    int getSkillFromIndex(String ID);
+    int getSkillByName(String name);
 
     byte getPlayerClass();
 
     String getClassName();
-
-//    Map<String, int[]> getCounterMap();
 
     NBTTagCompound saveNBTData(NBTTagCompound tag);
 
@@ -19,7 +17,7 @@ public interface IPlayerClass
 
     void refundSkillPoints(boolean convert, EntityPlayer player);
 
-    int getSkillPoints();
+    int getTotalSkillPoints();
 
     boolean hasClass();
 

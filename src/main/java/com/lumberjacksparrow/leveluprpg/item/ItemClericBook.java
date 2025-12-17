@@ -1,9 +1,6 @@
 package com.lumberjacksparrow.leveluprpg.item;
 
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
-import com.lumberjacksparrow.leveluprpg.event.FMLEventHandler;
-import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
-import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -14,8 +11,8 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -23,17 +20,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.ID;
-import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getClassOfPlayer;
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.*;
+import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getFrom;
 
 public class ItemClericBook extends Item {
 
-    public static final int USE_TIME = 3 * 20; // 3 seconds
-    public static final int COOLDOWN = 10 * 60 * 20; // 10 minutes
-    public String holyNovaCommand = "/cast ebwizardry:healing_aura @p";
 
     public ItemClericBook() {
         this.setRegistryName(ID, "cleric_book");
@@ -49,13 +42,13 @@ public class ItemClericBook extends Item {
 
     @Override
     public int getMaxItemUseDuration(ItemStack stack) {
-        return USE_TIME;
+        return bookOfBenedictionUseTime;
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
-        if ("cleric".equalsIgnoreCase(getClassOfPlayer(player).getClassName())) {
+        if (!bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
@@ -66,26 +59,32 @@ public class ItemClericBook extends Item {
     public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving) {
         if (!world.isRemote && entityLiving instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer)entityLiving;
+            MinecraftServer server = player.getEntityWorld().getMinecraftServer();
+            // Null check for server
+            if(server == null) {
+
+                return stack;
+            }
             if(!player.capabilities.isCreativeMode) {
                 int luck = LevelUpRPG.getLuck(player);
                 if(luck > 0) {
                     double roll = player.getRNG().nextDouble();
                     double highrollChance = 0.02*luck; // 2% chance per luck point to ignore cooldown
                     if(roll > highrollChance) { // Did not get lucky, no free cooldown
-                        player.getCooldownTracker().setCooldown(this, COOLDOWN);
+                        player.getCooldownTracker().setCooldown(this, bookOfBenedictionCooldown);
                     }
                     else {
                         player.sendStatusMessage(new TextComponentTranslation("cleric.gotlucky"), true);
                     }
                 }
                 else {
-                    player.getCooldownTracker().setCooldown(this, COOLDOWN);
+                    player.getCooldownTracker().setCooldown(this, bookOfBenedictionCooldown);
                 }
-                //int modifiedCooldown = COOLDOWN - (luck*300); // Reduce cooldown by 15 seconds for each point of luck
-
             }
             //Create the holy nova
-            player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), holyNovaCommand);
+            String novaCommand = bookOfBenedictionCommand.replace("<player>", player.getName());
+            //System.out.println("DEBUG: LevelUpRPG, executing nova command: "+novaCommand);
+            server.commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), novaCommand);
         }
         return stack;
     }
@@ -108,7 +107,7 @@ public class ItemClericBook extends Item {
         if(player.getCooldownTracker().hasCooldown(itemStack.getItem())) {
             list.add(I18n.format("clericbook.clericcooldown"));
         }
-        else if("cleric".equalsIgnoreCase(getClassOfPlayer(player).getClassName())) {
+        else if(!bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
             list.add(I18n.format("clericbook.clericready"));
         }
         else {

@@ -7,12 +7,14 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
 
 public final class PlayerExtendedProperties implements IPlayerClass
 {
@@ -20,11 +22,11 @@ public final class PlayerExtendedProperties implements IPlayerClass
     /**
      * Attribute modifier uuids
      */
-    private static final UUID luckUID = UUID.fromString("4f7637c8-6106-40d0-96cb-e47f83bfa415");
-    private static final UUID attackDamageUID = UUID.fromString("a4dc0b04-f78a-43f6-8805-5ebfaab10b18");
-    private static final UUID maxHPUID = UUID.fromString("34dc0b04-f48a-43f6-8805-5ebfaab10b18");
-    private static final UUID toughnessUID = UUID.fromString("24dc0b04-f48a-43f6-8805-5ebfaab10b18");
-    private Map<String, Integer> skillMap = new HashMap<String, Integer>();
+    private static final UUID luck_UUID = UUID.fromString("4f7637c8-6106-40d0-96cb-e47f83bfa415");
+    private static final UUID attackDamage_UUID = UUID.fromString("a4dc0b04-f78a-43f6-8805-5ebfaab10b18");
+    private static final UUID maxHP_UUID = UUID.fromString("34dc0b04-f48a-43f6-8805-5ebfaab10b18");
+    private static final UUID toughness_UUID = UUID.fromString("24dc0b04-f48a-43f6-8805-5ebfaab10b18");
+    private Map<String, Integer> skillMap = new HashMap<>();
 
     public PlayerExtendedProperties() {
         for (String name : ClassBonus.skillNames)
@@ -48,14 +50,17 @@ public final class PlayerExtendedProperties implements IPlayerClass
         }
     }
 
-    public static IPlayerClass getClassOfPlayer(EntityPlayer player) {
+    public static IPlayerClass getFrom(EntityPlayer player) {
         return player.getCapability(LevelUpCapability.CAPABILITY_CLASS, null);
     }
 
     @Override
     public void addToSkill(String name, int value, EntityPlayer player) {
+        System.out.println("[LevelUpRPG] debug: addToSkill, name="+name+", value="+value);
         skillMap.put(name, skillMap.get(name) + value);
-        if(player == null || player.getEntityWorld().isRemote || player.getEntityWorld().getMinecraftServer() == null) {
+        MinecraftServer server = player.getEntityWorld().getMinecraftServer();
+        if(player.getEntityWorld().isRemote || server == null) {
+            System.out.println("[LevelUpRPG] ERROR: addToSKill, problem getting server");
             return;
         }
         AttributeModifier mod;
@@ -66,10 +71,10 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 int luck = LevelUpRPG.getLuck(player);
                 if (luck != 0) {
                     // Add luck at a 1-to-1 ratio
-                    if (luckAttributeInstance.getModifier(luckUID) != null) {
-                        luckAttributeInstance.removeModifier(luckUID);
+                    if (luckAttributeInstance.getModifier(luck_UUID) != null) {
+                        luckAttributeInstance.removeModifier(luck_UUID);
                     }
-                    mod = new AttributeModifier(luckUID, "BonusLuckFromSkill", luck, 0);
+                    mod = new AttributeModifier(luck_UUID, "BonusLuckFromSkill", luck, 0);
                     luckAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -79,10 +84,10 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 int might = LevelUpRPG.getMight(player);
                 if (might != 0) {
                     // Add +0.25 melee damage per point of might
-                    if (attackDamageAttributeInstance.getModifier(attackDamageUID) != null) {
-                        attackDamageAttributeInstance.removeModifier(attackDamageUID);
+                    if (attackDamageAttributeInstance.getModifier(attackDamage_UUID) != null) {
+                        attackDamageAttributeInstance.removeModifier(attackDamage_UUID);
                     }
-                    mod = new AttributeModifier(attackDamageUID, "BonusMightFromSkill", might * 0.25F, 0);
+                    mod = new AttributeModifier(attackDamage_UUID, "BonusMightFromSkill", might * 0.25F, 0);
                     attackDamageAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -93,17 +98,17 @@ public final class PlayerExtendedProperties implements IPlayerClass
                     IAttributeInstance maxHPAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
                     IAttributeInstance toughnessAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
                     // Add max HP at a 1-to-1 ratio
-                    if (maxHPAttributeInstance.getModifier(maxHPUID) != null) {
-                        maxHPAttributeInstance.removeModifier(maxHPUID);
+                    if (maxHPAttributeInstance.getModifier(maxHP_UUID) != null) {
+                        maxHPAttributeInstance.removeModifier(maxHP_UUID);
                     }
-                    mod = new AttributeModifier(maxHPUID, "BonusMaxHPFromSkill", vitality, 0);
+                    mod = new AttributeModifier(maxHP_UUID, "BonusMaxHPFromSkill", vitality, 0);
                     maxHPAttributeInstance.applyModifier(mod);
                     // Toughness modifier
                     // Add 1 toughness per 10 Vitality
-                    if (toughnessAttributeInstance.getModifier(toughnessUID) != null) {
-                        toughnessAttributeInstance.removeModifier(toughnessUID);
+                    if (toughnessAttributeInstance.getModifier(toughness_UUID) != null) {
+                        toughnessAttributeInstance.removeModifier(toughness_UUID);
                     }
-                    mod = new AttributeModifier(toughnessUID, "BonusToughnessFromSkill", (vitality / 10.0F), 0);
+                    mod = new AttributeModifier(toughness_UUID, "BonusToughnessFromSkill", (vitality / 10.0F), 0);
                     toughnessAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -112,7 +117,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 if(focus != 0) {
                     // Max mana:
                     String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+(10+(focus*10));
-                    player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), maxManaCommand);
+                    server.commandManager.executeCommand(server, maxManaCommand);
                 }
                 break;
             default:
@@ -122,19 +127,19 @@ public final class PlayerExtendedProperties implements IPlayerClass
 
 
     @Override
-    public int getSkillFromIndex(String name) {
+    public int getSkillByName(String name) {
         return skillMap.get(name);
     }
 
     public static int getSkillFromIndex(EntityPlayer player, int id) {
-        return getClassOfPlayer(player).getSkillFromIndex(ClassBonus.skillNames[id]);
+        return getFrom(player).getSkillByName(ClassBonus.skillNames[id]);
     }
 
     @Override
-    public int getSkillPoints() {
+    public int getTotalSkillPoints() {
         int total = 0;
         for (String skill : ClassBonus.skillNames) {
-            total += getSkillFromIndex(skill);
+            total += getSkillByName(skill);
         }
         return total;
     }
@@ -145,7 +150,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     }
 
     public static byte getPlayerClass(EntityPlayer player) {
-        return getClassOfPlayer(player).getPlayerClass();
+        return getFrom(player).getPlayerClass();
     }
 
     @Override
@@ -177,19 +182,23 @@ public final class PlayerExtendedProperties implements IPlayerClass
     @Override
     public void setPlayerClass(byte newClass, EntityPlayer player) {
         if (newClass != playerClass) {
-            ClassBonus.applyBonus(this, playerClass, newClass);
+            //ClassBonus.applyBonus(this, playerClass, newClass);
             capSkills();
             playerClass = newClass;
+            MinecraftServer server = player.getEntityWorld().getMinecraftServer();
+            if(server == null) {
+                return;
+            }
             // Check for Druid. Run the command to grant them morphing
             if(newClass == 3) {
                 String grantMorphingCommand = "/morph enable " + player.getName();
-                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), grantMorphingCommand);
+                server.commandManager.executeCommand(server, grantMorphingCommand);
             }
             else {
                 String removeMorphingCommand = "/morph disable " + player.getName();
-                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), removeMorphingCommand);
+                server.commandManager.executeCommand(server, removeMorphingCommand);
                 String forceDemorphCommand = "/morph demorph " + player.getName() + " true";
-                player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), forceDemorphCommand);
+                server.commandManager.executeCommand(server, forceDemorphCommand);
             }
         }
     }
@@ -199,8 +208,8 @@ public final class PlayerExtendedProperties implements IPlayerClass
             if (name.equals("UnspentSkillPoints"))
                 continue;
             int j = skillMap.get(name);
-            if (j > ClassBonus.getMaxSkillPoints()) {
-                skillMap.put(name, ClassBonus.getMaxSkillPoints());
+            if (j > maxPointsPerSkill) {
+                skillMap.put(name, maxPointsPerSkill);
             }
         }
     }
@@ -209,7 +218,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     public void takeSkillFraction(float ratio) {
         final byte clas = playerClass;
         if (clas != 0) {
-            ClassBonus.applyBonus(this, clas, (byte) 0);
+            //ClassBonus.applyBonus(this, clas, (byte) 0);
             playerClass = 0;
         }
         for (String name : ClassBonus.skillNames) {
@@ -220,7 +229,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
             }
         }
         if (clas != 0) {
-            ClassBonus.applyBonus(this, (byte) 0, clas);
+            //ClassBonus.applyBonus(this, (byte) 0, clas);
             playerClass = clas;
         }
         capSkills();
@@ -230,14 +239,18 @@ public final class PlayerExtendedProperties implements IPlayerClass
     public void refundSkillPoints(boolean resetClass, EntityPlayer player) {
         final byte clas = playerClass;
         setPlayerClass((byte) 0, player);
-        skillMap.put("UnspentSkillPoints", getSkillPoints());
+        skillMap.put("UnspentSkillPoints", getTotalSkillPoints());
         setPlayerData(new int[ClassBonus.skillNames.length - 1]);
         if (!resetClass)
             setPlayerClass(clas, player);
         clearAllModifiers(player);
         // Reset max mana:
+        MinecraftServer server = player.getEntityWorld().getMinecraftServer();
+        if(server == null) {
+            return;
+        }
         String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+10;
-        player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), maxManaCommand);
+        server.commandManager.executeCommand(server, maxManaCommand);
     }
 
     @Override
@@ -251,7 +264,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     public int[] getPlayerData(boolean withClass) {
         int[] data = new int[ClassBonus.skillNames.length + (withClass ? 1 : 0)];
         for (int i = 0; i < ClassBonus.skillNames.length; i++)
-            data[i] = getSkillFromIndex(ClassBonus.skillNames[i]);
+            data[i] = getSkillByName(ClassBonus.skillNames[i]);
         if (withClass)
             data[data.length - 1] = playerClass;
         return data;
@@ -263,20 +276,24 @@ public final class PlayerExtendedProperties implements IPlayerClass
         IAttributeInstance attackDamageAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         IAttributeInstance maxHPAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
         IAttributeInstance toughnessAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
-        if (luckAttributeInstance.getModifier(luckUID) != null) {
-            luckAttributeInstance.removeModifier(luckUID);
+        if (luckAttributeInstance.getModifier(luck_UUID) != null) {
+            luckAttributeInstance.removeModifier(luck_UUID);
         }
-        if (attackDamageAttributeInstance.getModifier(attackDamageUID) != null) {
-            attackDamageAttributeInstance.removeModifier(attackDamageUID);
+        if (attackDamageAttributeInstance.getModifier(attackDamage_UUID) != null) {
+            attackDamageAttributeInstance.removeModifier(attackDamage_UUID);
         }
-        if (maxHPAttributeInstance.getModifier(maxHPUID) != null) {
-            maxHPAttributeInstance.removeModifier(maxHPUID);
+        if (maxHPAttributeInstance.getModifier(maxHP_UUID) != null) {
+            maxHPAttributeInstance.removeModifier(maxHP_UUID);
         }
-        if (toughnessAttributeInstance.getModifier(toughnessUID) != null) {
-            toughnessAttributeInstance.removeModifier(toughnessUID);
+        if (toughnessAttributeInstance.getModifier(toughness_UUID) != null) {
+            toughnessAttributeInstance.removeModifier(toughness_UUID);
         }
         // Max mana:
+        MinecraftServer server = player.getEntityWorld().getMinecraftServer();
+        if(server == null) {
+            return;
+        }
         String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" 10";
-        player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), maxManaCommand);
+        server.commandManager.executeCommand(server, maxManaCommand);
     }
 }

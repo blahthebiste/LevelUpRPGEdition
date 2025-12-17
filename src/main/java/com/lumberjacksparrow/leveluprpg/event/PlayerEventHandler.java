@@ -56,10 +56,10 @@ public final class PlayerEventHandler {
     public void onDeath(LivingDeathEvent event) {
         if (event.getEntityLiving() instanceof EntityPlayer) {
             if (resetClassOnDeath) {
-                PlayerExtendedProperties.getClassOfPlayer((EntityPlayer) event.getEntityLiving()).setPlayerClass((byte) 0, (EntityPlayer) event.getEntityLiving());
+                PlayerExtendedProperties.getFrom((EntityPlayer) event.getEntityLiving()).setPlayerClass((byte) 0, (EntityPlayer) event.getEntityLiving());
             }
             if (resetSkillOnDeath > 0.00F) {
-                PlayerExtendedProperties.getClassOfPlayer((EntityPlayer) event.getEntityLiving()).takeSkillFraction(resetSkillOnDeath);
+                PlayerExtendedProperties.getFrom((EntityPlayer) event.getEntityLiving()).takeSkillFraction(resetSkillOnDeath);
             }
         }
     }
@@ -106,8 +106,8 @@ public final class PlayerEventHandler {
         if (!event.isWasDeath() || !resetClassOnDeath || resetSkillOnDeath < 1.00F) {
             System.out.println("Loading check...");
             NBTTagCompound data = new NBTTagCompound();
-            PlayerExtendedProperties.getClassOfPlayer(event.getOriginal()).saveNBTData(data);
-            PlayerExtendedProperties.getClassOfPlayer(event.getEntityPlayer()).loadNBTData(data);
+            PlayerExtendedProperties.getFrom(event.getOriginal()).saveNBTData(data);
+            PlayerExtendedProperties.getFrom(event.getEntityPlayer()).loadNBTData(data);
         }
     }
 }

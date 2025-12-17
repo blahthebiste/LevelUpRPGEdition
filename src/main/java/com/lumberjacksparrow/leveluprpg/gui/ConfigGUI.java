@@ -1,5 +1,6 @@
-package com.lumberjacksparrow.leveluprpg;
+package com.lumberjacksparrow.leveluprpg.gui;
 
+import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.IModGuiFactory;
 import net.minecraft.client.Minecraft;
@@ -10,14 +11,14 @@ import net.minecraft.client.resources.I18n;
 import java.util.Set;
 
 @SuppressWarnings("UnusedDeclaration")
-public final class ConfigLevelUp extends GuiScreen implements IModGuiFactory {
+public final class ConfigGUI extends GuiScreen implements IModGuiFactory {
     private GuiScreen parent;
     private boolean[] toggles;
 
-    public ConfigLevelUp() {
+    public ConfigGUI() {
     }
 
-    public ConfigLevelUp(GuiScreen guiScreen) {
+    public ConfigGUI(GuiScreen guiScreen) {
         this.parent = guiScreen;
     }
 
@@ -31,10 +32,9 @@ public final class ConfigLevelUp extends GuiScreen implements IModGuiFactory {
         this.mc = minecraftInstance;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui() {
-        toggles = LevelUpRPG.instance.getClientProperties();
+        toggles = LevelUpRPG.instance.getGUIProperties();
         this.buttonList.add(new GuiButton(0, this.width / 2 - 75, this.height - 38, I18n.format("gui.done")));
         for (int i = 0; i < toggles.length; i++)
             this.buttonList.add(new GuiButton(1 + i, this.width / 2 - 75, this.height - 68 - i * 40, I18n.format("config.leveluprpg.option" + i, toggles[i])));

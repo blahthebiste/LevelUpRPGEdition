@@ -8,7 +8,7 @@ respecbook.canresetclass=This book will reset your class and skill points.
 
 clericbook.notcleric=Clerics use these tomes to channel their devotion into powerful magic.
 clericbook.clericready=§aHold right-click to unleash your Holy Nova!
-clericbook.clericcooldown=Cooling down (%d seconds remaining)
+clericbook.clericcooldown=Cooling down
 
 hud.skill.text1=Skill Points: %d
 hud.skill.text2=Class: %s

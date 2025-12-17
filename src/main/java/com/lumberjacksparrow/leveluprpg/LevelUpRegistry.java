@@ -13,6 +13,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
 
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.bookOfBenedictionEnabled;
+
 @Mod.EventBusSubscriber(modid = LevelUpRPG.ID)
 public class LevelUpRegistry {
     public static ItemRespecBook respecBook;
@@ -21,23 +23,41 @@ public class LevelUpRegistry {
 
     public static void init() {
         respecBook = new ItemRespecBook();
-        respecBookFull = new ItemFullRespecBook();
-        clericBook = new ItemClericBook();
+        // Only register this item if classes are enabled
+        if(LevelUpRPG.allowClasses) {
+            respecBookFull = new ItemFullRespecBook();
+        }
+        // Can be disabled in the config
+        if(bookOfBenedictionEnabled) {
+            clericBook = new ItemClericBook();
+        }
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> evt) {
         System.out.println("DEBUG: LevelUpRPG, registering items");
         evt.getRegistry().register(respecBook);
-        evt.getRegistry().register(respecBookFull);
-        evt.getRegistry().register(clericBook);
+        // Only register this item if classes are enabled
+        if(LevelUpRPG.allowClasses) {
+            evt.getRegistry().register(respecBookFull);
+        }
+        // Can be disabled in the config
+        if(bookOfBenedictionEnabled) {
+            evt.getRegistry().register(clericBook);
+        }
     }
 
     @SubscribeEvent
     public static void onModelRegister(ModelRegistryEvent event) {
         registerRender(respecBook);
-        registerRender(respecBookFull);
-        registerRender(clericBook);
+        // Only register this item if classes are enabled
+        if(LevelUpRPG.allowClasses) {
+            registerRender(respecBookFull);
+        }
+        // Can be disabled in the config
+        if(bookOfBenedictionEnabled) {
+            registerRender(clericBook);
+        }
     }
 
     private static void registerRender(Item item)

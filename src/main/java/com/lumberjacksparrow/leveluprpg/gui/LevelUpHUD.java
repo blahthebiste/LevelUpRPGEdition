@@ -15,6 +15,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import java.awt.*;
 import java.util.List;
 
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.*;
+
 public final class LevelUpHUD extends Gui {
     public static final LevelUpHUD INSTANCE = new LevelUpHUD();
     private float val, valIncr;
@@ -28,9 +30,9 @@ public final class LevelUpHUD extends Gui {
         byte playerClass = PlayerExtendedProperties.getPlayerClass(LevelUpRPG.proxy.getPlayer());
         if (playerClass != 0) {
             if (!LevelUpRPG.renderExpBar) {
-                int skillXP = PlayerExtendedProperties.getClassOfPlayer(LevelUpRPG.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
-                if (skillXP > 0) {
-                    left.add(I18n.format("hud.skill.text1", skillXP));
+                int unspentSkillPoints = PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getSkillByName("UnspentSkillPoints");
+                if (unspentSkillPoints > 0) {
+                    left.add(I18n.format("hud.skill.text1", unspentSkillPoints));
                 }
             }
             left.add(I18n.format("hud.skill.text2", I18n.format("class" + playerClass + ".name")));
@@ -50,23 +52,6 @@ public final class LevelUpHUD extends Gui {
         }
     }
 
-//    @SubscribeEvent
-//    public void onFOV(FOVUpdateEvent event){
-//        if(!LevelUpRPG.changeFOV && !event.getEntity().isUser()) {
-//            int skill = 0;
-//            if(event.getEntity().isSneaking()){
-//                skill = 2 * FMLEventHandler.getSkill(event.getEntity(), 8);
-//            }else if(event.getEntity().isSprinting()){
-//                skill = FMLEventHandler.getSkill(event.getEntity(), 6);
-//            }
-//            if(skill > 0){
-//                event.setNewfov(event.getFov() - 0.5F);
-//                event.setNewfov(event.getNewfov() * 1/(1.0F + skill / 100F));
-//                event.setNewfov(event.getNewfov() + 0.5F);
-//            }
-//        }
-//    }
-
     private void addToExpBar(ScaledResolution res) {
         val += valIncr;
         if (val >= 1.0F || val <= 0.4F) {
@@ -80,14 +65,14 @@ public final class LevelUpHUD extends Gui {
         }
         String text = null;
         if (canShowSkills()) {
-            int skillXP = PlayerExtendedProperties.getClassOfPlayer(LevelUpRPG.proxy.getPlayer()).getSkillFromIndex("UnspentSkillPoints");
-            if (skillXP > 0 && PlayerExtendedProperties.getClassOfPlayer(LevelUpRPG.proxy.getPlayer()).getSkillPoints() < getTotalSkillPoints())
-                text = I18n.format("hud.skill.text1", skillXP);
+            int unspentSkillPoints = PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getSkillByName("UnspentSkillPoints");
+            if (unspentSkillPoints > 0 && PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getTotalSkillPoints() < maxTotalSkillPoints())
+                text = I18n.format("hud.skill.text1", unspentSkillPoints);
         } else if (canSelectClass())
             text = I18n.format("hud.skill.select");
-        int x = (res.getScaledWidth() - Minecraft.getMinecraft().fontRenderer.getStringWidth(text)) / 2;
-        int y = res.getScaledHeight() - 29;
         if (text != null) {
+            int x = (res.getScaledWidth() - Minecraft.getMinecraft().fontRenderer.getStringWidth(text)) / 2;
+            int y = res.getScaledHeight() - 29;
             int col = Color.HSBtoRGB(0.2929688F, 1.0F, val) & 0xffffff;
             Minecraft.getMinecraft().fontRenderer.drawString(text, x, y, col);
         }
@@ -95,19 +80,22 @@ public final class LevelUpHUD extends Gui {
     }
 
     public static boolean canSelectClass() {
+        if(!allowClasses) {
+            return false;
+        }
         if (LevelUpRPG.proxy.getPlayer().experienceLevel >= PlayerEventHandler.minLevel)
             return true;
         else {
-            int points = PlayerExtendedProperties.getClassOfPlayer(LevelUpRPG.proxy.getPlayer()).getSkillPoints();
-            return points > PlayerEventHandler.minLevel * PlayerEventHandler.skillPointsPerLevel || points > ClassBonus.getBonusPoints();
+            int points = PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getTotalSkillPoints();
+            return points > PlayerEventHandler.minLevel * PlayerEventHandler.skillPointsPerLevel || points > bonusPoints;
         }
     }
 
     public static boolean canShowSkills() {
-        return PlayerExtendedProperties.getClassOfPlayer(LevelUpRPG.proxy.getPlayer()).hasClass();
+        return !allowClasses || PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).hasClass();
     }
 
-    private static int getTotalSkillPoints() {
-        return ClassBonus.getMaxSkillPoints() * (ClassBonus.skillNames.length - 1);
+    private static int maxTotalSkillPoints() {
+        return maxPointsPerSkill * (ClassBonus.skillNames.length - 1);
     }
 }

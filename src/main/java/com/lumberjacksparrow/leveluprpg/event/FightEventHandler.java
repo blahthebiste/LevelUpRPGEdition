@@ -1,6 +1,5 @@
 package com.lumberjacksparrow.leveluprpg.event;
 
-import com.lumberjacksparrow.leveluprpg.ClassBonus;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.mixin.ArrowStackAccessMixin;
 import net.minecraft.entity.Entity;
@@ -8,7 +7,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
@@ -24,9 +22,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 
-import java.util.HashMap;
-
-import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getClassOfPlayer;
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
+import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getFrom;
 import static java.util.Objects.isNull;
 
 public final class FightEventHandler {
@@ -45,7 +42,7 @@ public final class FightEventHandler {
             event.setResult(Event.Result.ALLOW);
         }
         // Rogues always crit while sneaking
-        if(entityPlayer.isSneaking() && "rogue".equalsIgnoreCase(getClassOfPlayer(entityPlayer).getClassName())) {
+        if(entityPlayer.isSneaking() && "rogue".equalsIgnoreCase(getFrom(entityPlayer).getClassName())) {
             event.setResult(Event.Result.ALLOW);
         }
 //        else {
@@ -89,7 +86,7 @@ public final class FightEventHandler {
                     entityplayer.sendStatusMessage(new TextComponentTranslation("sneak.attack", 1.5), true);
                 }
                 // Archer's returning arrow skill:
-                if(damagesource.isProjectile() && "archer".equalsIgnoreCase(getClassOfPlayer(entityplayer).getClassName())) {
+                if(damagesource.isProjectile() && "archer".equalsIgnoreCase(getFrom(entityplayer).getClassName())) {
                     Entity ent = damagesource.getImmediateSource();
                     if(ent instanceof EntityArrow) {
                         EntityArrow arrow = (EntityArrow) ent;
@@ -121,7 +118,7 @@ public final class FightEventHandler {
         Entity killer = event.getSource().getTrueSource();
         if(killer instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer)killer;
-            if("berserker".equalsIgnoreCase(getClassOfPlayer(player).getClassName())){
+            if("berserker".equalsIgnoreCase(getFrom(player).getClassName())){
                 // The player was a berserker and killed with melee; give them 6 healing
                 player.heal(6);
             }
@@ -170,9 +167,7 @@ public final class FightEventHandler {
             }
         }
         if (f1 + f2 >= 360F) {
-            if ((f1 + f2) - 360F > f) {
-                return true;
-            }
+            return (f1 + f2) - 360F > f;
         }
         return false;
     }
@@ -185,7 +180,7 @@ public final class FightEventHandler {
         // CALCULATIONS FOR HOW STEALTH STAT AFFECTS AGGRO RANGE OF ENEMIES:
         float mobAggroRange = (float)entityLiving.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).getAttributeValue();
         float upClose = mobAggroRange - 1F; // No matter the mob's aggro range, max stealth lets you get up to 1 space away.
-        float increment = upClose / ClassBonus.getMaxSkillPoints() ; // Also scales to max skill level.
+        float increment = upClose / maxPointsPerSkill; // Also scales to max skill level.
         if (getDistance(entityLiving, player) > mobAggroRange - ((float) LevelUpRPG.getStealth(player)) * increment) {
             return false;
         }

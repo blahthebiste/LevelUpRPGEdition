@@ -2,7 +2,6 @@ package com.lumberjacksparrow.leveluprpg.event;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
-import com.lumberjacksparrow.leveluprpg.event.FMLEventHandler;
 import com.lumberjacksparrow.leveluprpg.player.IPlayerClass;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
 import net.minecraft.network.INetHandler;
@@ -19,27 +18,18 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.common.config.Property;
 
+
 public final class SkillPacketHandler {
-    public static final String[] CHAN = {"LEVELUPINIT", "LEVELUPCLASSES", "LEVELUPSKILLS", "LEVELUPCFG"};
+    public static final String[] CHAN = {"LEVELUPRPG_INIT", "LEVELUPRPG_CLASSES", "LEVELUPRPG_SKILLS", "LEVELUPRPG_CFG"};
 
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
         final ByteBuf in = event.getPacket().payload();
         final EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
         if (event.getPacket().channel().equals(CHAN[1])) {
-            addTask(event.getHandler(), new Runnable() {
-                @Override
-                public void run() {
-                    handleClassChange(in.readByte(), player);
-                }
-            });
+            addTask(event.getHandler(), () -> handleClassChange(in.readByte(), player));
         }else if (event.getPacket().channel().equals(CHAN[2])) {
-            addTask(event.getHandler(), new Runnable() {
-                @Override
-                public void run() {
-                    handlePacket(in, player);
-                }
-            });
+            addTask(event.getHandler(), () -> handlePacket(in, player));
         }
     }
 
@@ -49,7 +39,7 @@ public final class SkillPacketHandler {
 
     private void handleClassChange(byte newClass, EntityPlayerMP entityPlayerMP) {
         if (newClass >= 0) {
-            PlayerExtendedProperties.getClassOfPlayer(entityPlayerMP).setPlayerClass(newClass, entityPlayerMP);
+            PlayerExtendedProperties.getFrom(entityPlayerMP).setPlayerClass(newClass, entityPlayerMP);
             FMLEventHandler.INSTANCE.loadPlayer(entityPlayerMP);
         }
     }
@@ -58,19 +48,12 @@ public final class SkillPacketHandler {
     public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
         final ByteBuf in = event.getPacket().payload();
         if (event.getPacket().channel().equals(CHAN[0])) {
-            addTask(event.getHandler(), new Runnable() {
-                @Override
-                public void run() {
-                    handlePacket(in, LevelUpRPG.proxy.getPlayer());
-                }
+            addTask(event.getHandler(), () -> {
+                System.out.println("DEBUG: LevelUpRPG.SkillPacketHandler.onClientPacket.CHAN0; client side proxy getPlayer");
+                handlePacket(in, LevelUpRPG.proxy.getPlayer());
             });
         } else if (event.getPacket().channel().equals(CHAN[3])) {
-            addTask(event.getHandler(), new Runnable() {
-                @Override
-                public void run() {
-                    handleConfig(in);
-                }
-            });
+            addTask(event.getHandler(), () -> handleConfig(in));
         }
     }
 
@@ -79,27 +62,32 @@ public final class SkillPacketHandler {
         byte button = buf.readByte();
         int[] data = null;
         int sum = 0;
+        System.out.println("DEBUG: LevelUpRPG, handlePacket");
         if (isInit || button == -1) {
             data = new int[ClassBonus.skillNames.length];
             for (int i = 0; i < data.length; i++) {
                 data[i] = buf.readInt();
+                System.out.println("DEBUG: LevelUpRPG, handlePacket; data["+i+"]="+data[i]);
                 sum += data[i];
             }
         }
-        IPlayerClass properties = PlayerExtendedProperties.getClassOfPlayer(player);
+        IPlayerClass properties = PlayerExtendedProperties.getFrom(player);
         if (!isInit) {
-            if (properties.hasClass())
-                if (data != null && button == -1 && sum == 0) {
-                    if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillFromIndex("UnspentSkillPoints")) {
-                        for (int index = 0; index < data.length; index++) {
-                            if (data[index] != 0) {
-                                properties.addToSkill(ClassBonus.skillNames[index], data[index], player);
-                            }
+            System.out.println("DEBUG: LevelUpRPG, handlePacket; world is NOT remote");
+            if (data != null && sum == 0) {
+                if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillByName("UnspentSkillPoints")) {
+                    for (int index = 0; index < data.length; index++) {
+                        if (data[index] != 0) {
+                            properties.addToSkill(ClassBonus.skillNames[index], data[index], player);
+                            System.out.println("DEBUG: LevelUpRPG, handlePacket; adding "+data[index]+"to "+ClassBonus.skillNames[index]);
                         }
-                        FMLEventHandler.INSTANCE.loadPlayer(player);
                     }
+                    System.out.println("DEBUG: LevelUpRPG, handlePacket; loading player");
+                    FMLEventHandler.INSTANCE.loadPlayer(player);
                 }
-        } else if (data != null) {
+            }
+        } else {
+            System.out.println("DEBUG: LevelUpRPG, handlePacket; world is remote");
             properties.setPlayerClass(button, player);
             properties.setPlayerData(data);
         }
@@ -109,8 +97,11 @@ public final class SkillPacketHandler {
         ByteBuf buf = Unpooled.buffer();
         buf.writeByte(id);
         if ((id < 0 || channel == 0) && dat != null) {
-            for (int da : dat)
+            System.out.println("DEBUG: LevelUpRPG, getPacket: writing buffer");
+            for (int da : dat) {
                 buf.writeInt(da);
+                System.out.println("DEBUG: LevelUpRPG, getPacket, dat[]" + da);
+            }
         }
         FMLProxyPacket pkt = new FMLProxyPacket(new PacketBuffer(buf), CHAN[channel]);
         pkt.setTarget(side);
@@ -120,7 +111,7 @@ public final class SkillPacketHandler {
     public static FMLProxyPacket getConfigPacket(Property... dat) {
         ByteBuf buf = Unpooled.buffer();
         for (int i = 0; i < dat.length; i++) {
-            if (i == 2) {
+            if (i == 2 || i == 6 || i == 7) {
                 buf.writeDouble(dat[i].getDouble());
             } else if (i < 4) {
                 buf.writeInt(dat[i].getInt());
@@ -137,7 +128,7 @@ public final class SkillPacketHandler {
     private void handleConfig(ByteBuf buf) {
         Property[] properties = LevelUpRPG.instance.getServerProperties();
         for (int i = 0; i < properties.length; i++) {
-            if (i == 2) {
+            if (i == 2 || i == 6 || i == 7) {
                 properties[i].set(buf.readDouble());
             } else if (i < 4) {
                 properties[i].set(buf.readInt());

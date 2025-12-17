@@ -11,12 +11,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
+import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
 import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getPlayerClass;
 
 public final class GuiSkills extends GuiScreen {
     private boolean closedWithButton;
-    private final static int offset = 80;
-    private final int[] skills = new int[ClassBonus.skillNames.length];
+    private final int[] skillChanges = new int[ClassBonus.skillNames.length];
     private int[] skillsPrev = null;
     byte cl = -1;
 
@@ -31,14 +31,14 @@ public final class GuiSkills extends GuiScreen {
             mc.displayGuiScreen(null);
             mc.setIngameFocus();
         } else if (guibutton.id < 21) {
-            if (getTotalSkillLevelPlusPending(skills.length - 1) > 0 && getTotalSkillLevelPlusPending(guibutton.id - 1) < ClassBonus.getMaxSkillPoints()) {
+            if (getTotalSkillLevelPlusPending(skillChanges.length - 1) > 0 && getTotalSkillLevelPlusPending(guibutton.id - 1) < maxPointsPerSkill) {
 //                if(guibutton.id < 7) { // Class skills
 //                    skills[guibutton.id + (cl * 6) - 1]++;
 //                }
 //                else { // Neutral skills
-                skills[guibutton.id-1]++;
+                skillChanges[guibutton.id-1]++;
 //                }
-                skills[skills.length - 1]--; // Deduct skill points
+                skillChanges[skillChanges.length - 1]--; // Deduct skill points
             }
         } else { // Minus buttons.
 //            if(guibutton.id < 27) { // Class skills
@@ -48,9 +48,9 @@ public final class GuiSkills extends GuiScreen {
 //                }
 //            }
 //            else { // Neutral skills
-            if (skills[guibutton.id - 21] > 0) { // Only decrement down to zero
-                skills[guibutton.id - 21]--;
-                skills[skills.length - 1]++; // Refund skill points
+            if (skillChanges[guibutton.id - 21] > 0) { // Only decrement down to zero
+                skillChanges[guibutton.id - 21]--;
+                skillChanges[skillChanges.length - 1]++; // Refund skill points
             }
 //            }
         }
@@ -73,7 +73,7 @@ public final class GuiSkills extends GuiScreen {
         }
 //        if(cl == 0) {
             // Draw neutral skills only
-        for (int x = 1; x <= skills.length - 1; x++) {
+        for (int x = 1; x <= skillChanges.length - 1; x++) {
             drawString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getTotalSkillLevelPlusPending(x-1), (width / 2) - 70, 24 + 25 * (x-1), 0xffffff);
         }
 //        }
@@ -109,7 +109,6 @@ public final class GuiSkills extends GuiScreen {
         super.drawScreen(i, j, f);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui() {
         closedWithButton = false;
@@ -118,7 +117,7 @@ public final class GuiSkills extends GuiScreen {
         buttonList.add(new GuiButton(0, width / 2 + 96, height / 6 + 180, 96, 20, I18n.format("gui.done")));
         buttonList.add(new GuiButton(100, width / 2 - 192, height / 6 + 180, 96, 20, I18n.format("gui.cancel")));
         // Make +/- buttons for each skill
-        for (int index = 0; index < skills.length-1; index++) {
+        for (int index = 0; index < skillChanges.length-1; index++) {
             buttonList.add(new GuiButton(1 + index, (width / 2) + 46, 15 + 25 * index, 20, 20, "+"));
 //            buttonList.add(new GuiButton(7 + index, width / 2 + 44 + offset, 15 + 32 * index, 20, 20, "+"));
             buttonList.add(new GuiButton(21 + index, (width / 2) +16, 15 + 25 * index, 20, 20, "-"));
@@ -128,16 +127,20 @@ public final class GuiSkills extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        if (closedWithButton && skills[skills.length - 1] != 0) {
-            FMLProxyPacket packet = SkillPacketHandler.getPacket(Side.SERVER, 2, (byte) -1, skills);
+        if (closedWithButton && skillChanges[skillChanges.length - 1] != 0) {
+            FMLProxyPacket packet = SkillPacketHandler.getPacket(Side.SERVER, 2, (byte) -1, skillChanges);
             LevelUpRPG.skillChannel.sendToServer(packet);
+            System.out.println("DEBUG: LevelUpRPG, onGuiClosed; closedWithButton = "+closedWithButton);
+            for(int i = 0; i < skillChanges.length; i++) {
+                System.out.println("DEBUG: LevelUpRPG, onGuiClosed; skillChanges[" + i + "] = " + skillChanges[i]);
+            }
         }
     }
 
     private void updateSkillList() {
         if (skillsPrev == null) {
-            skillsPrev = new int[skills.length];
-            for (int i = 0; i < skills.length; i++) {
+            skillsPrev = new int[skillChanges.length];
+            for (int i = 0; i < skillChanges.length; i++) {
                 skillsPrev[i] = PlayerExtendedProperties.getSkillFromIndex(mc.player, i);
             }
         }
@@ -147,7 +150,7 @@ public final class GuiSkills extends GuiScreen {
     // Meaning, if you have 7 of a skill, and are in the process of levelling up with
     // 3 more points applied to that skill, this would return 10.
     private int getTotalSkillLevelPlusPending(int id) {
-        return skillsPrev[id] + skills[id];
+        return skillsPrev[id] + skillChanges[id];
     }
 
     private int getExperiencePoints(EntityPlayer player)

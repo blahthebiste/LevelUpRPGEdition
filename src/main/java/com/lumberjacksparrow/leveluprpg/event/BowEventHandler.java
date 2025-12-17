@@ -1,7 +1,6 @@
 package com.lumberjacksparrow.leveluprpg.event;
 
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
@@ -40,7 +39,7 @@ public final class BowEventHandler {
         if(finesse > 0) {
             event.getEntityPlayer().setActiveHand(event.getHand());
             setItemUseCount(event.getEntityPlayer());
-            event.setAction(new ActionResult<ItemStack>(EnumActionResult.SUCCESS, event.getBow()));
+            event.setAction(new ActionResult<>(EnumActionResult.SUCCESS, event.getBow()));
         }
     }
 
