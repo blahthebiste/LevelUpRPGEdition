@@ -35,7 +35,7 @@ public final class LevelUpRPG {
     public static boolean allowHUD = true, renderTopLeft = true, renderExpBar = true, changeFOV = true, allowClasses = false, bookOfBenedictionEnabled = true, bookOfBenedictionRestricted = true;
     public static FMLEventChannel initChannel, skillChannel, classChannel, configChannel;
     public static String manaRegenCommand = "/addPlayerMana <player> <amount>";
-    public static String bookOfBenedictionCommand = "/cast ebwizardry:healing_aura <player> {blast:20.0, duration:0.02}";
+    public static String bookOfBenedictionCommand = "/cast ebwizardry:healing_aura <player> {blast:20.0,duration:0.02,potency:20.0}";
     public static double manaRegenPerIntelligence = 0.2;
     public static double wizardBonusManaRegen = 5.0;
     public static int bookOfBenedictionUseTime = 3 * 20; // Default use duration = 3 seconds
