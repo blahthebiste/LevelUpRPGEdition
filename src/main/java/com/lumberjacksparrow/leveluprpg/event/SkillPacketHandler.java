@@ -49,7 +49,6 @@ public final class SkillPacketHandler {
         final ByteBuf in = event.getPacket().payload();
         if (event.getPacket().channel().equals(CHAN[0])) {
             addTask(event.getHandler(), () -> {
-                System.out.println("DEBUG: LevelUpRPG.SkillPacketHandler.onClientPacket.CHAN0; client side proxy getPlayer");
                 handlePacket(in, LevelUpRPG.proxy.getPlayer());
             });
         } else if (event.getPacket().channel().equals(CHAN[3])) {
@@ -62,32 +61,26 @@ public final class SkillPacketHandler {
         byte button = buf.readByte();
         int[] data = null;
         int sum = 0;
-        System.out.println("DEBUG: LevelUpRPG, handlePacket");
         if (isInit || button == -1) {
             data = new int[ClassBonus.skillNames.length];
             for (int i = 0; i < data.length; i++) {
                 data[i] = buf.readInt();
-                System.out.println("DEBUG: LevelUpRPG, handlePacket; data["+i+"]="+data[i]);
                 sum += data[i];
             }
         }
         IPlayerClass properties = PlayerExtendedProperties.getFrom(player);
         if (!isInit) {
-            System.out.println("DEBUG: LevelUpRPG, handlePacket; world is NOT remote");
             if (data != null && sum == 0) {
                 if (data[data.length - 1] != 0 && -data[data.length - 1] <= properties.getSkillByName("UnspentSkillPoints")) {
                     for (int index = 0; index < data.length; index++) {
                         if (data[index] != 0) {
                             properties.addToSkill(ClassBonus.skillNames[index], data[index], player);
-                            System.out.println("DEBUG: LevelUpRPG, handlePacket; adding "+data[index]+"to "+ClassBonus.skillNames[index]);
                         }
                     }
-                    System.out.println("DEBUG: LevelUpRPG, handlePacket; loading player");
                     FMLEventHandler.INSTANCE.loadPlayer(player);
                 }
             }
         } else {
-            System.out.println("DEBUG: LevelUpRPG, handlePacket; world is remote");
             properties.setPlayerClass(button, player);
             properties.setPlayerData(data);
         }
@@ -97,10 +90,8 @@ public final class SkillPacketHandler {
         ByteBuf buf = Unpooled.buffer();
         buf.writeByte(id);
         if ((id < 0 || channel == 0) && dat != null) {
-            System.out.println("DEBUG: LevelUpRPG, getPacket: writing buffer");
             for (int da : dat) {
                 buf.writeInt(da);
-                System.out.println("DEBUG: LevelUpRPG, getPacket, dat[]" + da);
             }
         }
         FMLProxyPacket pkt = new FMLProxyPacket(new PacketBuffer(buf), CHAN[channel]);

@@ -45,9 +45,6 @@ public final class FightEventHandler {
         if(entityPlayer.isSneaking() && "rogue".equalsIgnoreCase(getFrom(entityPlayer).getClassName())) {
             event.setResult(Event.Result.ALLOW);
         }
-//        else {
-//            System.out.println("DEBUG: LevelUpRPG, player class was "+getClassOfPlayer(entityPlayer).getClassName());
-//        }
         // If a random crit or normal crit was active, apply bonus crit damage based on Sneak stat
         if(event.getResult().equals(Event.Result.ALLOW) || event.isVanillaCritical()) {
             int sneak = LevelUpRPG.getStealth(entityPlayer);

@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
 
@@ -56,11 +57,11 @@ public final class PlayerExtendedProperties implements IPlayerClass
 
     @Override
     public void addToSkill(String name, int value, EntityPlayer player) {
-        System.out.println("[LevelUpRPG] debug: addToSkill, name="+name+", value="+value);
         skillMap.put(name, skillMap.get(name) + value);
         MinecraftServer server = player.getEntityWorld().getMinecraftServer();
         if(player.getEntityWorld().isRemote || server == null) {
-            System.out.println("[LevelUpRPG] ERROR: addToSKill, problem getting server");
+            Logger logger = Logger.getLogger("com/lumberjacksparrow/leveluprpg");
+            logger.info("[LevelUpRPG] ERROR: addToSKill, problem getting server");
             return;
         }
         AttributeModifier mod;

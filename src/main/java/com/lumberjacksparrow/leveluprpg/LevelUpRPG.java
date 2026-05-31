@@ -38,8 +38,8 @@ public final class LevelUpRPG {
     public static String bookOfBenedictionCommand = "/cast ebwizardry:healing_aura <player> {blast:20.0,duration:0.02,potency:20.0}";
     public static double manaRegenPerIntelligence = 0.2;
     public static double wizardBonusManaRegen = 5.0;
-    public static int bookOfBenedictionUseTime = 3 * 20; // Default use duration = 3 seconds
-    public static int bookOfBenedictionCooldown = 10 * 60 * 20; // Default cooldown = 10 minutes
+    public static int bookOfBenedictionUseTime = 60; // Default use duration in ticks = 3 seconds
+    public static int bookOfBenedictionCooldown = 12000; // Default cooldown in ticks = 10 minutes
     // Currently not used, but may be implemented in the future
     public static int bonusPoints = 0;
     // Cap on each skill
@@ -47,7 +47,6 @@ public final class LevelUpRPG {
 
     @EventHandler
     public void load(FMLInitializationEvent event) {
-        System.out.println("DEBUG: LevelUpRPG FMLInitializationEvent");
         Logger logger = Logger.getLogger("com/lumberjacksparrow/leveluprpg");
         logger.info("[Level Up] registering events");
         MinecraftForge.EVENT_BUS.register(BowEventHandler.INSTANCE);

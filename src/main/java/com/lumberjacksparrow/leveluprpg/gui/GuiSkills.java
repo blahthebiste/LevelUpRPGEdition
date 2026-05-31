@@ -130,10 +130,6 @@ public final class GuiSkills extends GuiScreen {
         if (closedWithButton && skillChanges[skillChanges.length - 1] != 0) {
             FMLProxyPacket packet = SkillPacketHandler.getPacket(Side.SERVER, 2, (byte) -1, skillChanges);
             LevelUpRPG.skillChannel.sendToServer(packet);
-            System.out.println("DEBUG: LevelUpRPG, onGuiClosed; closedWithButton = "+closedWithButton);
-            for(int i = 0; i < skillChanges.length; i++) {
-                System.out.println("DEBUG: LevelUpRPG, onGuiClosed; skillChanges[" + i + "] = " + skillChanges[i]);
-            }
         }
     }
 

@@ -11,7 +11,6 @@ public class SkillProxy {
     }
 
     public EntityPlayer getPlayer() {
-        System.out.println("DEBUG: LevelUpRPG, server side proxy getPlayer (null)");
         return null;
     }
 

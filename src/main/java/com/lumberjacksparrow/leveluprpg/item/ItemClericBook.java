@@ -83,7 +83,6 @@ public class ItemClericBook extends Item {
             }
             //Create the holy nova
             String novaCommand = bookOfBenedictionCommand.replace("<player>", player.getName());
-            //System.out.println("DEBUG: LevelUpRPG, executing nova command: "+novaCommand);
             server.commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), novaCommand);
         }
         return stack;

@@ -23,10 +23,7 @@ public class LevelUpRegistry {
 
     public static void init() {
         respecBook = new ItemRespecBook();
-        // Only register this item if classes are enabled
-        if(LevelUpRPG.allowClasses) {
-            respecBookFull = new ItemFullRespecBook();
-        }
+        respecBookFull = new ItemFullRespecBook();
         // Can be disabled in the config
         if(bookOfBenedictionEnabled) {
             clericBook = new ItemClericBook();
@@ -35,7 +32,6 @@ public class LevelUpRegistry {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> evt) {
-        System.out.println("DEBUG: LevelUpRPG, registering items");
         evt.getRegistry().register(respecBook);
         // Only register this item if classes are enabled
         if(LevelUpRPG.allowClasses) {
