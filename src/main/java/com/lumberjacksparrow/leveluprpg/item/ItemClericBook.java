@@ -1,5 +1,6 @@
 package com.lumberjacksparrow.leveluprpg.item;
 
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -20,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.*;
@@ -36,19 +38,21 @@ public class ItemClericBook extends Item {
     }
 
     @Override
-    public EnumAction getItemUseAction(ItemStack stack) {
+    @Nonnull
+    public EnumAction getItemUseAction(@Nonnull ItemStack stack) {
         return EnumAction.BOW;
     }
 
     @Override
-    public int getMaxItemUseDuration(ItemStack stack) {
-        return bookOfBenedictionUseTime;
+    public int getMaxItemUseDuration(@Nonnull ItemStack stack) {
+        return ConfigHandler.GENERAL_CONFIG.bookOfBenedictionUseTime;
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand hand) {
+    @Nonnull
+    public ActionResult<ItemStack> onItemRightClick(@Nonnull World worldIn, EntityPlayer player, @Nonnull EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
-        if (!bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
+        if (!ConfigHandler.GENERAL_CONFIG.bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
@@ -56,7 +60,8 @@ public class ItemClericBook extends Item {
     }
 
     @Override
-    public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving) {
+    @Nonnull
+    public ItemStack onItemUseFinish(@Nonnull ItemStack stack, World world, @Nonnull EntityLivingBase entityLiving) {
         if (!world.isRemote && entityLiving instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer)entityLiving;
             MinecraftServer server = player.getEntityWorld().getMinecraftServer();
@@ -71,25 +76,25 @@ public class ItemClericBook extends Item {
                     double roll = player.getRNG().nextDouble();
                     double highrollChance = 0.02*luck; // 2% chance per luck point to ignore cooldown
                     if(roll > highrollChance) { // Did not get lucky, no free cooldown
-                        player.getCooldownTracker().setCooldown(this, bookOfBenedictionCooldown);
+                        player.getCooldownTracker().setCooldown(this, ConfigHandler.GENERAL_CONFIG.bookOfBenedictionCooldown);
                     }
                     else {
                         player.sendStatusMessage(new TextComponentTranslation("cleric.gotlucky"), true);
                     }
                 }
                 else {
-                    player.getCooldownTracker().setCooldown(this, bookOfBenedictionCooldown);
+                    player.getCooldownTracker().setCooldown(this, ConfigHandler.GENERAL_CONFIG.bookOfBenedictionCooldown);
                 }
             }
             //Create the holy nova
-            String novaCommand = bookOfBenedictionCommand.replace("<player>", player.getName());
+            String novaCommand = ConfigHandler.GENERAL_CONFIG.bookOfBenedictionCommand.replace("<player>", player.getName());
             server.commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), novaCommand);
         }
         return stack;
     }
 
     @Override
-    public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+    public void onUsingTick(@Nonnull ItemStack stack, @Nonnull EntityLivingBase player, int count) {
         if (count % 10 == 0) {
             player.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
                     1.25f, (float) (1.1f + 0.05f * player.getRNG().nextDouble()));
@@ -98,7 +103,7 @@ public class ItemClericBook extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack itemStack, World world, List<String> list, ITooltipFlag flag) {
+    public void addInformation(@Nonnull ItemStack itemStack, World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag) {
         EntityPlayer player = Minecraft.getMinecraft().player;
         if(player == null) {
             return;
@@ -106,7 +111,7 @@ public class ItemClericBook extends Item {
         if(player.getCooldownTracker().hasCooldown(itemStack.getItem())) {
             list.add(I18n.format("clericbook.clericcooldown"));
         }
-        else if(!bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
+        else if(!ConfigHandler.GENERAL_CONFIG.bookOfBenedictionRestricted || "cleric".equalsIgnoreCase(getFrom(player).getClassName())) {
             list.add(I18n.format("clericbook.clericready"));
         }
         else {

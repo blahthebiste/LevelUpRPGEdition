@@ -1,9 +1,9 @@
 package com.lumberjacksparrow.leveluprpg.gui;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
-import com.lumberjacksparrow.leveluprpg.event.PlayerEventHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
@@ -15,7 +15,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import java.awt.*;
 import java.util.List;
 
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.*;
 
 public final class LevelUpHUD extends Gui {
     public static final LevelUpHUD INSTANCE = new LevelUpHUD();
@@ -29,7 +28,7 @@ public final class LevelUpHUD extends Gui {
     public void addToText(List<String> left) {
         byte playerClass = PlayerExtendedProperties.getPlayerClass(LevelUpRPG.proxy.getPlayer());
         if (playerClass != 0) {
-            if (!LevelUpRPG.renderExpBar) {
+            if (!ConfigHandler.HUD_CONFIG.renderExpBar) {
                 int unspentSkillPoints = PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getSkillByName("UnspentSkillPoints");
                 if (unspentSkillPoints > 0) {
                     left.add(I18n.format("hud.skill.text1", unspentSkillPoints));
@@ -37,17 +36,17 @@ public final class LevelUpHUD extends Gui {
             }
             left.add(I18n.format("hud.skill.text2", I18n.format("class" + playerClass + ".name")));
         } else if (canSelectClass()) {
-            if (!LevelUpRPG.renderExpBar)
+            if (!ConfigHandler.HUD_CONFIG.renderExpBar)
                 left.add(I18n.format("hud.skill.select"));
         }
     }
 
     @SubscribeEvent
     public void renderLvlUpHUD(RenderGameOverlayEvent.Pre event) {
-        if (LevelUpRPG.allowHUD && LevelUpRPG.proxy.getPlayer() != null) {
-            if (LevelUpRPG.renderTopLeft && event.getType() == ElementType.TEXT)
+        if (ConfigHandler.HUD_CONFIG.allowHUD && LevelUpRPG.proxy.getPlayer() != null) {
+            if (ConfigHandler.HUD_CONFIG.renderTopLeft && event.getType() == ElementType.TEXT)
                 addToText(((RenderGameOverlayEvent.Text) event).getLeft());
-            if (LevelUpRPG.renderExpBar && event.getType() == ElementType.EXPERIENCE)
+            if (ConfigHandler.HUD_CONFIG.renderExpBar && event.getType() == ElementType.EXPERIENCE)
                 addToExpBar(event.getResolution());
         }
     }
@@ -80,22 +79,22 @@ public final class LevelUpHUD extends Gui {
     }
 
     public static boolean canSelectClass() {
-        if(!allowClasses) {
+        if(!ConfigHandler.CLASSES_CONFIG.allowClasses) {
             return false;
         }
-        if (LevelUpRPG.proxy.getPlayer().experienceLevel >= PlayerEventHandler.minLevel)
+        if (LevelUpRPG.proxy.getPlayer().experienceLevel >= ConfigHandler.CLASSES_CONFIG.minLevel)
             return true;
         else {
             int points = PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).getTotalSkillPoints();
-            return points > PlayerEventHandler.minLevel * PlayerEventHandler.skillPointsPerLevel || points > bonusPoints;
+            return points > ConfigHandler.CLASSES_CONFIG.minLevel * ConfigHandler.SKILL_CONFIG.skillPointsGainPerLevel;
         }
     }
 
     public static boolean canShowSkills() {
-        return !allowClasses || PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).hasClass();
+        return !ConfigHandler.CLASSES_CONFIG.allowClasses || PlayerExtendedProperties.getFrom(LevelUpRPG.proxy.getPlayer()).hasClass();
     }
 
     private static int maxTotalSkillPoints() {
-        return maxPointsPerSkill * (ClassBonus.skillNames.length - 1);
+        return ConfigHandler.SKILL_CONFIG.maxPointsPerSkill * (ClassBonus.skillNames.length - 1);
     }
 }

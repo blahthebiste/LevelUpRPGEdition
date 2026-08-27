@@ -16,11 +16,10 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraftforge.common.config.Property;
 
 
 public final class SkillPacketHandler {
-    public static final String[] CHAN = {"LEVELUPRPG_INIT", "LEVELUPRPG_CLASSES", "LEVELUPRPG_SKILLS", "LEVELUPRPG_CFG"};
+    public static final String[] CHAN = {"LEVELUPRPG_INIT", "LEVELUPRPG_CLASSES", "LEVELUPRPG_SKILLS"};
 
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
@@ -48,11 +47,7 @@ public final class SkillPacketHandler {
     public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
         final ByteBuf in = event.getPacket().payload();
         if (event.getPacket().channel().equals(CHAN[0])) {
-            addTask(event.getHandler(), () -> {
-                handlePacket(in, LevelUpRPG.proxy.getPlayer());
-            });
-        } else if (event.getPacket().channel().equals(CHAN[3])) {
-            addTask(event.getHandler(), () -> handleConfig(in));
+            addTask(event.getHandler(), () -> handlePacket(in, LevelUpRPG.proxy.getPlayer()));
         }
     }
 
@@ -86,7 +81,7 @@ public final class SkillPacketHandler {
         }
     }
 
-    public static FMLProxyPacket getPacket(Side side, int channel, byte id, int... dat) {
+    public static FMLProxyPacket constructPacket(Side side, int channel, byte id, int... dat) {
         ByteBuf buf = Unpooled.buffer();
         buf.writeByte(id);
         if ((id < 0 || channel == 0) && dat != null) {
@@ -99,34 +94,34 @@ public final class SkillPacketHandler {
         return pkt;
     }
 
-    public static FMLProxyPacket getConfigPacket(Property... dat) {
-        ByteBuf buf = Unpooled.buffer();
-        for (int i = 0; i < dat.length; i++) {
-            if (i == 2 || i == 6 || i == 7) {
-                buf.writeDouble(dat[i].getDouble());
-            } else if (i < 4) {
-                buf.writeInt(dat[i].getInt());
-            } else {
-                buf.writeBoolean(dat[i].getBoolean());
-            }
-        }
-        FMLProxyPacket pkt = new FMLProxyPacket(new PacketBuffer(buf), CHAN[3]);
-        pkt.setTarget(Side.CLIENT);
-        return pkt;
-    }
+//    public static FMLProxyPacket constructConfigPacket() {
+//        ByteBuf buf = Unpooled.buffer();
+//        for (int i = 0; i < dat.length; i++) {
+//            if (i == 2 || i == 6 || i == 7) {
+//                buf.writeDouble(dat[i].getDouble());
+//            } else if (i < 4) {
+//                buf.writeInt(dat[i].getInt());
+//            } else {
+//                buf.writeBoolean(dat[i].getBoolean());
+//            }
+//        }
+//        FMLProxyPacket pkt = new FMLProxyPacket(new PacketBuffer(buf), CHAN[3]);
+//        pkt.setTarget(Side.CLIENT);
+//        return pkt;
+//    }
 
 
-    private void handleConfig(ByteBuf buf) {
-        Property[] properties = LevelUpRPG.instance.getServerProperties();
-        for (int i = 0; i < properties.length; i++) {
-            if (i == 2 || i == 6 || i == 7) {
-                properties[i].set(buf.readDouble());
-            } else if (i < 4) {
-                properties[i].set(buf.readInt());
-            } else {
-                properties[i].set(buf.readBoolean());
-            }
-        }
-        LevelUpRPG.instance.useServerProperties();
-    }
+//    private void handleConfig(ByteBuf buf) {
+//        Property[] properties = LevelUpRPG.instance.getServerProperties();
+//        for (int i = 0; i < properties.length; i++) {
+//            if (i == 2 || i == 6 || i == 7) {
+//                properties[i].set(buf.readDouble());
+//            } else if (i < 4) {
+//                properties[i].set(buf.readInt());
+//            } else {
+//                properties[i].set(buf.readBoolean());
+//            }
+//        }
+//        LevelUpRPG.instance.useServerProperties();
+//    }
 }

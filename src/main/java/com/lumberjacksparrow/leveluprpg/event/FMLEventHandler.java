@@ -1,5 +1,6 @@
 package com.lumberjacksparrow.leveluprpg.event;
 
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -8,7 +9,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.*;
 import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getFrom;
 
 public final class FMLEventHandler {
@@ -26,8 +26,8 @@ public final class FMLEventHandler {
             return;
         }
         //Give points on level up
-        if (!allowClasses || PlayerExtendedProperties.getPlayerClass(player) != 0) {
-            double diff = PlayerEventHandler.skillPointsPerLevel * (player.experienceLevel - PlayerEventHandler.minLevel) + bonusPoints - PlayerExtendedProperties.getFrom(player).getTotalSkillPoints();
+        if (!ConfigHandler.CLASSES_CONFIG.allowClasses || PlayerExtendedProperties.getPlayerClass(player) != 0) {
+            double diff = ConfigHandler.SKILL_CONFIG.skillPointsGainPerLevel * (player.experienceLevel - ConfigHandler.CLASSES_CONFIG.minLevel) - PlayerExtendedProperties.getFrom(player).getTotalSkillPoints();
             if (diff >= 1.0D) {
                 PlayerExtendedProperties.getFrom(player).addToSkill("UnspentSkillPoints", (int) Math.floor(diff), player);
             }
@@ -49,13 +49,13 @@ public final class FMLEventHandler {
         }
         int focus = LevelUpRPG.getFocus(player);
         // Mana regen: just run the mana regen command each second
-        double amount = ((double)focus)*manaRegenPerIntelligence;
+        double amount = ((double)focus)* ConfigHandler.SKILL_CONFIG.intelligenceBonusManaRegen;
         // Wizards get +4 mana regen per second
         if("wizard".equalsIgnoreCase(getFrom(player).getClassName())) {
-            amount += wizardBonusManaRegen;
+            amount += ConfigHandler.CLASSES_CONFIG.wizardBonusManaRegen;
         }
         if(amount > 0.0f) {
-            String manaRegenCommandFilled = manaRegenCommand.replace("<player>", player.getName()).replace("<amount>", String.valueOf(amount));
+            String manaRegenCommandFilled = ConfigHandler.GENERAL_CONFIG.manaRegenCommand.replace("<player>", player.getName()).replace("<amount>", String.valueOf(amount));
             player.getEntityWorld().getMinecraftServer().commandManager.executeCommand(player.getEntityWorld().getMinecraftServer(), manaRegenCommandFilled);
         }
     }
@@ -83,7 +83,7 @@ public final class FMLEventHandler {
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             loadPlayer(event.player);
-            LevelUpRPG.configChannel.sendTo(SkillPacketHandler.getConfigPacket(LevelUpRPG.instance.getServerProperties()), (EntityPlayerMP) event.player);
+            //LevelUpRPG.configChannel.sendTo(SkillPacketHandler.constructConfigPacket(), (EntityPlayerMP) event.player);
         }
     }
 
@@ -94,7 +94,7 @@ public final class FMLEventHandler {
         if (player instanceof EntityPlayerMP) {
             byte cl = PlayerExtendedProperties.getPlayerClass(player);
             int[] data = PlayerExtendedProperties.getFrom(player).getPlayerData(false);
-            LevelUpRPG.initChannel.sendTo(SkillPacketHandler.getPacket(Side.CLIENT, 0, cl, data), (EntityPlayerMP) player);
+            LevelUpRPG.initChannel.sendTo(SkillPacketHandler.constructPacket(Side.CLIENT, 0, cl, data), (EntityPlayerMP) player);
         }
     }
 }

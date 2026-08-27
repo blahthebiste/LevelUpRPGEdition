@@ -1,6 +1,7 @@
 package com.lumberjacksparrow.leveluprpg.event;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.player.IPlayerClass;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
@@ -18,22 +19,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+import javax.annotation.Nonnull;
+
 public final class PlayerEventHandler {
-
-    /**
-     * Configurable flags related to player death
-     */
-    public static float resetSkillOnDeath = 0.00F;
-    public static boolean resetClassOnDeath = false;
-    /**
-     * How much each level give in skill points
-     */
-    public static double skillPointsPerLevel = 1.0D;
-    /**
-     * Level at which a player can choose a class, and get its first skill points
-     */
-    public final static int minLevel = 4;
-
 
     // CODE FOR MIGHT IMPROVING BARE-HANDED BLOCK BREAK SPEED
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -43,7 +31,7 @@ public final class PlayerEventHandler {
         if (itemstack.isEmpty() && LevelUpRPG.getMight(player) > 0) {
             float speed = event.getNewSpeed(); // This is the original breakspeed
             float might = (float) LevelUpRPG.getMight(event.getEntityPlayer());
-            float breakSpeedMultiplier = 1.0F + (might*0.25F); // 25%(?) bonus break speed per might
+            float breakSpeedMultiplier = (float) (1.0F + (might*ConfigHandler.SKILL_CONFIG.mightBonusBreakSpeed)); // 25%(?) bonus break speed per might
             event.setNewSpeed(speed*breakSpeedMultiplier);
         }
     }
@@ -55,11 +43,11 @@ public final class PlayerEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onDeath(LivingDeathEvent event) {
         if (event.getEntityLiving() instanceof EntityPlayer) {
-            if (resetClassOnDeath) {
+            if (ConfigHandler.CLASSES_CONFIG.resetClassOnDeath) {
                 PlayerExtendedProperties.getFrom((EntityPlayer) event.getEntityLiving()).setPlayerClass((byte) 0, (EntityPlayer) event.getEntityLiving());
             }
-            if (resetSkillOnDeath > 0.00F) {
-                PlayerExtendedProperties.getFrom((EntityPlayer) event.getEntityLiving()).takeSkillFraction(resetSkillOnDeath);
+            if (ConfigHandler.SKILL_CONFIG.resetSkillOnDeath > 0) {
+                PlayerExtendedProperties.getFrom((EntityPlayer) event.getEntityLiving()).takeSkillFraction(ConfigHandler.SKILL_CONFIG.resetSkillOnDeath);
             }
         }
     }
@@ -73,15 +61,15 @@ public final class PlayerEventHandler {
     {
         if(evt.getObject() instanceof EntityPlayer) {
             evt.addCapability(ClassBonus.SKILL_LOCATION, new ICapabilitySerializable<NBTTagCompound>() {
-                IPlayerClass instance = LevelUpCapability.CAPABILITY_CLASS.getDefaultInstance();
+                final IPlayerClass instance = LevelUpCapability.CAPABILITY_CLASS.getDefaultInstance();
 
                 @Override
-                public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+                public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
                     return capability == LevelUpCapability.CAPABILITY_CLASS;
                 }
 
                 @Override
-                public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+                public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
                     return capability == LevelUpCapability.CAPABILITY_CLASS ? LevelUpCapability.CAPABILITY_CLASS.<T>cast(instance) : null;
                 }
 
@@ -103,7 +91,7 @@ public final class PlayerEventHandler {
      */
     @SubscribeEvent
     public void onPlayerClone(PlayerEvent.Clone event) {
-        if (!event.isWasDeath() || !resetClassOnDeath || resetSkillOnDeath < 1.00F) {
+        if (!event.isWasDeath() || !ConfigHandler.CLASSES_CONFIG.resetClassOnDeath || ConfigHandler.SKILL_CONFIG.resetSkillOnDeath < 100) {
             System.out.println("Loading check...");
             NBTTagCompound data = new NBTTagCompound();
             PlayerExtendedProperties.getFrom(event.getOriginal()).saveNBTData(data);

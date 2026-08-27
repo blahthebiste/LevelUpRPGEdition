@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.ID;
@@ -28,7 +29,8 @@ public class ItemRespecBook extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+    @Nonnull
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
         if (!world.isRemote) {
@@ -43,7 +45,7 @@ public class ItemRespecBook extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack itemStack, World world, List<String> list, ITooltipFlag flag) {
+    public void addInformation(@Nonnull ItemStack itemStack, World world, List<String> list, @Nonnull ITooltipFlag flag) {
         list.add(I18n.format("respecbook.normal"));
     }
 

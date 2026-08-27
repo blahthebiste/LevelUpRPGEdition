@@ -4,9 +4,6 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class SkillProxy {
 
-//    public void tryUseMUD() {
-//    }
-
     public void registerGui() {
     }
 

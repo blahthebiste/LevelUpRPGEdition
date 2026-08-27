@@ -25,7 +25,6 @@ public final class GuiClasses extends GuiScreen {
         super.drawScreen(i, j, f);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui() {
         closedWithButton = false;
@@ -42,7 +41,7 @@ public final class GuiClasses extends GuiScreen {
     @Override
     public void onGuiClosed() {
         if (closedWithButton && cl != 0) {
-            FMLProxyPacket packet = SkillPacketHandler.getPacket(Side.SERVER, 1, cl);
+            FMLProxyPacket packet = SkillPacketHandler.constructPacket(Side.SERVER, 1, cl);
             LevelUpRPG.classChannel.sendToServer(packet);
         }
     }

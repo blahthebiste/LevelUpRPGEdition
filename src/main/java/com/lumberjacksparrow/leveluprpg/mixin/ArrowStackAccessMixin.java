@@ -9,6 +9,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface ArrowStackAccessMixin {
 
     @Invoker("getArrowStack")
-    public ItemStack invokeGetArrowStack();
+    ItemStack invokeGetArrowStack();
 
 }

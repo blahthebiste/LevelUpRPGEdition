@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class ItemFullRespecBook extends Item {
     @MethodsReturnNonnullByDefault
     @ParametersAreNonnullByDefault
     @Override
+    @Nonnull
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -47,7 +49,7 @@ public class ItemFullRespecBook extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack itemStack, World world, List<String> list, ITooltipFlag flag) {
+    public void addInformation(@Nonnull ItemStack itemStack, World world, List<String> list, @Nonnull ITooltipFlag flag) {
         list.add(I18n.format("respecbook.canresetclass"));
     }
 }

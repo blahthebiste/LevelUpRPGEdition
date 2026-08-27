@@ -1,7 +1,8 @@
 {
+  "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "package": "com.lumberjacksparrow.leveluprpg.mixin",
-  "refmap": "refmap.leveluprpg.json",
+  "refmap": "mixins.leveluprpg.refmap.json",
   "mixins": [
     "ArrowStackAccessMixin"
   ],

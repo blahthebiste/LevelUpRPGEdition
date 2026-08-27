@@ -13,8 +13,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
 
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.bookOfBenedictionEnabled;
-
 @Mod.EventBusSubscriber(modid = LevelUpRPG.ID)
 public class LevelUpRegistry {
     public static ItemRespecBook respecBook;
@@ -25,7 +23,7 @@ public class LevelUpRegistry {
         respecBook = new ItemRespecBook();
         respecBookFull = new ItemFullRespecBook();
         // Can be disabled in the config
-        if(bookOfBenedictionEnabled) {
+        if(ConfigHandler.GENERAL_CONFIG.bookOfBenedictionEnabled) {
             clericBook = new ItemClericBook();
         }
     }
@@ -34,11 +32,11 @@ public class LevelUpRegistry {
     public static void registerItems(RegistryEvent.Register<Item> evt) {
         evt.getRegistry().register(respecBook);
         // Only register this item if classes are enabled
-        if(LevelUpRPG.allowClasses) {
+        if(ConfigHandler.CLASSES_CONFIG.allowClasses) {
             evt.getRegistry().register(respecBookFull);
         }
         // Can be disabled in the config
-        if(bookOfBenedictionEnabled) {
+        if(ConfigHandler.GENERAL_CONFIG.bookOfBenedictionEnabled) {
             evt.getRegistry().register(clericBook);
         }
     }
@@ -47,11 +45,11 @@ public class LevelUpRegistry {
     public static void onModelRegister(ModelRegistryEvent event) {
         registerRender(respecBook);
         // Only register this item if classes are enabled
-        if(LevelUpRPG.allowClasses) {
+        if(ConfigHandler.CLASSES_CONFIG.allowClasses) {
             registerRender(respecBookFull);
         }
         // Can be disabled in the config
-        if(bookOfBenedictionEnabled) {
+        if(ConfigHandler.GENERAL_CONFIG.bookOfBenedictionEnabled) {
             registerRender(clericBook);
         }
     }

@@ -1,6 +1,7 @@
 package com.lumberjacksparrow.leveluprpg.gui;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.event.SkillPacketHandler;
 import com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties;
@@ -10,8 +11,6 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
 import static com.lumberjacksparrow.leveluprpg.player.PlayerExtendedProperties.getPlayerClass;
 
 public final class GuiSkills extends GuiScreen {
@@ -31,7 +30,7 @@ public final class GuiSkills extends GuiScreen {
             mc.displayGuiScreen(null);
             mc.setIngameFocus();
         } else if (guibutton.id < 21) {
-            if (getTotalSkillLevelPlusPending(skillChanges.length - 1) > 0 && getTotalSkillLevelPlusPending(guibutton.id - 1) < maxPointsPerSkill) {
+            if (getTotalSkillLevelPlusPending(skillChanges.length - 1) > 0 && getTotalSkillLevelPlusPending(guibutton.id - 1) < ConfigHandler.SKILL_CONFIG.maxPointsPerSkill) {
 //                if(guibutton.id < 7) { // Class skills
 //                    skills[guibutton.id + (cl * 6) - 1]++;
 //                }
@@ -84,15 +83,15 @@ public final class GuiSkills extends GuiScreen {
 //                drawCenteredString(fontRenderer, I18n.format("skill" + x + ".name") + ": " + getSkillOffset(x-1), width / 2 + offset, 20 + 32 * (x-1), 0xffffff);
 //            }
 //        }
-        for (Object button : buttonList) {
-            int l = ((GuiButton) button).id;
+        for (GuiButton button : buttonList) {
+            int l = button.id;
             if (l < 1 || l > 99) {
                 continue;
             }
             if (l > 20) {
                 l -= 20;
             }
-            if (((GuiButton) button).mousePressed(mc, i, j)) { //1-12 are the skills
+            if (button.mousePressed(mc, i, j)) { //1-12 are the skills
 //                if(l < 7) { // Class skills
 //                    skillDescription1 = I18n.format("skill" + (l + (cl * 6)) + ".tooltip1");
 //                    skillDescription2 = I18n.format("skill" + (l + (cl * 6)) + ".tooltip2");
@@ -128,7 +127,7 @@ public final class GuiSkills extends GuiScreen {
     @Override
     public void onGuiClosed() {
         if (closedWithButton && skillChanges[skillChanges.length - 1] != 0) {
-            FMLProxyPacket packet = SkillPacketHandler.getPacket(Side.SERVER, 2, (byte) -1, skillChanges);
+            FMLProxyPacket packet = SkillPacketHandler.constructPacket(Side.SERVER, 2, (byte) -1, skillChanges);
             LevelUpRPG.skillChannel.sendToServer(packet);
         }
     }

@@ -1,6 +1,7 @@
 package com.lumberjacksparrow.leveluprpg.player;
 
 import com.lumberjacksparrow.leveluprpg.ClassBonus;
+import com.lumberjacksparrow.leveluprpg.ConfigHandler;
 import com.lumberjacksparrow.leveluprpg.LevelUpRPG;
 import com.lumberjacksparrow.leveluprpg.capabilities.LevelUpCapability;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -15,8 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static com.lumberjacksparrow.leveluprpg.LevelUpRPG.maxPointsPerSkill;
-
 public final class PlayerExtendedProperties implements IPlayerClass
 {
     private byte playerClass;
@@ -27,7 +26,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
     private static final UUID attackDamage_UUID = UUID.fromString("a4dc0b04-f78a-43f6-8805-5ebfaab10b18");
     private static final UUID maxHP_UUID = UUID.fromString("34dc0b04-f48a-43f6-8805-5ebfaab10b18");
     private static final UUID toughness_UUID = UUID.fromString("24dc0b04-f48a-43f6-8805-5ebfaab10b18");
-    private Map<String, Integer> skillMap = new HashMap<>();
+    private final Map<String, Integer> skillMap = new HashMap<>();
 
     public PlayerExtendedProperties() {
         for (String name : ClassBonus.skillNames)
@@ -71,11 +70,11 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 IAttributeInstance luckAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.LUCK);
                 int luck = LevelUpRPG.getLuck(player);
                 if (luck != 0) {
-                    // Add luck at a 1-to-1 ratio
+                    // Add luck at the configured ratio
                     if (luckAttributeInstance.getModifier(luck_UUID) != null) {
                         luckAttributeInstance.removeModifier(luck_UUID);
                     }
-                    mod = new AttributeModifier(luck_UUID, "BonusLuckFromSkill", luck, 0);
+                    mod = new AttributeModifier(luck_UUID, "BonusLuckFromSkill", (luck*ConfigHandler.SKILL_CONFIG.luckBonusPerLuck), 0);
                     luckAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -84,11 +83,11 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 IAttributeInstance attackDamageAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
                 int might = LevelUpRPG.getMight(player);
                 if (might != 0) {
-                    // Add +0.25 melee damage per point of might
+                    // Add configured amount (default +0.25) melee damage per point of might
                     if (attackDamageAttributeInstance.getModifier(attackDamage_UUID) != null) {
                         attackDamageAttributeInstance.removeModifier(attackDamage_UUID);
                     }
-                    mod = new AttributeModifier(attackDamage_UUID, "BonusMightFromSkill", might * 0.25F, 0);
+                    mod = new AttributeModifier(attackDamage_UUID, "BonusMightFromSkill", might * ConfigHandler.SKILL_CONFIG.mightBonusMeleeDamage, 0);
                     attackDamageAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -98,18 +97,18 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 if (vitality != 0) {
                     IAttributeInstance maxHPAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
                     IAttributeInstance toughnessAttributeInstance = player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
-                    // Add max HP at a 1-to-1 ratio
+                    // Add max HP at the configured ratio
                     if (maxHPAttributeInstance.getModifier(maxHP_UUID) != null) {
                         maxHPAttributeInstance.removeModifier(maxHP_UUID);
                     }
-                    mod = new AttributeModifier(maxHP_UUID, "BonusMaxHPFromSkill", vitality, 0);
+                    mod = new AttributeModifier(maxHP_UUID, "BonusMaxHPFromSkill", vitality*ConfigHandler.SKILL_CONFIG.vitalityHPBonus, 0);
                     maxHPAttributeInstance.applyModifier(mod);
                     // Toughness modifier
                     // Add 1 toughness per 10 Vitality
                     if (toughnessAttributeInstance.getModifier(toughness_UUID) != null) {
                         toughnessAttributeInstance.removeModifier(toughness_UUID);
                     }
-                    mod = new AttributeModifier(toughness_UUID, "BonusToughnessFromSkill", (vitality / 10.0F), 0);
+                    mod = new AttributeModifier(toughness_UUID, "BonusToughnessFromSkill", (vitality * ConfigHandler.SKILL_CONFIG.vitalityToughnessBonus), 0);
                     toughnessAttributeInstance.applyModifier(mod);
                 }
                 break;
@@ -117,7 +116,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
                 int focus = LevelUpRPG.getFocus(player);
                 if(focus != 0) {
                     // Max mana:
-                    String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+(10+(focus*10));
+                    String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+(ConfigHandler.GENERAL_CONFIG.baseMana+(focus*ConfigHandler.SKILL_CONFIG.intelligenceBonusMana));
                     server.commandManager.executeCommand(server, maxManaCommand);
                 }
                 break;
@@ -192,13 +191,13 @@ public final class PlayerExtendedProperties implements IPlayerClass
             }
             // Check for Druid. Run the command to grant them morphing
             if(newClass == 3) {
-                String grantMorphingCommand = "/morph enable " + player.getName();
+                String grantMorphingCommand = ConfigHandler.CLASSES_CONFIG.druidGrantMorphAbilityCommand.replace("<player>", player.getName());
                 server.commandManager.executeCommand(server, grantMorphingCommand);
             }
             else {
-                String removeMorphingCommand = "/morph disable " + player.getName();
+                String removeMorphingCommand = ConfigHandler.CLASSES_CONFIG.druidRemoveMorphAbilityCommand.replace("<player>", player.getName());
                 server.commandManager.executeCommand(server, removeMorphingCommand);
-                String forceDemorphCommand = "/morph demorph " + player.getName() + " true";
+                String forceDemorphCommand = ConfigHandler.CLASSES_CONFIG.druidForceDemorphCommand.replace("<player>", player.getName());
                 server.commandManager.executeCommand(server, forceDemorphCommand);
             }
         }
@@ -209,8 +208,8 @@ public final class PlayerExtendedProperties implements IPlayerClass
             if (name.equals("UnspentSkillPoints"))
                 continue;
             int j = skillMap.get(name);
-            if (j > maxPointsPerSkill) {
-                skillMap.put(name, maxPointsPerSkill);
+            if (j > ConfigHandler.SKILL_CONFIG.maxPointsPerSkill) {
+                skillMap.put(name, ConfigHandler.SKILL_CONFIG.maxPointsPerSkill);
             }
         }
     }
@@ -294,7 +293,7 @@ public final class PlayerExtendedProperties implements IPlayerClass
         if(server == null) {
             return;
         }
-        String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" 10";
+        String maxManaCommand = "/setPlayerMaxMana "+player.getName()+" "+ConfigHandler.GENERAL_CONFIG.baseMana;
         server.commandManager.executeCommand(server, maxManaCommand);
     }
 }
