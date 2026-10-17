@@ -19,11 +19,17 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.logging.Logger;
 
-@Mod(modid = LevelUpRPG.ID, name = "${mod_name}", version = "${version}")
-public final class LevelUpRPG {
-    public final static String ID = "leveluprpg";
-    @Instance(value = ID)
-    public static LevelUpRPG instance;
+@Mod(
+        modid = Tags.MODID,
+        version = Tags.VERSION,
+        name = Tags.NAME,
+        dependencies =
+                "required:betterconfig@[1.3.0,)"
+)
+public class LevelUpRPG {
+    public static String ID = "leveluprpg";
+//    @Instance(value = ID)
+//    public static LevelUpRPG instance;
     @SidedProxy(clientSide = "com.lumberjacksparrow.leveluprpg.proxy.SkillClientProxy", serverSide = "com.lumberjacksparrow.leveluprpg.proxy.SkillProxy")
     public static SkillProxy proxy;
     public static FMLEventChannel initChannel, skillChannel, classChannel;

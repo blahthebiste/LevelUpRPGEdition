@@ -8,7 +8,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@BetterConfig(modid = LevelUpRPG.ID)
+@BetterConfig(modid = Tags.MODID)
 public class ConfigHandler {
 
     @Config.Comment("Misc/General Options and tweaks")
@@ -76,7 +76,7 @@ public class ConfigHandler {
     public static class SkillConfig {
 
         @Config.Comment("Example: at 0.4, 20 points of Finesse would improve draw speed by 80%.")
-        @Config.Name("Draw-speed bonus% per point of Finesse")
+        @Config.Name("Draw-speed bonus %% per point of Finesse")
         public double finesseDrawSpeedBonus = 0.4;
 
         @Config.Comment("Example: at 0.2, 5 points of Finesse would reduce fall damage by 1.")
@@ -119,8 +119,8 @@ public class ConfigHandler {
         @Config.Name("Bonus melee damage per point of Might")
         public double mightBonusMeleeDamage = 0.25;
 
-        @Config.Comment("Note that most vanilla mobs have an aggro range of 16, except zombies who can see you from 35 blocks away.")
-        @Config.Name("Reduce mob aggro range (in blocks) per point of Sneak (while sneaking)")
+        @Config.Comment("In blocks. Only has an effect while sneaking. Note that most vanilla mobs have an aggro range of 16, except zombies who can see you from 35 blocks away.")
+        @Config.Name("Reduce mob aggro range per point of Sneak")
         public double sneakAggroRangeReduction = 1.75;
 
         @Config.Comment("Example: at 0.075, 1 point of Sneak would increase your crit damage multiplier from 1.5x to 1.575x.")
@@ -189,13 +189,13 @@ public class ConfigHandler {
         public boolean renderExpBar = true;
     }
 
-    @Mod.EventBusSubscriber(modid = LevelUpRPG.ID)
+    @Mod.EventBusSubscriber(modid = Tags.MODID)
     private static class EventHandler{
 
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if(event.getModID().equals(LevelUpRPG.ID)) {
-                BetterConfigManager.sync(LevelUpRPG.ID);
+            if(event.getModID().equals(Tags.MODID)) {
+                BetterConfigManager.sync(Tags.MODID);
             }
         }
     }

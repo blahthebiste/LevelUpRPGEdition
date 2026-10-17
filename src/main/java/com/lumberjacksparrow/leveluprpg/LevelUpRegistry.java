@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
 
-@Mod.EventBusSubscriber(modid = LevelUpRPG.ID)
+@Mod.EventBusSubscriber(modid = Tags.MODID)
 public class LevelUpRegistry {
     public static ItemRespecBook respecBook;
     public static ItemFullRespecBook respecBookFull;
